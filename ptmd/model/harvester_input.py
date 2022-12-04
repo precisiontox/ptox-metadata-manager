@@ -1,3 +1,8 @@
+""" This module contains the class for the input of the harvester.
+
+@author: Terazus (D. Batista)
+"""
+
 from re import match
 from typing import List
 from datetime import datetime
@@ -17,6 +22,9 @@ from ptmd.model.utils import get_field_name
 
 
 class HarvesterInput:
+    """ A class to represent the input for the harvester and generate the pandas DataFrame and Excel files.
+
+    """
     def __init__(self,
                  partner: str,
                  organism: str,
@@ -27,6 +35,18 @@ class HarvesterInput:
                  start_date: str or datetime,
                  end_date: str or datetime,
                  exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
+        """ The harvester constructor
+
+        :param partner: precision tox code of the partner
+        :param organism: precision tox code of the organism
+        :param exposure_batch: ???
+        :param replicate4exposure: number of replicates for the exposure
+        :param replicate4control: number of replicates for the control
+        :param replicate_blank: number of blanks
+        :param start_date:
+        :param end_date:
+        :param exposure_conditions: list of chemical names and doses
+        """
         self.partner = partner
         self.organism = organism
         self.exposure_conditions = exposure_conditions if exposure_conditions else []
@@ -243,6 +263,10 @@ class HarvesterInput:
         raise InputTypeError(datetime, value, get_field_name(self, 'end_date'))
 
     def __iter__(self):
+        """ Iterator for the class. Used to serialize the object to a dictionary.
+
+        :return: The iterator.
+        """
         iters = {
             'partner': self.partner,
             'organism': self.organism,
@@ -257,7 +281,11 @@ class HarvesterInput:
         for key, value in iters.items():
             yield key, value
 
-    def to_dataframe(self):
+    def to_dataframe(self) -> DataFrame:
+        """ Convert the object to a pandas DataFrame.
+
+        :return: The pandas DataFrame.
+        """
         sample_dataframe = DataFrame(columns=SAMPLE_SHEET_BASE_COLUMNS)
         for chemical in self.exposure_conditions:
             series = Series([
@@ -274,6 +302,7 @@ class HarvesterInput:
         """ Save the sample sheet to a file.
 
         :param path: The path to the file.
+        :return: The path to the file the sample sheet was saved to.
         """
         sample_dataframe = self.to_dataframe()
         sample_dataframe.to_excel(excel_writer=path,
