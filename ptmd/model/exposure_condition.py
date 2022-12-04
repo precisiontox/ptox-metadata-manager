@@ -6,6 +6,11 @@ from ptmd.model.utils import get_field_name
 class ExposureCondition:
 
     def __init__(self, chemical_name: str, dose: str) -> None:
+        """ Exposition with a chemical as a given dose.
+
+        :param chemical_name:
+        :param dose:
+        """
         self.chemical_name = chemical_name
         self.dose = dose
 
@@ -49,13 +54,27 @@ class ExposureCondition:
             raise InputValueError(ALLOWED_DOSE_VALUES, value, get_field_name(self, 'dose'))
         self.__dose = value
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
+        """ Equality operator.
+
+        :param other: The other object to compare to.
+        :return: True if the objects are equal, False otherwise.
+        """
         return self.__dose == other.__dose and self.__chemical_name == other.__chemical_name
 
     def __ne__(self, other):
+        """ Inequality operator.
+
+        :param other: The other object to compare to.
+        :return: True if the objects are not equal, False otherwise.
+        """
         return not self.__eq__(other)
 
-    def __iter__(self):
+    def __iter__(self) -> iter:
+        """ Iterator for the object. Used to serialize the object as a dictionary.
+
+        :return: The iterator.
+        """
         iters = {
             'chemical_name': self.__chemical_name,
             'dose': self.__dose
