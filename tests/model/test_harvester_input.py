@@ -1,6 +1,8 @@
 from unittest import TestCase
 from datetime import datetime
 
+from dateutil import parser as parseDate
+
 from ptmd.model import HarvesterInput
 from ptmd.model.exposure_condition import ExposureCondition
 from ptmd.model.const import (
@@ -240,6 +242,8 @@ class TestHarvesterInput(TestCase):
             'replicate_blank': REPLICATES_BLANK,
             'start_date': START_DATE, 'end_date': END_DATE
         }
+        start_date = parseDate.parse(START_DATE)
+        end_date = parseDate.parse(END_DATE)
         exposure_conditions = [ExposureCondition(**exposure_condition)]
         harvester = HarvesterInput(partner=PARTNER,
                                    organism=ORGANISM,
@@ -248,5 +252,5 @@ class TestHarvesterInput(TestCase):
                                    replicate4exposure=REPLICATES_EXPOSURE,
                                    replicate4control=REPLICATES_CONTROL,
                                    replicate_blank=REPLICATES_BLANK,
-                                   start_date=START_DATE, end_date=END_DATE)
+                                   start_date=start_date, end_date=end_date)
         self.assertEqual(expected, dict(harvester))
