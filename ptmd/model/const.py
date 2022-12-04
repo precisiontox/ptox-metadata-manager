@@ -1,3 +1,7 @@
+""" This module initializes all the constants need by the metadata harvester
+
+@author: Terazus (D. Batista)
+"""
 from os import path
 from json import loads
 from collections import namedtuple

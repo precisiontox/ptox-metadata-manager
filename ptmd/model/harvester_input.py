@@ -1,3 +1,8 @@
+""" This module contains the class for the input of the harvester.
+
+@author: Terazus (D. Batista)
+"""
+
 from re import match
 from typing import List
 from datetime import datetime
@@ -17,6 +22,9 @@ from ptmd.model.utils import get_field_name
 
 
 class HarvesterInput:
+    """ A class to represent the input for the harvester and generate the pandas DataFrame and Excel files.
+
+    """
     def __init__(self,
                  partner: str,
                  organism: str,
@@ -27,7 +35,7 @@ class HarvesterInput:
                  start_date: str or datetime,
                  end_date: str or datetime,
                  exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
-        """ A class to represent the input for the harvester and generate the pandas DataFrame and Excel files.
+        """ The harvester constructor
 
         :param partner: precision tox code of the partner
         :param organism: precision tox code of the organism
@@ -255,6 +263,10 @@ class HarvesterInput:
         raise InputTypeError(datetime, value, get_field_name(self, 'end_date'))
 
     def __iter__(self):
+        """ Iterator for the class. Used to serialize the object to a dictionary.
+
+        :return: The iterator.
+        """
         iters = {
             'partner': self.partner,
             'organism': self.organism,

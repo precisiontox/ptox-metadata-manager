@@ -1,9 +1,14 @@
+""" This module contains the ExposureCondition class.
+
+@author: Terazus (D. Batista)
+"""
 from ptmd.model.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
 from ptmd.model.exceptions import InputTypeError, InputValueError
 from ptmd.model.utils import get_field_name
 
 
 class ExposureCondition:
+    """ The ExposureCondition is an object with a chemical name and a dose value. """
 
     def __init__(self, chemical_name: str, dose: str) -> None:
         """ Exposition with a chemical as a given dose.
