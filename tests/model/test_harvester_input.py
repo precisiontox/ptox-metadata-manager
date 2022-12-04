@@ -176,3 +176,21 @@ class TestHarvesterInput(TestCase):
         self.assertEqual(
             "The exposure condition must be a dict or an ExposureCondition object",
             str(context.exception))
+
+    def test_to_dict(self):
+        expected = {
+            'partner': 'partner1', 'organism': 'organism1',
+            'exposure_conditions': [{'chemical_name': 'chemical1', 'dose': '0'}],
+            'exposure_batch': 'AA', 'replicate4exposure': 4, 'replicate4control': 4, 'replicate_blank': 2
+        }
+        exposure_condition = {'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE}
+        exposure_conditions = [ExposureCondition(**exposure_condition)]
+        harvester = HarvesterInput(partner=PARTNER,
+                                   organism=ORGANISM,
+                                   exposure_conditions=exposure_conditions,
+                                   exposure_batch=EXPOSURE_BATCH,
+                                   replicate4exposure=REPLICATES_EXPOSURE,
+                                   replicate4control=REPLICATES_CONTROL,
+                                   replicate_blank=REPLICATES_BLANK)
+        self.assertEqual(expected, dict(harvester))
+

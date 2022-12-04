@@ -20,7 +20,7 @@ class HarvesterInput:
                  replicate4exposure: int,
                  replicate4control: int,
                  replicate_blank: int,
-                 exposure_conditions: List[dict] = None) -> None:
+                 exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
         self.partner = partner
         self.organism = organism
         self.exposure_conditions = exposure_conditions if exposure_conditions else []
@@ -83,10 +83,12 @@ class HarvesterInput:
 
         :param value: The exposure.
         """
+        self.__exposure_conditions = []
         if not isinstance(value, list) or not all(isinstance(x, (dict, ExposureCondition)) for x in value):
             raise TypeError("HarvesterInput.exposure must be a list of ExposureCondition or dict but "
                             "got %s with value %s" % (type(value).__name__, value))
-        self.__exposure_conditions = [ExposureCondition(**exposure) for exposure in value]
+        for exposure_condition in value:
+            self.add_exposure_condition(exposure_condition)
 
     def add_exposure_condition(self, exposure: dict or ExposureCondition) -> None:
         """ Add an exposure condition.
@@ -181,3 +183,16 @@ class HarvesterInput:
             raise InputRangeError(REPLICATES_BLANK_RANGE,
                                   value, get_field_name(self, 'replicate_blank'))
         self.__replicate_blank = value
+
+    def __iter__(self):
+        iters = {
+            'partner': self.partner,
+            'organism': self.organism,
+            'exposure_conditions': [dict(exposure_condition) for exposure_condition in self.exposure_conditions],
+            'exposure_batch': self.exposure_batch,
+            'replicate4exposure': self.replicate4exposure,
+            'replicate4control': self.replicate4control,
+            'replicate_blank': self.replicate_blank
+        }
+        for key, value in iters.items():
+            yield key, value
