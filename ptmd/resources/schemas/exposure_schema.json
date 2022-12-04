@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rawgithub.com/...",
+  "type": "object",
+  "description": "A JSON Schema representing an exposure condition",
+  "properties": {
+      "chemical": {
+        "type": "string",
+        "enum": ["chemical1", "chemical2", "chemical3"],
+        "description": "The chemical name."
+      },
+      "dose": {
+          "type": "string",
+          "enum": ["0", "BMD10", "BMD25", "10mg/L"]
+      }
+}
+}

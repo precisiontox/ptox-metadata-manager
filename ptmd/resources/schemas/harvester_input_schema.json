@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rawgithub.com/...",
+  "type": "object",
+  "description": "A schema to represent the input data required by the metadata harvester.",
+  "properties": {
+      "partner": {
+        "type": "string",
+        "enum": ["partner1", "partner2", "partner3"],
+        "description": "The partner name generating the samples."
+      },
+      "organism": {
+        "type": "string",
+        "enum": ["organism1", "organism2", "organism3"],
+        "description": "The organism code from which the samples were generated."
+      },
+      "exposure_batch": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z]$"
+      },
+      "replicates4exposure": {
+        "type": "number",
+        "minimum": 4
+      },
+      "replicates4control": {
+        "type": "number",
+        "minimum": 4
+      },
+      "time_points": [],
+      "exposure": {
+          "type": "array",
+          "description": "The exposure represent a list of chemical names and doses.",
+          "items": {
+              "$ref": "exposure_schema.json#"
+          }
+      },
+      "replicates_blank": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3
+      }
+  }
+}
