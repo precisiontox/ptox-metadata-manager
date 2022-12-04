@@ -4,8 +4,6 @@ from ptmd.model.utils import get_field_name
 
 
 class ExposureCondition:
-    __chemical_name: str or None = None
-    __dose: str or None = None
 
     def __init__(self, chemical_name: str, dose: str) -> None:
         self.chemical_name = chemical_name
