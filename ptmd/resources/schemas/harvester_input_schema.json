@@ -37,9 +37,17 @@
           }
       },
       "replicates_blank": {
-        "type": "integer",
+        "type": "number",
         "minimum": 1,
         "maximum": 3
+      },
+      "start_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "end_date": {
+          "type": "string",
+          "format": "date"
       }
   }
 }
