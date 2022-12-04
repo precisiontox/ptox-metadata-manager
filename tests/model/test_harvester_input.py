@@ -53,7 +53,7 @@ class TestHarvesterInput(TestCase):
 
     def test_constructor_errors_with_exposure_conditions(self):
         exposure_conditions = [{'foo': 'bar'}]
-        error = "ExposureCondition.__init__() got an unexpected keyword argument 'foo'"
+        error = "__init__() got an unexpected keyword argument 'foo'"
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER,
                            organism=ORGANISM,
@@ -61,7 +61,7 @@ class TestHarvesterInput(TestCase):
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK)
-        self.assertEqual(error, str(context.exception))
+        self.assertIn(error, str(context.exception))
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER,
                            organism=ORGANISM,

@@ -1,5 +1,7 @@
 from re import match
 
+from typing import List
+
 from ptmd.model.const import (
     ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN,
@@ -18,7 +20,7 @@ class HarvesterInput:
                  replicate4exposure: int,
                  replicate4control: int,
                  replicate_blank: int,
-                 exposure_conditions: list[dict] = None) -> None:
+                 exposure_conditions: List[dict] = None) -> None:
         self.partner = partner
         self.organism = organism
         self.exposure_conditions = exposure_conditions if exposure_conditions else []
@@ -68,7 +70,7 @@ class HarvesterInput:
         self.__organism = value
 
     @property
-    def exposure_conditions(self) -> list[ExposureCondition]:
+    def exposure_conditions(self) -> List[ExposureCondition]:
         """ Getter for the exposure.
 
         :return: The exposure.
@@ -174,7 +176,6 @@ class HarvesterInput:
         """
         if not isinstance(value, int):
             raise InputTypeError(int, value, get_field_name(self, 'replicate_blank'))
-        print(REPLICATES_BLANK_RANGE)
         if value < REPLICATES_BLANK_RANGE.min or value > REPLICATES_BLANK_RANGE.max:
             raise InputRangeError(REPLICATES_BLANK_RANGE,
                                   value, get_field_name(self, 'replicate_blank'))
