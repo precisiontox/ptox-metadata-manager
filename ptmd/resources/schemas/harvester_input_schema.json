@@ -6,7 +6,9 @@
   "properties": {
       "partner": {
         "type": "string",
-        "enum": ["partner1", "partner2", "partner3"],
+        "enum": [
+          "KIT", "IUB", "UFZ", "WF", "NIH", "CLU", "LEITAT", "UOB"
+        ],
         "description": "The partner name generating the samples."
       },
       "organism": {
@@ -35,9 +37,17 @@
           }
       },
       "replicates_blank": {
-        "type": "integer",
+        "type": "number",
         "minimum": 1,
         "maximum": 3
+      },
+      "start_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "end_date": {
+          "type": "string",
+          "format": "date"
       }
   }
 }

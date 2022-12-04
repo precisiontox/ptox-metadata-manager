@@ -1,6 +1,8 @@
 from re import match
-
 from typing import List
+from datetime import datetime
+
+from dateutil import parser as parseDate
 
 from ptmd.model.const import (
     ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH,
@@ -20,7 +22,9 @@ class HarvesterInput:
                  replicate4exposure: int,
                  replicate4control: int,
                  replicate_blank: int,
-                 exposure_conditions: List[dict] = None) -> None:
+                 start_date: str or datetime,
+                 end_date: str or datetime,
+                 exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
         self.partner = partner
         self.organism = organism
         self.exposure_conditions = exposure_conditions if exposure_conditions else []
@@ -28,6 +32,8 @@ class HarvesterInput:
         self.replicate4exposure = replicate4exposure
         self.replicate4control = replicate4control
         self.replicate_blank = replicate_blank
+        self.start_date = start_date
+        self.end_date = end_date
 
     @property
     def partner(self) -> str:
@@ -83,9 +89,12 @@ class HarvesterInput:
 
         :param value: The exposure.
         """
-        if not isinstance(value, list):
-            raise InputTypeError(list, value, get_field_name(self, 'exposure'))
-        self.__exposure_conditions = [ExposureCondition(**exposure) for exposure in value]
+        self.__exposure_conditions = []
+        if not isinstance(value, list) or not all(isinstance(x, (dict, ExposureCondition)) for x in value):
+            raise TypeError("HarvesterInput.exposure must be a list of ExposureCondition or dict but "
+                            "got %s with value %s" % (type(value).__name__, value))
+        for exposure_condition in value:
+            self.add_exposure_condition(exposure_condition)
 
     def add_exposure_condition(self, exposure: dict or ExposureCondition) -> None:
         """ Add an exposure condition.
@@ -180,3 +189,68 @@ class HarvesterInput:
             raise InputRangeError(REPLICATES_BLANK_RANGE,
                                   value, get_field_name(self, 'replicate_blank'))
         self.__replicate_blank = value
+
+    @property
+    def start_date(self) -> datetime:
+        """ Getter for the start date.
+
+        :return: The start date.
+        """
+        return self.__start_date
+
+    @start_date.setter
+    def start_date(self, value: datetime) -> None:
+        """ Setter for the start date.
+
+        :param value: The start date.
+        """
+        if isinstance(value, datetime):
+            self.__start_date = value
+            return
+        elif isinstance(value, str):
+            try:
+                self.__start_date = parseDate.parse(value)
+                return
+            except ValueError:
+                raise InputTypeError(datetime, value, get_field_name(self, 'start_date'))
+        raise InputTypeError(datetime, value, get_field_name(self, 'start_date'))
+
+    @property
+    def end_date(self) -> datetime:
+        """ Getter for the end date.
+
+        :return: The end date.
+        """
+        return self.__end_date
+
+    @end_date.setter
+    def end_date(self, value: datetime) -> None:
+        """ Setter for the end date.
+
+        :param value: The end date.
+        """
+        if isinstance(value, datetime):
+            self.__end_date = value
+            return
+        elif isinstance(value, str):
+            try:
+                self.__end_date = parseDate.parse(value)
+                return
+            except ValueError:
+                raise InputTypeError(datetime, value, get_field_name(self, 'end_date'))
+        raise InputTypeError(datetime, value, get_field_name(self, 'end_date'))
+
+    def __iter__(self):
+        iters = {
+            'partner': self.partner,
+            'organism': self.organism,
+            'exposure_conditions': [dict(exposure_condition) for exposure_condition in self.exposure_conditions],
+            'exposure_batch': self.exposure_batch,
+            'replicate4exposure': self.replicate4exposure,
+            'replicate4control': self.replicate4control,
+            'replicate_blank': self.replicate_blank,
+            'start_date': self.start_date.strftime('%Y-%m-%d'),
+            'end_date': self.end_date.strftime('%Y-%m-%d')
+        }
+        for key, value in iters.items():
+            yield key, value

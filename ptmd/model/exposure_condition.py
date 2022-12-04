@@ -54,3 +54,11 @@ class ExposureCondition:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __iter__(self):
+        iters = {
+            'chemical_name': self.__chemical_name,
+            'dose': self.__dose
+        }
+        for key, value in iters.items():
+            yield key, value
