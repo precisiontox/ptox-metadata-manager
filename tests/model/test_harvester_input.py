@@ -11,7 +11,8 @@ from ptmd.model.const import (
     ALLOWED_CHEMICAL_NAMES,
     ALLOWED_DOSE_VALUES,
     REPLICATES_EXPOSURE_MIN,
-    REPLICATES_BLANK_RANGE
+    REPLICATES_BLANK_RANGE,
+    SAMPLE_SHEET_BASE_COLUMNS
 )
 
 
@@ -254,3 +255,19 @@ class TestHarvesterInput(TestCase):
                                    replicate_blank=REPLICATES_BLANK,
                                    start_date=start_date, end_date=end_date)
         self.assertEqual(expected, dict(harvester))
+
+    def test_to_dataframe(self):
+        exposure_conditions = [ExposureCondition(**{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE})]
+        harvester = HarvesterInput(partner=PARTNER,
+                                   organism=ORGANISM,
+                                   exposure_conditions=exposure_conditions,
+                                   exposure_batch=EXPOSURE_BATCH,
+                                   replicate4exposure=REPLICATES_EXPOSURE,
+                                   replicate4control=REPLICATES_CONTROL,
+                                   replicate_blank=REPLICATES_BLANK,
+                                   start_date=START_DATE, end_date=END_DATE)
+        sample_dataframe = harvester.to_dataframe()
+        for col in SAMPLE_SHEET_BASE_COLUMNS:
+            self.assertIn(col, sample_dataframe.columns)
+        self.assertEqual(1, len(sample_dataframe.index))
+        self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
