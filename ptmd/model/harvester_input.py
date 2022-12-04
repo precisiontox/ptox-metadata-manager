@@ -83,8 +83,9 @@ class HarvesterInput:
 
         :param value: The exposure.
         """
-        if not isinstance(value, list):
-            raise InputTypeError(list, value, get_field_name(self, 'exposure'))
+        if not isinstance(value, list) or not all(isinstance(x, (dict, ExposureCondition)) for x in value):
+            raise TypeError("HarvesterInput.exposure must be a list of ExposureCondition or dict but "
+                            "got %s with value %s" % (type(value).__name__, value))
         self.__exposure_conditions = [ExposureCondition(**exposure) for exposure in value]
 
     def add_exposure_condition(self, exposure: dict or ExposureCondition) -> None:

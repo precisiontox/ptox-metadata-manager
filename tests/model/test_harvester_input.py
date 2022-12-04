@@ -69,7 +69,18 @@ class TestHarvesterInput(TestCase):
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK)
-        self.assertEqual("HarvesterInput.exposure must be a list but got str with value foo", str(context.exception))
+        self.assertEqual("HarvesterInput.exposure must be a list of ExposureCondition or dict but got str with value "
+                         "foo", str(context.exception))
+
+        with self.assertRaises(TypeError) as context:
+            HarvesterInput(partner=PARTNER,
+                           organism=ORGANISM,
+                           exposure_conditions=['foo', 'bar'],
+                           exposure_batch=EXPOSURE_BATCH,
+                           replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                           replicate_blank=REPLICATES_BLANK)
+        self.assertEqual("HarvesterInput.exposure must be a list of ExposureCondition or dict but got list "
+                         "with value ['foo', 'bar']", str(context.exception))
 
     def test_constructor_errors_with_exposure_batch(self):
         with self.assertRaises(TypeError) as context:
