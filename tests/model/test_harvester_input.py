@@ -193,4 +193,3 @@ class TestHarvesterInput(TestCase):
                                    replicate4control=REPLICATES_CONTROL,
                                    replicate_blank=REPLICATES_BLANK)
         self.assertEqual(expected, dict(harvester))
-
