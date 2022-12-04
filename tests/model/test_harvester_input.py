@@ -1,7 +1,8 @@
+from os import path
 from unittest import TestCase
 from datetime import datetime
 
-from dateutil import parser as parseDate
+from dateutil.parser import parse as parse_date
 
 from ptmd.model import HarvesterInput
 from ptmd.model.exposure_condition import ExposureCondition
@@ -11,7 +12,8 @@ from ptmd.model.const import (
     ALLOWED_CHEMICAL_NAMES,
     ALLOWED_DOSE_VALUES,
     REPLICATES_EXPOSURE_MIN,
-    REPLICATES_BLANK_RANGE
+    REPLICATES_BLANK_RANGE,
+    SAMPLE_SHEET_BASE_COLUMNS
 )
 
 
@@ -26,6 +28,7 @@ REPLICATES_BLANK = 2
 START_DATE = '2018-01-01'
 END_DATE = '2019-01-02'
 CLASS_NAME = HarvesterInput.__name__
+HERE = path.dirname(path.abspath(__file__))
 
 
 class TestHarvesterInput(TestCase):
@@ -242,8 +245,8 @@ class TestHarvesterInput(TestCase):
             'replicate_blank': REPLICATES_BLANK,
             'start_date': START_DATE, 'end_date': END_DATE
         }
-        start_date = parseDate.parse(START_DATE)
-        end_date = parseDate.parse(END_DATE)
+        start_date = parse_date(START_DATE)
+        end_date = parse_date(END_DATE)
         exposure_conditions = [ExposureCondition(**exposure_condition)]
         harvester = HarvesterInput(partner=PARTNER,
                                    organism=ORGANISM,
@@ -254,3 +257,35 @@ class TestHarvesterInput(TestCase):
                                    replicate_blank=REPLICATES_BLANK,
                                    start_date=start_date, end_date=end_date)
         self.assertEqual(expected, dict(harvester))
+
+    def test_to_dataframe(self):
+        harvester = HarvesterInput(partner=PARTNER,
+                                   organism=ORGANISM,
+                                   exposure_conditions=[
+                                       ExposureCondition(**{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE})
+                                   ],
+                                   exposure_batch=EXPOSURE_BATCH,
+                                   replicate4exposure=REPLICATES_EXPOSURE,
+                                   replicate4control=REPLICATES_CONTROL,
+                                   replicate_blank=REPLICATES_BLANK,
+                                   start_date=START_DATE, end_date=END_DATE)
+        sample_dataframe = harvester.to_dataframe()
+        for col in SAMPLE_SHEET_BASE_COLUMNS:
+            self.assertIn(col, sample_dataframe.columns)
+        self.assertEqual(1, len(sample_dataframe.index))
+        self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
+
+    def test_save_dataframe(self):
+        output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
+        harvester = HarvesterInput(partner=PARTNER,
+                                   organism=ORGANISM,
+                                   exposure_conditions=[
+                                       ExposureCondition(**{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE})
+                                   ],
+                                   exposure_batch=EXPOSURE_BATCH,
+                                   replicate4exposure=REPLICATES_EXPOSURE,
+                                   replicate4control=REPLICATES_CONTROL,
+                                   replicate_blank=REPLICATES_BLANK,
+                                   start_date=START_DATE, end_date=END_DATE)
+        file_path = harvester.save(output_path)
+        self.assertTrue(path.exists(file_path))

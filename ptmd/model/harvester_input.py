@@ -2,12 +2,14 @@ from re import match
 from typing import List
 from datetime import datetime
 
-from dateutil import parser as parseDate
+from dateutil.parser import parse as parse_date
+from pandas import DataFrame, Series, concat as pandas_concat
 
 from ptmd.model.const import (
     ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN,
-    REPLICATES_BLANK_RANGE
+    REPLICATES_BLANK_RANGE,
+    SAMPLE_SHEET_BASE_COLUMNS
 )
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
@@ -209,7 +211,7 @@ class HarvesterInput:
             return
         elif isinstance(value, str):
             try:
-                self.__start_date = parseDate.parse(value)
+                self.__start_date = parse_date(value)
                 return
             except ValueError:
                 raise InputTypeError(datetime, value, get_field_name(self, 'start_date'))
@@ -234,7 +236,7 @@ class HarvesterInput:
             return
         elif isinstance(value, str):
             try:
-                self.__end_date = parseDate.parse(value)
+                self.__end_date = parse_date(value)
                 return
             except ValueError:
                 raise InputTypeError(datetime, value, get_field_name(self, 'end_date'))
@@ -254,3 +256,29 @@ class HarvesterInput:
         }
         for key, value in iters.items():
             yield key, value
+
+    def to_dataframe(self):
+        sample_dataframe = DataFrame(columns=SAMPLE_SHEET_BASE_COLUMNS)
+        for chemical in self.exposure_conditions:
+            series = Series([
+                '', '', '', '', '', '', '', '',
+                self.partner, self.organism, self.exposure_batch, self.replicate4exposure, self.replicate4control,
+                self.replicate_blank, self.start_date.strftime('%Y-%m-%d'), self.end_date.strftime('%Y-%m-%d'),
+                chemical.chemical_name, chemical.dose
+            ], index=sample_dataframe.columns)
+            sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                             ignore_index=True, sort=False, copy=False)
+        return sample_dataframe
+
+    def save(self, path: str) -> str:
+        """ Save the sample sheet to a file.
+
+        :param path: The path to the file.
+        """
+        sample_dataframe = self.to_dataframe()
+        sample_dataframe.to_excel(excel_writer=path,
+                                  sheet_name='SAMPLE_TEST',
+                                  na_rep='',
+                                  columns=SAMPLE_SHEET_BASE_COLUMNS,
+                                  index=False)
+        return path

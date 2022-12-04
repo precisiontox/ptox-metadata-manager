@@ -22,3 +22,21 @@ REPLICATES_BLANK_RANGE = ReplicateBlankRange(INPUT_SCHEMA['properties']['replica
                                              INPUT_SCHEMA['properties']['replicates_blank']['maximum'])
 ALLOWED_CHEMICAL_NAMES = EXPOSURE_SCHEMA['properties']['chemical']['enum']
 ALLOWED_DOSE_VALUES = EXPOSURE_SCHEMA['properties']['dose']['enum']
+
+SAMPLE_SHEET_BASE_COLUMNS = [
+    "Shipment identifier",
+    "Label tube / identifier",
+    "Box No.",
+    "FreezerBoxID [SENDER TO ADD LABEL TO BOX]",
+    "Sample position in box",
+    "Mass including tube (mg)",
+    "Mass excluding tube (mg)",
+    "Additional Information",
+    "partner", "organism",
+    "exposure batch",
+    "replicates for exposure",
+    "replicates for control",
+    "replicates blanks",
+    "start date", "end date",
+    "chemical name", "dose"
+]
