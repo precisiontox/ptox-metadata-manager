@@ -26,7 +26,6 @@ jobs:
         run: flake8
       - name: Test with python unittest
         run: |
-          behave --no-capture --no-capture-stderr --format=progress features/isa-file-handler.feature
           coverage run -m unittest discover -s tests/
           coverage report -m
       - name: Coveralls
