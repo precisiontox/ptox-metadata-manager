@@ -28,6 +28,7 @@ REPLICATES_BLANK = 2
 START_DATE = '2018-01-01'
 END_DATE = '2019-01-02'
 CLASS_NAME = HarvesterInput.__name__
+HERE = path.dirname(path.abspath(__file__))
 
 
 class TestHarvesterInput(TestCase):
@@ -274,9 +275,8 @@ class TestHarvesterInput(TestCase):
         self.assertEqual(1, len(sample_dataframe.index))
         self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
 
-    def test_save(self):
-        here = path.dirname(path.abspath(__file__))
-        output_path = path.join(here, '..', 'data', 'excel', 'test.xlsx')
+    def test_save_dataframe(self):
+        output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
         harvester = HarvesterInput(partner=PARTNER,
                                    organism=ORGANISM,
                                    exposure_conditions=[
@@ -288,4 +288,4 @@ class TestHarvesterInput(TestCase):
                                    replicate_blank=REPLICATES_BLANK,
                                    start_date=START_DATE, end_date=END_DATE)
         file_path = harvester.save(output_path)
-        assert path.exists(file_path)
+        self.assertTrue(path.exists(file_path))
