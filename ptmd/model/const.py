@@ -37,6 +37,6 @@ SAMPLE_SHEET_BASE_COLUMNS = [
     "replicates for exposure",
     "replicates for control",
     "replicates blanks",
-    "start_date", "end_date",
+    "start date", "end date",
     "chemical name", "dose"
 ]

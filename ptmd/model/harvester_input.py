@@ -269,3 +269,16 @@ class HarvesterInput:
             sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                              ignore_index=True, sort=False, copy=False)
         return sample_dataframe
+
+    def save(self, path: str) -> str:
+        """ Save the sample sheet to a file.
+
+        :param path: The path to the file.
+        """
+        sample_dataframe = self.to_dataframe()
+        sample_dataframe.to_excel(excel_writer=path,
+                                  sheet_name='SAMPLE_TEST',
+                                  na_rep='',
+                                  columns=SAMPLE_SHEET_BASE_COLUMNS,
+                                  index=False)
+        return path
