@@ -1,5 +1,5 @@
 # Precision Toxicology Metadata Manager
-
+[![Coverage Status](https://coveralls.io/repos/github/ISA-tools/PTMD/badge.svg?branch=main)](https://coveralls.io/github/ISA-tools/PTMD?branch=main)
 
 ## Getting started:
 ```shell
