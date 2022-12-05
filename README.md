@@ -9,8 +9,8 @@
 ```shell
 git clone https://github.com/ISA-tools/ptmd.git
 cd ptmd
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+pip install -r requirements.txt # for production
+pip install -r requirements-dev.txt # for development
 ```
 
 ## Verify and generate the documentation
