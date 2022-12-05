@@ -24,6 +24,15 @@ from ptmd.model.utils import get_field_name
 class HarvesterInput:
     """ A class to represent the input for the harvester and generate the pandas DataFrame and Excel files.
 
+    :param partner: precision tox code of the partner
+    :param organism: precision tox code of the organism
+    :param exposure_batch:
+    :param replicate4exposure: number of replicates for the exposure
+    :param replicate4control: number of replicates for the control
+    :param replicate_blank: number of blanks
+    :param start_date:
+    :param end_date:
+    :param exposure_conditions: list of chemical names and doses
     """
     def __init__(self,
                  partner: str,
@@ -35,18 +44,7 @@ class HarvesterInput:
                  start_date: str or datetime,
                  end_date: str or datetime,
                  exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
-        """ The harvester constructor
-
-        :param partner: precision tox code of the partner
-        :param organism: precision tox code of the organism
-        :param exposure_batch: ???
-        :param replicate4exposure: number of replicates for the exposure
-        :param replicate4control: number of replicates for the control
-        :param replicate_blank: number of blanks
-        :param start_date:
-        :param end_date:
-        :param exposure_conditions: list of chemical names and doses
-        """
+        """ The harvester constructor """
         self.partner = partner
         self.organism = organism
         self.exposure_conditions = exposure_conditions if exposure_conditions else []
