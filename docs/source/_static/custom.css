@@ -1,0 +1,9 @@
+.sig-prename span.pre, .sig-name span.pre {
+    color: #107C41 !important;
+}
+
+
+.py.class dl.property {
+    display: block;
+    width: 100%;
+}

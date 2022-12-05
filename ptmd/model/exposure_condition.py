@@ -8,14 +8,14 @@ from ptmd.model.utils import get_field_name
 
 
 class ExposureCondition:
-    """ The ExposureCondition is an object with a chemical name and a dose value. """
+    """ The ExposureCondition is an object with a chemical name and a dose value.
+
+    :param chemical_name:
+    :param dose:
+    """
 
     def __init__(self, chemical_name: str, dose: str) -> None:
-        """ Exposition with a chemical as a given dose.
-
-        :param chemical_name:
-        :param dose:
-        """
+        """ Exposition with a chemical as a given dose. """
         self.chemical_name = chemical_name
         self.dose = dose
 
