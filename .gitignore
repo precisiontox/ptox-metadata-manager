@@ -6,3 +6,6 @@ docs/build/
 commit.py
 .env
 venv*/
+
+ptmd/clients/gdrive/credentials.txt
+ptmd/clients/gdrive/client_secrets.json
