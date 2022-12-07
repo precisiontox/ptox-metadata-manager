@@ -10,7 +10,7 @@ from datetime import datetime
 from dateutil.parser import parse as parse_date
 from pandas import DataFrame, Series, concat as pandas_concat
 
-from ptmd.model.const import (
+from ptmd.const import (
     ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN,
     REPLICATES_BLANK_RANGE,
@@ -302,10 +302,8 @@ class HarvesterInput:
         :param path: The path to the file.
         :return: The path to the file the sample sheet was saved to.
         """
-        sample_dataframe = self.to_dataframe()
-        sample_dataframe.to_excel(excel_writer=path,
-                                  sheet_name='SAMPLE_TEST',
-                                  na_rep='',
-                                  columns=SAMPLE_SHEET_BASE_COLUMNS,
-                                  index=False)
+        self.to_dataframe().to_excel(excel_writer=path,
+                                     sheet_name='SAMPLE_TEST',
+                                     na_rep='',
+                                     columns=SAMPLE_SHEET_BASE_COLUMNS)
         return path

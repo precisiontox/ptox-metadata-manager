@@ -2,7 +2,7 @@
 
 @author: Terazus (D. Batista)
 """
-from ptmd.model.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
+from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
 from ptmd.model.exceptions import InputTypeError, InputValueError
 from ptmd.model.utils import get_field_name
 

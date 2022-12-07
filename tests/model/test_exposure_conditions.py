@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from ptmd.model.exposure_condition import ExposureCondition
-from ptmd.model.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
+from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
 
 
 CHEMICAL_NAME = ALLOWED_CHEMICAL_NAMES[0]
