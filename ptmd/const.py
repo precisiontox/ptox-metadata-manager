@@ -1,16 +1,13 @@
-""" This module initializes all the constants need by the metadata harvester
-
-@author: Terazus (D. Batista)
-"""
+""" This module provide constants for the ptmd package. """
 from os import path
 from json import loads
 from collections import namedtuple
 
 ReplicateBlankRange = namedtuple('ReplicateBlankRange', ['min', 'max'])
 
-HERE = path.abspath(path.dirname(__file__))
-INPUT_SCHEMA_PATH = path.join(HERE, '..', 'resources', 'schemas', 'harvester_input_schema.json')
-EXPOSURE_SCHEMA_PATH = path.join(HERE, '..', 'resources', 'schemas', 'exposure_schema.json')
+ROOT_PATH = path.abspath(path.dirname(__file__))
+INPUT_SCHEMA_PATH = path.join(ROOT_PATH, 'resources', 'schemas', 'harvester_input_schema.json')
+EXPOSURE_SCHEMA_PATH = path.join(ROOT_PATH, 'resources', 'schemas', 'exposure_schema.json')
 
 with open(INPUT_SCHEMA_PATH, 'r') as f:
     INPUT_SCHEMA = loads(f.read())

@@ -3,4 +3,5 @@ ISA objects.
 
 @author: Terazus (D. Batista)
 """
-from ptmd.model.harvester_input import HarvesterInput
+from .harvester_input import HarvesterInput
+from .exposure_condition import ExposureCondition

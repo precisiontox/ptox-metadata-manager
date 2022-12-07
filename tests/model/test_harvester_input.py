@@ -4,9 +4,8 @@ from datetime import datetime
 
 from dateutil.parser import parse as parse_date
 
-from ptmd.model import HarvesterInput
-from ptmd.model.exposure_condition import ExposureCondition
-from ptmd.model.const import (
+from ptmd.model import HarvesterInput, ExposureCondition
+from ptmd.const import (
     ALLOWED_PARTNERS,
     ALLOWED_ORGANISMS,
     ALLOWED_CHEMICAL_NAMES,
@@ -15,7 +14,6 @@ from ptmd.model.const import (
     REPLICATES_BLANK_RANGE,
     SAMPLE_SHEET_BASE_COLUMNS
 )
-
 
 PARTNER = ALLOWED_PARTNERS[0]
 ORGANISM = ALLOWED_ORGANISMS[0]
@@ -31,8 +29,7 @@ CLASS_NAME = HarvesterInput.__name__
 HERE = path.dirname(path.abspath(__file__))
 
 
-class TestHarvesterInput(TestCase):
-
+class TestHarvesterInputErrors(TestCase):
     def test_constructor_errors_with_partner(self):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=1, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
