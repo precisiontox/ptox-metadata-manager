@@ -1,3 +1,7 @@
+""" A small utitlise to check if a given directory already exists in the drive.
+
+@author: D. Batista (Terazus)
+"""
 from pydrive2.drive import GoogleDrive
 
 from .const import MIME_TYPE_FOLDER

@@ -1,7 +1,7 @@
 """ This module provides the core functions necessary to connect to a google drive, create the necessary directorie
 and upload the files to the drive.
 
-@Author: D. Batista (Terazus)
+@author: D. Batista (Terazus)
 """
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
@@ -13,8 +13,13 @@ from .utils import directory_exist
 
 
 class GoogleDriveConnector:
+    """ This is the class that handle connection and interaction with the Google Drive.
+
+    @param credential_file: The path to the credential file.
+    """
 
     def __init__(self, credential_file: str = CREDENTIALS_FILE_PATH):
+        """ Constructor for the GoogleDriveConnector class. """
         self.__credential_file = credential_file
         self.__google_auth: GoogleAuth = GoogleAuth()
         self.google_drive: GoogleDrive or None = None
