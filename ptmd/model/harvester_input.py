@@ -19,6 +19,7 @@ from ptmd.const import (
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
 from ptmd.model.utils import get_field_name
+from ptmd.clients import GoogleDriveConnector
 
 
 class HarvesterInput:
@@ -54,6 +55,7 @@ class HarvesterInput:
         self.replicate_blank = replicate_blank
         self.start_date = start_date
         self.end_date = end_date
+        self.file_path = None
 
     @property
     def partner(self) -> str:
@@ -305,5 +307,6 @@ class HarvesterInput:
         self.to_dataframe().to_excel(excel_writer=path,
                                      sheet_name='SAMPLE_TEST',
                                      na_rep='',
-                                     columns=SAMPLE_SHEET_BASE_COLUMNS)
+                                     columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
+        self.file_path = path
         return path

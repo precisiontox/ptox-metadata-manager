@@ -1,5 +1,5 @@
 from os import path
-from unittest import TestCase
+from unittest import TestCase, skip
 from datetime import datetime
 
 from dateutil.parser import parse as parse_date
@@ -256,16 +256,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual(expected, dict(harvester))
 
     def test_to_dataframe(self):
-        harvester = HarvesterInput(partner=PARTNER,
-                                   organism=ORGANISM,
-                                   exposure_conditions=[
-                                       ExposureCondition(**{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE})
-                                   ],
-                                   exposure_batch=EXPOSURE_BATCH,
-                                   replicate4exposure=REPLICATES_EXPOSURE,
-                                   replicate4control=REPLICATES_CONTROL,
-                                   replicate_blank=REPLICATES_BLANK,
-                                   start_date=START_DATE, end_date=END_DATE)
+        harvester = make_harvester()
         sample_dataframe = harvester.to_dataframe()
         for col in SAMPLE_SHEET_BASE_COLUMNS:
             self.assertIn(col, sample_dataframe.columns)
@@ -274,15 +265,21 @@ class TestHarvesterInputErrors(TestCase):
 
     def test_save_dataframe(self):
         output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
-        harvester = HarvesterInput(partner=PARTNER,
-                                   organism=ORGANISM,
-                                   exposure_conditions=[
-                                       ExposureCondition(**{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE})
-                                   ],
-                                   exposure_batch=EXPOSURE_BATCH,
-                                   replicate4exposure=REPLICATES_EXPOSURE,
-                                   replicate4control=REPLICATES_CONTROL,
-                                   replicate_blank=REPLICATES_BLANK,
-                                   start_date=START_DATE, end_date=END_DATE)
+        harvester = make_harvester()
         file_path = harvester.save(output_path)
         self.assertTrue(path.exists(file_path))
+
+
+def make_harvester():
+    output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
+    exposure_condition = [ExposureCondition(**{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE})]
+    harvester = HarvesterInput(partner=PARTNER,
+                               organism=ORGANISM,
+                               exposure_conditions=exposure_condition,
+                               exposure_batch=EXPOSURE_BATCH,
+                               replicate4exposure=REPLICATES_EXPOSURE,
+                               replicate4control=REPLICATES_CONTROL,
+                               replicate_blank=REPLICATES_BLANK,
+                               start_date=START_DATE, end_date=END_DATE)
+    harvester.save(output_path)
+    return harvester
