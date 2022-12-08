@@ -17,6 +17,7 @@ with open(EXPOSURE_SCHEMA_PATH, 'r') as f:
 ALLOWED_PARTNERS = INPUT_SCHEMA['properties']['partner']['enum']
 ALLOWED_ORGANISMS = INPUT_SCHEMA['properties']['organism']['enum']
 ALLOWED_EXPOSURE_BATCH = INPUT_SCHEMA['properties']['exposure_batch']['pattern']
+EXPOSURE_BATCH_MAX_LENGTH = INPUT_SCHEMA['properties']['exposure_batch']['maxLength']
 REPLICATES_EXPOSURE_MIN = INPUT_SCHEMA['properties']['replicates4exposure']['minimum']
 REPLICATES_CONTROL_MIN = INPUT_SCHEMA['properties']['replicates4control']['minimum']
 REPLICATES_BLANK_RANGE = ReplicateBlankRange(INPUT_SCHEMA['properties']['replicates_blank']['minimum'],

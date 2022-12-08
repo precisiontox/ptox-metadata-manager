@@ -102,11 +102,18 @@ class TestHarvesterInputErrors(TestCase):
                            start_date=START_DATE, end_date=END_DATE)
         self.assertEqual(CLASS_NAME + ".exposure_batch must be a str but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
-            HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch='foo',
+            HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch='fo',
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
                            start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".exposure_batch must be one of AA to ZZ but got foo",
+        self.assertEqual(CLASS_NAME + ".exposure_batch must be one of AA to ZZ but got fo",
+                         str(context.exception))
+        with self.assertRaises(ValueError) as context:
+            HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch='AAA',
+                           replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                           replicate_blank=REPLICATES_BLANK,
+                           start_date=START_DATE, end_date=END_DATE)
+        self.assertEqual(CLASS_NAME + ".exposure_batch must be less than 2 characters but got 3 (value: AAA)",
                          str(context.exception))
 
     def test_constructor_error_replicates_exposure(self):

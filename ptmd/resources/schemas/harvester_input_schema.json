@@ -18,7 +18,8 @@
       },
       "exposure_batch": {
         "type": "string",
-        "pattern": "^[A-Z][A-Z]$"
+        "pattern": "^[A-Z][A-Z]$",
+        "maxLength": 2
       },
       "replicates4exposure": {
         "type": "number",

@@ -11,7 +11,7 @@ from dateutil.parser import parse as parse_date
 from pandas import DataFrame, Series, concat as pandas_concat
 
 from ptmd.const import (
-    ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH,
+    ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN,
     REPLICATES_BLANK_RANGE,
     SAMPLE_SHEET_BASE_COLUMNS
@@ -146,6 +146,11 @@ class HarvesterInput:
         """
         if not isinstance(value, str):
             raise InputTypeError(str, value, get_field_name(self, 'exposure_batch'))
+        if len(value) > EXPOSURE_BATCH_MAX_LENGTH:
+            field_name = get_field_name(self, 'exposure_batch')
+            raise ValueError("%s must be less than %s characters but got %s (value: %s)" % (
+                field_name, EXPOSURE_BATCH_MAX_LENGTH, len(value), value
+            ))
         if not match(ALLOWED_EXPOSURE_BATCH, value):
             raise InputValueError('AA to ZZ', value, get_field_name(self, 'exposure_batch'))
         self.__exposure_batch = value
