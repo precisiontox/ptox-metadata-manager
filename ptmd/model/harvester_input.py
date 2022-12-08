@@ -19,7 +19,6 @@ from ptmd.const import (
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
 from ptmd.model.utils import get_field_name
-from ptmd.clients import GoogleDriveConnector
 
 
 class HarvesterInput:

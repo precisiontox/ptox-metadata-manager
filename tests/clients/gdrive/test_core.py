@@ -1,5 +1,5 @@
 from os import path
-from unittest import TestCase, skip
+from unittest import TestCase
 from unittest.mock import patch
 
 from pydrive2.auth import GoogleAuth
@@ -26,9 +26,6 @@ class MockGoogleAuth(GoogleAuth):
     def Authorize(self):
         pass
 
-    def Refresh(self):
-        pass
-
     def SaveCredentials(self, backend=None):
         pass
 
@@ -43,6 +40,7 @@ class ContentMock:
 
 class FileMock(dict):
     content = ContentMock()
+
     def Upload(self):
         return {'id': '1234'}
 

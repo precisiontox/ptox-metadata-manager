@@ -4,5 +4,6 @@ exclude =
     .github
     venv*
     venv
+    examples/*
 max-line-length = 140
 per-file-ignores = __init__.py:F401
