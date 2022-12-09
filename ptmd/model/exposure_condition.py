@@ -11,13 +11,13 @@ class ExposureCondition:
     """ The ExposureCondition is an object with a chemical name and a dose value.
 
     :param chemical_name:
-    :param dose:
+    :param doses:
     """
 
-    def __init__(self, chemical_name: str, dose: str) -> None:
+    def __init__(self, chemical_name: str, doses: list[str]) -> None:
         """ Exposition with a chemical as a given dose. """
         self.chemical_name = chemical_name
-        self.dose = dose
+        self.doses = doses
 
     @property
     def chemical_name(self) -> str:
@@ -40,24 +40,25 @@ class ExposureCondition:
         self.__chemical_name = value
 
     @property
-    def dose(self) -> str:
+    def doses(self) -> list[str]:
         """ Getter for the dose.
 
         :return: The dose.
         """
-        return self.__dose
+        return self.__doses
 
-    @dose.setter
-    def dose(self, value: str) -> None:
+    @doses.setter
+    def doses(self, values: list[str]) -> None:
         """ Setter for the dose.
 
-        :param value: The dose.
+        :param values: The dose.
         """
-        if not isinstance(value, str):
-            raise InputTypeError(str, value, get_field_name(self, 'dose'))
-        if value not in ALLOWED_DOSE_VALUES:
-            raise InputValueError(ALLOWED_DOSE_VALUES, value, get_field_name(self, 'dose'))
-        self.__dose = value
+        if not isinstance(values, list):
+            raise InputTypeError(list, values, get_field_name(self, 'dose'))
+        for value in values:
+            if value not in ALLOWED_DOSE_VALUES:
+                raise InputValueError(ALLOWED_DOSE_VALUES, value, get_field_name(self, 'dose'))
+        self.__doses = values
 
     def __eq__(self, other) -> bool:
         """ Equality operator.
@@ -65,7 +66,7 @@ class ExposureCondition:
         :param other: The other object to compare to.
         :return: True if the objects are equal, False otherwise.
         """
-        return self.__dose == other.__dose and self.__chemical_name == other.__chemical_name
+        return self.__doses == other.__doses and self.__chemical_name == other.__chemical_name
 
     def __ne__(self, other):
         """ Inequality operator.
@@ -82,7 +83,7 @@ class ExposureCondition:
         """
         iters = {
             'chemical_name': self.__chemical_name,
-            'dose': self.__dose
+            'doses': self.__doses
         }
         for key, value in iters.items():
             yield key, value

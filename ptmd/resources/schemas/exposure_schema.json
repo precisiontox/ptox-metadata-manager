@@ -9,9 +9,24 @@
         "enum": ["chemical1", "chemical2", "chemical3"],
         "description": "The chemical name."
       },
-      "dose": {
-          "type": "string",
-          "enum": ["0", "BMD10", "BMD25", "10mg/L"]
-      }
+      "doses": {
+          "type": "array",
+          "items": [
+              {
+                  "type": "string",
+                  "enum": ["0", "BMD10", "BMD25", "10mg/L"]
+              }
+          ],
+          "maxItems": 4
+      },
+      "timepoints": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "number"
+                }
+            ],
+            "maxItems": 4
+        }
 }
 }

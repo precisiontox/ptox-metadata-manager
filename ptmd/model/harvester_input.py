@@ -306,14 +306,15 @@ class HarvesterInput:
                                           ignore_index=False, sort=False, copy=False)
         for chemical in self.exposure_conditions:
             for replicate in range(self.replicate4exposure):
-                series = Series([
-                    '', '', '', '', '', '', '', '',
-                    replicate + 1,
-                    chemical.chemical_name,
-                    chemical.dose
-                ], index=sample_dataframe.columns)
-                sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                                 ignore_index=False, sort=False, copy=False)
+                for dose in chemical.doses:
+                    series = Series([
+                        '', '', '', '', '', '', '', '',
+                        replicate + 1,
+                        chemical.chemical_name,
+                        dose
+                    ], index=sample_dataframe.columns)
+                    sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                                     ignore_index=False, sort=False, copy=False)
         return sample_dataframe, general_dataframe
 
     def save(self, path: str) -> str:

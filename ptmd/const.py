@@ -23,7 +23,8 @@ REPLICATES_CONTROL_MIN = INPUT_SCHEMA['properties']['replicates4control']['minim
 REPLICATES_BLANK_RANGE = ReplicateBlankRange(INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
                                              INPUT_SCHEMA['properties']['replicates_blank']['maximum'])
 ALLOWED_CHEMICAL_NAMES = EXPOSURE_SCHEMA['properties']['chemical']['enum']
-ALLOWED_DOSE_VALUES = EXPOSURE_SCHEMA['properties']['dose']['enum']
+ALLOWED_DOSE_VALUES = EXPOSURE_SCHEMA['properties']['doses']['items'][0]['enum']
+MAX_NUMBER_OF_DOSES = EXPOSURE_SCHEMA['properties']['doses']['maxItems']
 
 SAMPLE_SHEET_BASE_COLUMNS = [
     "Shipment identifier",

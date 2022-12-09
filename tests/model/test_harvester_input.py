@@ -28,7 +28,7 @@ START_DATE = '2018-01-01'
 END_DATE = '2019-01-02'
 CLASS_NAME = HarvesterInput.__name__
 HERE = path.dirname(path.abspath(__file__))
-EXPOSURE_CONDITIONS = [{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE}]
+EXPOSURE_CONDITIONS = [{'chemical_name': CHEMICAL_NAME, 'doses': [DOSE_VALUE]}]
 exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
 
 
@@ -232,7 +232,8 @@ class TestHarvesterInputErrors(TestCase):
             'replicate4exposure': REPLICATES_EXPOSURE,
             'replicate4control': REPLICATES_CONTROL,
             'replicate_blank': REPLICATES_BLANK,
-            'start_date': START_DATE, 'end_date': END_DATE
+            'start_date': START_DATE,
+            'end_date': END_DATE
         }
         start_date = parse_date(START_DATE)
         end_date = parse_date(END_DATE)
