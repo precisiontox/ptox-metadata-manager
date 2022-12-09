@@ -34,11 +34,17 @@ SAMPLE_SHEET_BASE_COLUMNS = [
     "Mass including tube (mg)",
     "Mass excluding tube (mg)",
     "Additional Information",
-    "partner", "organism",
+    "replicate",
+    "chemical name",
+    "dose"
+]
+
+GENERAL_SHEET_BASE_COLUMNS = [
+    "partner",
+    "organism",
     "exposure batch",
-    "replicates for exposure",
     "replicates for control",
     "replicates blanks",
-    "start date", "end date",
-    "chemical name", "dose"
+    "start date",
+    "end date",
 ]

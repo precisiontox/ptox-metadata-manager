@@ -8,13 +8,13 @@ from typing import List
 from datetime import datetime
 
 from dateutil.parser import parse as parse_date
-from pandas import DataFrame, Series, concat as pandas_concat
+from pandas import DataFrame, Series, concat as pandas_concat, ExcelWriter
 
 from ptmd.const import (
     ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN,
     REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS
+    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS
 )
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
@@ -34,6 +34,7 @@ class HarvesterInput:
     :param end_date:
     :param exposure_conditions: list of chemical names and doses
     """
+
     def __init__(self,
                  partner: str,
                  organism: str,
@@ -285,22 +286,35 @@ class HarvesterInput:
         for key, value in iters.items():
             yield key, value
 
-    def to_dataframe(self) -> DataFrame:
+    def to_dataframe(self) -> tuple[DataFrame, DataFrame]:
         """ Convert the object to a pandas DataFrame.
 
         :return: The pandas DataFrame.
         """
         sample_dataframe = DataFrame(columns=SAMPLE_SHEET_BASE_COLUMNS)
+        general_dataframe = DataFrame(columns=GENERAL_SHEET_BASE_COLUMNS)
+        general_series = Series([
+            self.partner,
+            self.organism,
+            self.exposure_batch,
+            self.replicate4control,
+            self.replicate_blank,
+            self.start_date.strftime('%Y-%m-%d'),
+            self.end_date.strftime('%Y-%m-%d'),
+        ], index=general_dataframe.columns)
+        general_dataframe = pandas_concat([general_dataframe, general_series.to_frame().T],
+                                          ignore_index=False, sort=False, copy=False)
         for chemical in self.exposure_conditions:
-            series = Series([
-                '', '', '', '', '', '', '', '',
-                self.partner, self.organism, self.exposure_batch, self.replicate4exposure, self.replicate4control,
-                self.replicate_blank, self.start_date.strftime('%Y-%m-%d'), self.end_date.strftime('%Y-%m-%d'),
-                chemical.chemical_name, chemical.dose
-            ], index=sample_dataframe.columns)
-            sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                             ignore_index=True, sort=False, copy=False)
-        return sample_dataframe
+            for replicate in range(self.replicate4exposure):
+                series = Series([
+                    '', '', '', '', '', '', '', '',
+                    replicate + 1,
+                    chemical.chemical_name,
+                    chemical.dose
+                ], index=sample_dataframe.columns)
+                sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                                 ignore_index=False, sort=False, copy=False)
+        return sample_dataframe, general_dataframe
 
     def save(self, path: str) -> str:
         """ Save the sample sheet to a file.
@@ -308,9 +322,11 @@ class HarvesterInput:
         :param path: The path to the file.
         :return: The path to the file the sample sheet was saved to.
         """
-        self.to_dataframe().to_excel(excel_writer=path,
-                                     sheet_name='SAMPLE_TEST',
-                                     na_rep='',
-                                     columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
+        dataframes = self.to_dataframe()
+        writer = ExcelWriter(path)
+        dataframes[1].to_excel(writer, sheet_name='General Information',
+                               index=False, columns=GENERAL_SHEET_BASE_COLUMNS)
+        dataframes[0].to_excel(writer, sheet_name='SAMPLE_TEST', columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
+        writer.close()
         self.file_path = path
         return path

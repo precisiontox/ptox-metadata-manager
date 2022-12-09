@@ -12,7 +12,8 @@ from ptmd.const import (
     ALLOWED_DOSE_VALUES,
     REPLICATES_EXPOSURE_MIN,
     REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS
+    SAMPLE_SHEET_BASE_COLUMNS,
+    GENERAL_SHEET_BASE_COLUMNS
 )
 
 PARTNER = ALLOWED_PARTNERS[0]
@@ -264,11 +265,17 @@ class TestHarvesterInputErrors(TestCase):
 
     def test_to_dataframe(self):
         harvester = make_harvester()
-        sample_dataframe = harvester.to_dataframe()
+        dataframes = harvester.to_dataframe()
+        sample_dataframe = dataframes[0]
+        general_dataframe = dataframes[1]
+
         for col in SAMPLE_SHEET_BASE_COLUMNS:
             self.assertIn(col, sample_dataframe.columns)
-        self.assertEqual(1, len(sample_dataframe.index))
+        self.assertEqual(4, len(sample_dataframe.index))
         self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
+
+        for col in GENERAL_SHEET_BASE_COLUMNS:
+            self.assertIn(col, general_dataframe.columns)
 
     def test_save_dataframe(self):
         output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
