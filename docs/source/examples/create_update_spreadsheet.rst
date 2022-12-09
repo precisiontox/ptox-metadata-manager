@@ -1,6 +1,6 @@
 Example
 =========
 
-.. literalinclude:: ../../../examples/g_drive.py
+.. literalinclude:: ./g_drive.py
    :language: python
    :linenos:
