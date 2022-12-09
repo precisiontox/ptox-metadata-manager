@@ -4,6 +4,7 @@ from json import loads
 from collections import namedtuple
 
 ReplicateBlankRange = namedtuple('ReplicateBlankRange', ['min', 'max'])
+TimepointsRange = namedtuple('TimepointsRange', ['min', 'max'])
 
 ROOT_PATH = path.abspath(path.dirname(__file__))
 INPUT_SCHEMA_PATH = path.join(ROOT_PATH, 'resources', 'schemas', 'harvester_input_schema.json')
@@ -25,6 +26,8 @@ REPLICATES_BLANK_RANGE = ReplicateBlankRange(INPUT_SCHEMA['properties']['replica
 ALLOWED_CHEMICAL_NAMES = EXPOSURE_SCHEMA['properties']['chemical']['enum']
 ALLOWED_DOSE_VALUES = EXPOSURE_SCHEMA['properties']['doses']['items'][0]['enum']
 MAX_NUMBER_OF_DOSES = EXPOSURE_SCHEMA['properties']['doses']['maxItems']
+TIMEPOINTS_RANGE = TimepointsRange(EXPOSURE_SCHEMA['properties']['timepoints']['minimum'],
+                                   EXPOSURE_SCHEMA['properties']['timepoints']['maximum'])
 
 SAMPLE_SHEET_BASE_COLUMNS = [
     "Shipment identifier",

@@ -28,7 +28,7 @@ START_DATE = '2018-01-01'
 END_DATE = '2019-01-02'
 CLASS_NAME = HarvesterInput.__name__
 HERE = path.dirname(path.abspath(__file__))
-EXPOSURE_CONDITIONS = [{'chemical_name': CHEMICAL_NAME, 'doses': [DOSE_VALUE]}]
+EXPOSURE_CONDITIONS = [{'chemical_name': CHEMICAL_NAME, 'doses': [DOSE_VALUE], 'timepoints': 1}]
 exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
 
 

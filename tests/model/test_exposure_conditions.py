@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from ptmd.model.exposure_condition import ExposureCondition
-from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
+from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES, TIMEPOINTS_RANGE
 
 
 CHEMICAL_NAME = ALLOWED_CHEMICAL_NAMES[0]
@@ -26,12 +26,24 @@ class TestExposureCondition(TestCase):
         self.assertEqual(CLASS_NAME + ".dose must be a list but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
             ExposureCondition(chemical_name=CHEMICAL_NAME, doses=['foo'])
-        self.assertEqual(CLASS_NAME + ".dose must be one of %s but got %s" % (ALLOWED_DOSE_VALUES, 'foo'), str(context.exception))
+        self.assertEqual(CLASS_NAME + ".dose must be one of %s but got %s" % (ALLOWED_DOSE_VALUES, 'foo'),
+                         str(context.exception))
+
+    def test_constructor_errors_with_timepoints(self):
+        with self.assertRaises(TypeError) as context:
+            ExposureCondition(chemical_name=CHEMICAL_NAME, doses=[DOSE_VALUE], timepoints='foo')
+        self.assertEqual(CLASS_NAME + ".timepoints must be a int but got str with value foo", str(context.exception))
+        with self.assertRaises(ValueError) as context:
+            ExposureCondition(chemical_name=CHEMICAL_NAME, doses=[DOSE_VALUE], timepoints=6)
+        self.assertEqual(CLASS_NAME + ".timepoints must be between %s and %s but got %s" %
+                         (TIMEPOINTS_RANGE.min, TIMEPOINTS_RANGE.max, 6),
+                         str(context.exception))
 
     def test_constructor_success(self):
-        ec = ExposureCondition(CHEMICAL_NAME, [DOSE_VALUE])
+        ec = ExposureCondition(CHEMICAL_NAME, [DOSE_VALUE], timepoints=1)
         self.assertEqual(CHEMICAL_NAME, ec.chemical_name)
         self.assertEqual([DOSE_VALUE], ec.doses)
+        self.assertEqual(1, ec.timepoints)
 
     def test_comparators(self):
         ec_1 = ExposureCondition(CHEMICAL_NAME, [DOSE_VALUE])
