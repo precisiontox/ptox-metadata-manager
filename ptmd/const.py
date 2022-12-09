@@ -40,7 +40,8 @@ SAMPLE_SHEET_BASE_COLUMNS = [
     "Additional Information",
     "replicate",
     "chemical name",
-    "dose"
+    "dose",
+    "time point",
 ]
 
 GENERAL_SHEET_BASE_COLUMNS = [
