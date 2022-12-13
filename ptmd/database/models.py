@@ -5,7 +5,7 @@ from flask_jwt_extended import create_access_token
 from flask import jsonify, Response
 from sqlalchemy.orm import session as sqlsession
 
-from .config import Base, db, app
+from .config import Base, db
 
 
 class Organisation(Base):

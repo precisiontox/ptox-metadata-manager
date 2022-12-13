@@ -98,7 +98,6 @@ class TestGDriveConnector(TestCase):
     def test_upload_file(self, content_exist_mock, google_drive_mock, google_auth_mock):
         here = path.abspath(path.dirname(__file__))
         xlsx_file = path.join(here, '..', '..', 'data', 'excel', 'test.xlsx')
-        partner = 'KIT'
         gdrive_connector = GoogleDriveConnector()
         file_metadata = gdrive_connector.upload_file(file_path=xlsx_file,
                                                      partner={'name': "UOX", 'id': 123})

@@ -2,7 +2,7 @@ from sqlalchemy import engine as sql_engine
 from sqlalchemy.orm import sessionmaker, session as sqlsession
 
 from ptmd.logger import LOGGER
-from .config import db, Base
+from .config import Base
 from .models import User, Organisation
 
 
