@@ -1,3 +1,9 @@
+""" This module contains the database models and a function to login users. This may need to be split into a proper
+module later on.
+
+:author: D. Batista (Terazus)
+"""
+
 from datetime import timedelta
 
 from passlib.hash import bcrypt
@@ -16,6 +22,10 @@ class Organisation(Base):
     gdrive_id: str = db.Column(db.String(100), nullable=True, unique=True)
 
     def __iter__(self) -> dict:
+        """ Iterator for the object. Used to serialize the object as a dictionary.
+
+        :return: The iterator.
+        """
         organisation = {
             'organisation_id': self.organisation_id,
             'name': self.name,
@@ -36,6 +46,8 @@ class User(Base):
     organisation: db.relationship = db.relationship('Organisation', backref=db.backref('users'))
 
     def __init__(self, username: str, password: str, organisation: Organisation or None = None) -> None:
+        """ Constructor for the User class. Let's use encode the password with bcrypt before committing it to the
+        database. """
         self.username: str = username
         self.password: str = bcrypt.hash(password)
         if organisation and not isinstance(organisation, Organisation):
@@ -43,6 +55,10 @@ class User(Base):
         self.organisation: Organisation or None = organisation if organisation else None
 
     def __iter__(self) -> dict:
+        """ Iterator for the object. Used to serialize the object as a dictionary.
+
+        :return: The iterator.
+        """
         user = {
             "id": self.id,
             "username": self.username,
@@ -52,9 +68,21 @@ class User(Base):
             yield key, value
 
     def validate_password(self, password: str) -> bool:
+        """ Checks if a user password is valid
+
+        :param password: the password to check
+        :return: True if the password is valid, False otherwise
+        """
         return bcrypt.verify(password, self.password)
 
     def change_password(self, old_password: str, new_password: str, session: sqlsession) -> bool:
+        """ Change the user password.
+
+        :param old_password: the old password
+        :param new_password: the new password
+        :param session: the database session
+        :return: True if the password was changed, False otherwise
+        """
         if self.validate_password(old_password):
             self.password = bcrypt.hash(new_password)
             session.commit()

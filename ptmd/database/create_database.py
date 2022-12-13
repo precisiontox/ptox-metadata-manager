@@ -1,3 +1,9 @@
+""" This module contains functions to interact with the database such as boot(), create_organisations() and
+create_users().
+
+:author: D. Batista (Terazus)
+"""
+
 from sqlalchemy import engine as sql_engine
 from sqlalchemy.orm import sessionmaker, session as sqlsession
 
