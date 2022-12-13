@@ -265,8 +265,21 @@ class TestHarvesterInputErrors(TestCase):
     def test_save_dataframe(self):
         output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
         harvester = make_harvester()
-        file_path = harvester.save(output_path)
+        file_path = harvester.save_file(output_path)
         self.assertIsNotNone(file_path)
+
+    def test_delete_file(self):
+        output_path = path.join(HERE, '..', 'data', 'excel', 'temp.xlsx')
+        harvester = make_harvester()
+        file_path = harvester.save_file(output_path)
+        self.assertIsNotNone(file_path)
+        harvester.delete_file()
+        self.assertFalse(path.exists(output_path))
+
+        with self.assertRaises(FileNotFoundError) as context:
+            harvester = make_harvester()
+            harvester.delete_file()
+        self.assertEqual('This input was not saved yet.', str(context.exception))
 
 
 def make_harvester():

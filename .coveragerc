@@ -4,7 +4,8 @@ relative_files = True
 
 omit =
     tests/*
+    ptmd/__main__.py
 
 [report]
 exclude_lines =
-    if __name__ == .__main__.:
+    if __name__ == "__main__":

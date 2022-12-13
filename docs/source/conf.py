@@ -11,13 +11,6 @@ release = '0.0.1'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
     'sphinx_rtd_dark_mode'
 ]
 templates_path = ['_templates']

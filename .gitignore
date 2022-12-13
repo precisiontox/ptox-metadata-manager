@@ -10,3 +10,6 @@ venv*/
 ptmd/clients/gdrive/credentials.txt
 ptmd/clients/gdrive/client_secrets.json
 /examples/
+/instance/
+credentials.txt
+client_secrets.json

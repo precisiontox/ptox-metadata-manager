@@ -2,7 +2,7 @@
 
 @author: Terazus (D. Batista)
 """
-
+from os import remove
 from re import match
 from typing import List
 from datetime import datetime
@@ -320,7 +320,7 @@ class HarvesterInput:
                                                          ignore_index=False, sort=False, copy=False)
         return sample_dataframe, general_dataframe
 
-    def save(self, path: str) -> str:
+    def save_file(self, path: str) -> str:
         """ Save the sample sheet to a file.
 
         :param path: The path to the file.
@@ -335,3 +335,9 @@ class HarvesterInput:
         writer.close()
         self.file_path = path
         return path
+
+    def delete_file(self) -> None:
+        """ Delete the sample sheet file. """
+        if not self.file_path:
+            raise FileNotFoundError('This input was not saved yet.')
+        remove(self.file_path)

@@ -3,33 +3,36 @@ from os import path
 from json import loads
 from collections import namedtuple
 
-ReplicateBlankRange = namedtuple('ReplicateBlankRange', ['min', 'max'])
-TimepointsRange = namedtuple('TimepointsRange', ['min', 'max'])
+from dotenv import dotenv_values
 
-ROOT_PATH = path.abspath(path.dirname(__file__))
-INPUT_SCHEMA_PATH = path.join(ROOT_PATH, 'resources', 'schemas', 'harvester_input_schema.json')
-EXPOSURE_SCHEMA_PATH = path.join(ROOT_PATH, 'resources', 'schemas', 'exposure_schema.json')
+
+ReplicateBlankRange: namedtuple = namedtuple('ReplicateBlankRange', ['min', 'max'])
+TimepointsRange: namedtuple = namedtuple('TimepointsRange', ['min', 'max'])
+
+ROOT_PATH: str = path.abspath(path.dirname(__file__))
+INPUT_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'harvester_input_schema.json')
+EXPOSURE_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'exposure_schema.json')
 
 with open(INPUT_SCHEMA_PATH, 'r') as f:
-    INPUT_SCHEMA = loads(f.read())
+    INPUT_SCHEMA: dict = loads(f.read())
 with open(EXPOSURE_SCHEMA_PATH, 'r') as f:
-    EXPOSURE_SCHEMA = loads(f.read())
+    EXPOSURE_SCHEMA: dict = loads(f.read())
 
-ALLOWED_PARTNERS = INPUT_SCHEMA['properties']['partner']['enum']
-ALLOWED_ORGANISMS = INPUT_SCHEMA['properties']['organism']['enum']
-ALLOWED_EXPOSURE_BATCH = INPUT_SCHEMA['properties']['exposure_batch']['pattern']
-EXPOSURE_BATCH_MAX_LENGTH = INPUT_SCHEMA['properties']['exposure_batch']['maxLength']
-REPLICATES_EXPOSURE_MIN = INPUT_SCHEMA['properties']['replicates4exposure']['minimum']
-REPLICATES_CONTROL_MIN = INPUT_SCHEMA['properties']['replicates4control']['minimum']
-REPLICATES_BLANK_RANGE = ReplicateBlankRange(INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
-                                             INPUT_SCHEMA['properties']['replicates_blank']['maximum'])
-ALLOWED_CHEMICAL_NAMES = EXPOSURE_SCHEMA['properties']['chemical']['enum']
-ALLOWED_DOSE_VALUES = EXPOSURE_SCHEMA['properties']['doses']['items'][0]['enum']
-MAX_NUMBER_OF_DOSES = EXPOSURE_SCHEMA['properties']['doses']['maxItems']
-TIMEPOINTS_RANGE = TimepointsRange(EXPOSURE_SCHEMA['properties']['timepoints']['minimum'],
-                                   EXPOSURE_SCHEMA['properties']['timepoints']['maximum'])
+ALLOWED_PARTNERS: list[str] = INPUT_SCHEMA['properties']['partner']['enum']
+ALLOWED_ORGANISMS: list[str] = INPUT_SCHEMA['properties']['organism']['enum']
+ALLOWED_EXPOSURE_BATCH: str = INPUT_SCHEMA['properties']['exposure_batch']['pattern']
+EXPOSURE_BATCH_MAX_LENGTH: int = INPUT_SCHEMA['properties']['exposure_batch']['maxLength']
+REPLICATES_EXPOSURE_MIN: int = INPUT_SCHEMA['properties']['replicates4exposure']['minimum']
+REPLICATES_CONTROL_MIN: int = INPUT_SCHEMA['properties']['replicates4control']['minimum']
+REPLICATES_BLANK_RANGE: namedtuple = ReplicateBlankRange(INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
+                                                         INPUT_SCHEMA['properties']['replicates_blank']['maximum'])
+ALLOWED_CHEMICAL_NAMES: list[str] = EXPOSURE_SCHEMA['properties']['chemical']['enum']
+ALLOWED_DOSE_VALUES: list[str] = EXPOSURE_SCHEMA['properties']['doses']['items'][0]['enum']
+MAX_NUMBER_OF_DOSES: int = EXPOSURE_SCHEMA['properties']['doses']['maxItems']
+TIMEPOINTS_RANGE: namedtuple = TimepointsRange(EXPOSURE_SCHEMA['properties']['timepoints']['minimum'],
+                                               EXPOSURE_SCHEMA['properties']['timepoints']['maximum'])
 
-SAMPLE_SHEET_BASE_COLUMNS = [
+SAMPLE_SHEET_BASE_COLUMNS: list[str] = [
     "Shipment identifier",
     "Label tube / identifier",
     "Box No.",
@@ -44,7 +47,7 @@ SAMPLE_SHEET_BASE_COLUMNS = [
     "time point",
 ]
 
-GENERAL_SHEET_BASE_COLUMNS = [
+GENERAL_SHEET_BASE_COLUMNS: list[str] = [
     "partner",
     "organism",
     "exposure batch",
@@ -53,3 +56,6 @@ GENERAL_SHEET_BASE_COLUMNS = [
     "start date",
     "end date",
 ]
+
+# Loading .env file
+CONFIG: dict = dotenv_values(path.join(ROOT_PATH, '..', '.env'))

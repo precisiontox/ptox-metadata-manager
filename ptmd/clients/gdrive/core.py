@@ -75,27 +75,24 @@ class GoogleDriveConnector:
             folders_ids['root_directory'] = folder['id'] if folder else None
 
         for partner in ALLOWED_PARTNERS:
-            folder = content_exist(self.google_drive, partner, folders_ids['root_directory'])
+            self.google_drive.CreateFile({
+                "title": partner,
+                "parents": [{"id": folders_ids['root_directory']}],
+                "mimeType": ROOT_FOLDER_METADATA['mimeType']
+            }).Upload()
+            folder = content_exist(google_drive=self.google_drive,
+                                   folder_name=partner,
+                                   parent=folders_ids['root_directory'])
             folders_ids['partners'][partner] = folder['id'] if folder else None
-            if not folders_ids['partners'][partner]:
-                self.google_drive.CreateFile({
-                    "title": partner,
-                    "parents": [{"id": folders_ids['root_directory']}],
-                    "mimeType": ROOT_FOLDER_METADATA['mimeType']
-                }).Upload()
-                folder = content_exist(self.google_drive, partner, folders_ids['root_directory'])
-                folders_ids['partners'][partner] = folder['id'] if folder else None
         return folders_ids
 
-    def upload_file(self, partner: str, file_path: str) -> dict:
+    def upload_file(self, partner: dict, file_path: str) -> dict:
         """ This function will upload the file to the Google Drive.
 
         :param partner: The partner organisation.
         :param file_path: The path to the file to be uploaded.
         """
-        parent_folder = content_exist(google_drive=self.google_drive, folder_name=ROOT_FOLDER_METADATA['title'])
-        parent_folder_id = parent_folder['id'] if parent_folder else None
-        directory = content_exist(google_drive=self.google_drive, folder_name=partner, parent=parent_folder_id)
+        directory = content_exist(google_drive=self.google_drive, folder_name=partner['name'], parent=partner['id'])
         directory_id = directory['id'] if directory else None
         file_metadata = {
             'title': 'SAMPLE_TEST',

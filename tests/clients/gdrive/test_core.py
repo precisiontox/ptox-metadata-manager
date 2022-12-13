@@ -79,7 +79,7 @@ class TestGDriveConnector(TestCase):
     def test_create_directories_skip(self, content_exist_mock, google_drive_mock, google_auth_mock):
         gdrive_connector = GoogleDriveConnector()
         gdrive_connector.create_directories()
-        self.assertEqual(18, content_exist_mock.call_count)
+        self.assertEqual(10, content_exist_mock.call_count)
 
     @patch('ptmd.clients.gdrive.core.content_exist', return_value=None)
     def test_create_directories(self, google_drive_mock, content_exist_mock, google_auth_mock):
@@ -100,5 +100,6 @@ class TestGDriveConnector(TestCase):
         xlsx_file = path.join(here, '..', '..', 'data', 'excel', 'test.xlsx')
         partner = 'KIT'
         gdrive_connector = GoogleDriveConnector()
-        file_metadata = gdrive_connector.upload_file(file_path=xlsx_file, partner=partner)
+        file_metadata = gdrive_connector.upload_file(file_path=xlsx_file,
+                                                     partner={'name': "UOX", 'id': 123})
         self.assertEqual(content_exist_mock.return_value, file_metadata)

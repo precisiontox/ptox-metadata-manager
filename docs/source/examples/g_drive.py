@@ -21,7 +21,7 @@ def test():
                                replicate4control=4,
                                replicate_blank=2,
                                start_date='2018-01-01', end_date='2019-01-02')
-    harvester.save(output_path)
+    harvester.save_file(output_path)
     connector = GoogleDriveConnector()
     file = connector.upload_file(partner='KIT', file_path=output_path)
     return 'https://docs.google.com/spreadsheets/d/%s' % file['id']

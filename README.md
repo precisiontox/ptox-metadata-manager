@@ -10,8 +10,26 @@
 ```shell
 git clone https://github.com/ISA-tools/ptmd.git
 cd ptmd
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt # for production
 pip install -r requirements-dev.txt # for development
+```
+
+Now, rename .env.example to .env and fill in the values for your environment.
+```text
+# .env
+SQLALCHEMY_DATABASE_URL=sqlite:///ptmd.db
+SQLALCHEMY_SECRET_KEY=SECRET_KEY
+GDRIVE_CREDENTIALS_FILE=resources/credentials.txt
+```
+
+Go to your GCP console, create a new project, and enable the Google Drive API. Then, go to API & Services > Credentials 
+and create a new OAuth client ID. Download the credentials file and copy it at the root of your project. Then run the 
+following command and accept the application in your browser to generate the credential file (path in .env).
+It will also generate the database once you are done.
+```shell
+python -m ptmd -r init
 ```
 
 ## Verify and generate the documentation
@@ -20,3 +38,11 @@ docstr-coverage ptmd/ --fail-under=100
 cd docs
 make html
 ```
+
+
+## TODO:
+- [ ] Set permissions for the Google spreadsheets and directories.
+- [ ] Add controls and controls replicates to the spreadsheet.
+- [ ] Determine pattern for ID gen.
+- [ ] Add a proper title to spreadsheets and sheets.
+- [ ] Create a script to generate a database user for each organisation.
