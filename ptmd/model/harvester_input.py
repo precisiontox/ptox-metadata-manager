@@ -350,7 +350,7 @@ class HarvesterInput:
         dataframes = self.to_dataframe()
         writer = ExcelWriter(path)
         dataframes[1].to_excel(writer,
-                               sheet_name='General Information', index=False, columns=GENERAL_SHEET_BASE_COLUMNS)
+                               sheet_name='General Information', columns=GENERAL_SHEET_BASE_COLUMNS, index=False)
         dataframes[0].to_excel(writer,
                                sheet_name='Exposure conditions', columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
         writer.close()

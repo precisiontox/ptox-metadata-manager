@@ -1,1 +1,2 @@
-from .core import boot
+from .routes import app
+from .utils import init

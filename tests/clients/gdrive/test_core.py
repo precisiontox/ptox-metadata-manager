@@ -91,7 +91,9 @@ class TestGDriveConnector(TestCase):
 
         gdrive_connector2 = GoogleDriveConnector()
         self.assertEqual(gdrive_connector, gdrive_connector2)
+        gdrive_connector2.google_drive = None
         gdrive_connector2._GoogleDriveConnector__google_auth.access_token_expired = True
+        gdrive_connector2.connect()
         self.assertIsNotNone(gdrive_connector2.google_drive)
 
     @patch('ptmd.clients.gdrive.core.content_exist', return_value={'id': '1234'})
