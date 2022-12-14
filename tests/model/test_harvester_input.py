@@ -12,7 +12,8 @@ from ptmd.const import (
     ALLOWED_DOSE_VALUES,
     REPLICATES_EXPOSURE_MIN,
     REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS
+    SAMPLE_SHEET_BASE_COLUMNS,
+    GENERAL_SHEET_BASE_COLUMNS
 )
 
 PARTNER = ALLOWED_PARTNERS[0]
@@ -27,6 +28,8 @@ START_DATE = '2018-01-01'
 END_DATE = '2019-01-02'
 CLASS_NAME = HarvesterInput.__name__
 HERE = path.dirname(path.abspath(__file__))
+EXPOSURE_CONDITIONS = [{'chemical_name': CHEMICAL_NAME, 'doses': [DOSE_VALUE], 'timepoints': 1}]
+exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
 
 
 class TestHarvesterInputErrors(TestCase):
@@ -61,12 +64,11 @@ class TestHarvesterInputErrors(TestCase):
                          str(context.exception))
 
     def test_constructor_errors_with_exposure_conditions(self):
-        exposure_conditions = [{'foo': 'bar'}]
         error = "__init__() got an unexpected keyword argument 'foo'"
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER,
                            organism=ORGANISM,
-                           exposure_conditions=exposure_conditions,
+                           exposure_conditions=[{'foo': 'bar'}],
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
@@ -199,19 +201,11 @@ class TestHarvesterInputErrors(TestCase):
                          str(context.exception))
 
     def test_constructor_success(self):
-        exposure_conditions = [{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE}]
-        expected_exposure_conditions = [ExposureCondition(**exposure_conditions[0])]
-        harvester = HarvesterInput(partner=PARTNER,
-                                   organism=ORGANISM,
-                                   exposure_conditions=exposure_conditions,
-                                   exposure_batch=EXPOSURE_BATCH,
-                                   replicate4exposure=REPLICATES_EXPOSURE,
-                                   replicate4control=REPLICATES_CONTROL,
-                                   replicate_blank=REPLICATES_BLANK,
-                                   start_date=START_DATE, end_date=END_DATE)
+
+        harvester = make_harvester()
         self.assertEqual(ALLOWED_PARTNERS[0], harvester.partner)
         self.assertEqual(ALLOWED_ORGANISMS[0], harvester.organism)
-        self.assertEqual(expected_exposure_conditions, harvester.exposure_conditions)
+        self.assertEqual(exposure_conditions, harvester.exposure_conditions)
         self.assertEqual(EXPOSURE_BATCH, harvester.exposure_batch)
         self.assertEqual(REPLICATES_EXPOSURE, harvester.replicate4exposure)
         self.assertEqual(REPLICATES_CONTROL, harvester.replicate4control)
@@ -219,39 +213,30 @@ class TestHarvesterInputErrors(TestCase):
         self.assertIsInstance(harvester.start_date, datetime)
 
     def test_add_exposure_batch(self):
-        exposure_conditions = [{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE}]
-        exposure_condition = ExposureCondition(**exposure_conditions[0])
-        harvester = HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
-                                   replicate4exposure=REPLICATES_EXPOSURE,
-                                   replicate4control=REPLICATES_CONTROL,
-                                   replicate_blank=REPLICATES_BLANK,
-                                   start_date=START_DATE, end_date=END_DATE)
-
+        harvester = make_harvester()
+        harvester.add_exposure_condition(EXPOSURE_CONDITIONS[0])
+        self.assertEqual([*exposure_conditions, *exposure_conditions], harvester.exposure_conditions)
         harvester.add_exposure_condition(exposure_conditions[0])
-        self.assertEqual([exposure_condition], harvester.exposure_conditions)
-
-        harvester.add_exposure_condition(exposure_condition)
-        self.assertEqual([exposure_condition, exposure_condition], harvester.exposure_conditions)
-
+        self.assertEqual([*exposure_conditions, *exposure_conditions, *exposure_conditions],
+                         harvester.exposure_conditions)
         with self.assertRaises(ValueError) as context:
             harvester.add_exposure_condition('foo')
-        self.assertEqual(
-            "The exposure condition must be a dict or an ExposureCondition object",
-            str(context.exception))
+        self.assertEqual("The exposure condition must be a dict or an ExposureCondition object", str(context.exception))
 
     def test_to_dict(self):
-        exposure_condition = {'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE}
         expected = {
-            'partner': PARTNER, 'organism': ORGANISM, 'exposure_conditions': [exposure_condition],
+            'partner': PARTNER,
+            'organism': ORGANISM,
+            'exposure_conditions': EXPOSURE_CONDITIONS,
             'exposure_batch': EXPOSURE_BATCH,
             'replicate4exposure': REPLICATES_EXPOSURE,
             'replicate4control': REPLICATES_CONTROL,
             'replicate_blank': REPLICATES_BLANK,
-            'start_date': START_DATE, 'end_date': END_DATE
+            'start_date': START_DATE,
+            'end_date': END_DATE
         }
         start_date = parse_date(START_DATE)
         end_date = parse_date(END_DATE)
-        exposure_conditions = [ExposureCondition(**exposure_condition)]
         harvester = HarvesterInput(partner=PARTNER,
                                    organism=ORGANISM,
                                    exposure_conditions=exposure_conditions,
@@ -259,34 +244,51 @@ class TestHarvesterInputErrors(TestCase):
                                    replicate4exposure=REPLICATES_EXPOSURE,
                                    replicate4control=REPLICATES_CONTROL,
                                    replicate_blank=REPLICATES_BLANK,
-                                   start_date=start_date, end_date=end_date)
+                                   start_date=start_date,
+                                   end_date=end_date)
         self.assertEqual(expected, dict(harvester))
 
     def test_to_dataframe(self):
         harvester = make_harvester()
-        sample_dataframe = harvester.to_dataframe()
+        dataframes = harvester.to_dataframe()
+        sample_dataframe = dataframes[0]
+        general_dataframe = dataframes[1]
+
         for col in SAMPLE_SHEET_BASE_COLUMNS:
             self.assertIn(col, sample_dataframe.columns)
-        self.assertEqual(1, len(sample_dataframe.index))
+        self.assertEqual(10, len(sample_dataframe.index))
         self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
+
+        for col in GENERAL_SHEET_BASE_COLUMNS:
+            self.assertIn(col, general_dataframe.columns)
 
     def test_save_dataframe(self):
         output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
         harvester = make_harvester()
-        file_path = harvester.save(output_path)
-        self.assertTrue(path.exists(file_path))
+        file_path = harvester.save_file(output_path)
+        self.assertIsNotNone(file_path)
+
+    def test_delete_file(self):
+        output_path = path.join(HERE, '..', 'data', 'excel', 'temp.xlsx')
+        harvester = make_harvester()
+        file_path = harvester.save_file(output_path)
+        self.assertIsNotNone(file_path)
+        harvester.delete_file()
+        self.assertFalse(path.exists(output_path))
+
+        with self.assertRaises(FileNotFoundError) as context:
+            harvester = make_harvester()
+            harvester.delete_file()
+        self.assertEqual('This input was not saved yet.', str(context.exception))
 
 
 def make_harvester():
-    output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
-    exposure_condition = [ExposureCondition(**{'chemical_name': CHEMICAL_NAME, 'dose': DOSE_VALUE})]
-    harvester = HarvesterInput(partner=PARTNER,
-                               organism=ORGANISM,
-                               exposure_conditions=exposure_condition,
-                               exposure_batch=EXPOSURE_BATCH,
-                               replicate4exposure=REPLICATES_EXPOSURE,
-                               replicate4control=REPLICATES_CONTROL,
-                               replicate_blank=REPLICATES_BLANK,
-                               start_date=START_DATE, end_date=END_DATE)
-    harvester.save(output_path)
-    return harvester
+    return HarvesterInput(partner=PARTNER,
+                          organism=ORGANISM,
+                          exposure_conditions=exposure_conditions,
+                          exposure_batch=EXPOSURE_BATCH,
+                          replicate4exposure=REPLICATES_EXPOSURE,
+                          replicate4control=REPLICATES_CONTROL,
+                          replicate_blank=REPLICATES_BLANK,
+                          start_date=START_DATE,
+                          end_date=END_DATE)

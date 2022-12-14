@@ -12,6 +12,7 @@ Welcome to Precision Toxixology Metadata Manager's documentation!
    :titlesonly:
    :numbered:
 
+   examples/create_update_spreadsheet
    ptmd/model/index
 
 

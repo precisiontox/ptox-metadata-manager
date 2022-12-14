@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://rawgithub.com/...",
+  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/exposure_schema.json",
   "type": "object",
   "description": "A JSON Schema representing an exposure condition",
   "properties": {
@@ -9,9 +9,15 @@
         "enum": ["chemical1", "chemical2", "chemical3"],
         "description": "The chemical name."
       },
-      "dose": {
-          "type": "string",
-          "enum": ["0", "BMD10", "BMD25", "10mg/L"]
+      "doses": {
+          "type": "array",
+          "items": [{"type": "string", "enum": ["0", "BMD10", "BMD25", "10mg/L"]}],
+          "maxItems": 4
+      },
+      "timepoints": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4
       }
-}
+  }
 }

@@ -11,19 +11,19 @@ class MockGoogleAuth(GoogleAuth):
     credentials = None
     access_token_expired = True
 
-    def LoadCredentialsFile(self, *args, **kwargs):
+    def LoadCredentialsFile(*args, **kwargs):
         pass
 
-    def LocalWebserverAuth(self, *args, **kwargs):
+    def LocalWebserverAuth(*args, **kwargs):
         pass
 
     def SaveCredentialsFile(self, *args, **kwargs):
         pass
 
-    def Refresh(self):
+    def Refresh(*args, **kwargs):
         pass
 
-    def Authorize(self):
+    def Authorize(self, *args, **kwargs):
         pass
 
     def SaveCredentials(self, backend=None):
@@ -53,7 +53,7 @@ class MockGoogleDrive:
         return FileMock()
 
 
-@patch('ptmd.clients.gdrive.core.GoogleAuth')
+@patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
 @patch('ptmd.clients.gdrive.core.GoogleDrive', return_value=MockGoogleDrive())
 class TestGDriveConnector(TestCase):
 
@@ -79,7 +79,7 @@ class TestGDriveConnector(TestCase):
     def test_create_directories_skip(self, content_exist_mock, google_drive_mock, google_auth_mock):
         gdrive_connector = GoogleDriveConnector()
         gdrive_connector.create_directories()
-        self.assertEqual(18, content_exist_mock.call_count)
+        self.assertEqual(10, content_exist_mock.call_count)
 
     @patch('ptmd.clients.gdrive.core.content_exist', return_value=None)
     def test_create_directories(self, google_drive_mock, content_exist_mock, google_auth_mock):
@@ -91,14 +91,16 @@ class TestGDriveConnector(TestCase):
 
         gdrive_connector2 = GoogleDriveConnector()
         self.assertEqual(gdrive_connector, gdrive_connector2)
+        gdrive_connector2.google_drive = None
         gdrive_connector2._GoogleDriveConnector__google_auth.access_token_expired = True
+        gdrive_connector2.connect()
         self.assertIsNotNone(gdrive_connector2.google_drive)
 
     @patch('ptmd.clients.gdrive.core.content_exist', return_value={'id': '1234'})
     def test_upload_file(self, content_exist_mock, google_drive_mock, google_auth_mock):
         here = path.abspath(path.dirname(__file__))
         xlsx_file = path.join(here, '..', '..', 'data', 'excel', 'test.xlsx')
-        partner = 'KIT'
         gdrive_connector = GoogleDriveConnector()
-        file_metadata = gdrive_connector.upload_file(file_path=xlsx_file, partner=partner)
+        file_metadata = gdrive_connector.upload_file(file_path=xlsx_file,
+                                                     directory_id=123)
         self.assertEqual(content_exist_mock.return_value, file_metadata)

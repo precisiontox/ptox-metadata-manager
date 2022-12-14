@@ -2,19 +2,19 @@
 
 @author: Terazus (D. Batista)
 """
-
+from os import remove
 from re import match
 from typing import List
 from datetime import datetime
 
 from dateutil.parser import parse as parse_date
-from pandas import DataFrame, Series, concat as pandas_concat
+from pandas import DataFrame, Series, concat as pandas_concat, ExcelWriter
 
 from ptmd.const import (
     ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN,
     REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS
+    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS
 )
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
@@ -34,6 +34,7 @@ class HarvesterInput:
     :param end_date:
     :param exposure_conditions: list of chemical names and doses
     """
+
     def __init__(self,
                  partner: str,
                  organism: str,
@@ -285,32 +286,79 @@ class HarvesterInput:
         for key, value in iters.items():
             yield key, value
 
-    def to_dataframe(self) -> DataFrame:
+    def to_dataframe(self) -> tuple[DataFrame, DataFrame]:
         """ Convert the object to a pandas DataFrame.
 
         :return: The pandas DataFrame.
         """
         sample_dataframe = DataFrame(columns=SAMPLE_SHEET_BASE_COLUMNS)
+        general_dataframe = DataFrame(columns=GENERAL_SHEET_BASE_COLUMNS)
+        general_series = Series([
+            self.partner,
+            self.organism,
+            self.exposure_batch,
+            self.replicate4control,
+            self.replicate_blank,
+            self.start_date.strftime('%Y-%m-%d'),
+            self.end_date.strftime('%Y-%m-%d'),
+        ], index=general_dataframe.columns)
+        general_dataframe = pandas_concat([general_dataframe, general_series.to_frame().T],
+                                          ignore_index=False, sort=False, copy=False)
         for chemical in self.exposure_conditions:
+            for dose in chemical.doses:
+                for tp in range(chemical.timepoints):
+                    for replicate in range(self.replicate4exposure):
+                        time_point = tp + 1
+                        series = Series([
+                            '', '', '', '', '', '', '', '',
+                            replicate + 1,
+                            chemical.chemical_name,
+                            dose,
+                            'TP%s' % time_point,
+                        ], index=sample_dataframe.columns)
+                        sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                                         ignore_index=False, sort=False, copy=False)
+
+            for replicate in range(self.replicate4control):
+                series = Series([
+                    '', '', '', '', '', '', '', '',
+                    replicate + 1,
+                    "CONTROL (SEE VEHICLE)",
+                    0,
+                    'TP1',
+                ], index=sample_dataframe.columns)
+                sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                                 ignore_index=False, sort=False, copy=False)
+        for blank in range(self.replicate_blank):
             series = Series([
                 '', '', '', '', '', '', '', '',
-                self.partner, self.organism, self.exposure_batch, self.replicate4exposure, self.replicate4control,
-                self.replicate_blank, self.start_date.strftime('%Y-%m-%d'), self.end_date.strftime('%Y-%m-%d'),
-                chemical.chemical_name, chemical.dose
+                0,
+                'EXTRACTION BLANK',
+                "0",
+                'TP0',
             ], index=sample_dataframe.columns)
             sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                             ignore_index=True, sort=False, copy=False)
-        return sample_dataframe
+                                             ignore_index=False, sort=False, copy=False)
+        return sample_dataframe, general_dataframe
 
-    def save(self, path: str) -> str:
+    def save_file(self, path: str) -> str:
         """ Save the sample sheet to a file.
 
         :param path: The path to the file.
         :return: The path to the file the sample sheet was saved to.
         """
-        self.to_dataframe().to_excel(excel_writer=path,
-                                     sheet_name='SAMPLE_TEST',
-                                     na_rep='',
-                                     columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
+        dataframes = self.to_dataframe()
+        writer = ExcelWriter(path)
+        dataframes[1].to_excel(writer,
+                               sheet_name='General Information', columns=GENERAL_SHEET_BASE_COLUMNS, index=False)
+        dataframes[0].to_excel(writer,
+                               sheet_name='Exposure conditions', columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
+        writer.close()
         self.file_path = path
         return path
+
+    def delete_file(self) -> None:
+        """ Delete the sample sheet file. """
+        if not self.file_path:
+            raise FileNotFoundError('This input was not saved yet.')
+        remove(self.file_path)

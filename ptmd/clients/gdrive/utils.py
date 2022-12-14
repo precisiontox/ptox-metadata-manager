@@ -10,7 +10,7 @@ from .const import MIME_TYPE_FOLDER
 def content_exist(google_drive: GoogleDrive,
                   folder_name: str,
                   type_: str = "folder",
-                  parent: str = 'root') -> dict or None:
+                  parent: str or int = 'root') -> dict or None:
     """ Finds if the directory already exists in the drive and in the given directory.
 
     @param google_drive: The GoogleDrive object.

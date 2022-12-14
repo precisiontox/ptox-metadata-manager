@@ -1,0 +1,114 @@
+""" This module contains the database models and a function to login users. This may need to be split into a proper
+module later on.
+
+:author: D. Batista (Terazus)
+"""
+
+from datetime import timedelta
+
+from passlib.hash import bcrypt
+from flask_jwt_extended import create_access_token
+from flask import jsonify, Response
+from sqlalchemy.orm import session as sqlsession
+
+from .config import Base, db
+
+
+class Organisation(Base):
+    """ Organisation model. """
+    __tablename__: str = 'organisation'
+    organisation_id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(100), nullable=False, unique=True)
+    gdrive_id: str = db.Column(db.String(100), nullable=True, unique=True)
+
+    def __iter__(self) -> dict:
+        """ Iterator for the object. Used to serialize the object as a dictionary.
+
+        :return: The iterator.
+        """
+        organisation: dict = {
+            'organisation_id': self.organisation_id,
+            'name': self.name,
+            'gdrive_id': self.gdrive_id if self.gdrive_id else None
+        }
+        for key, value in organisation.items():
+            yield key, value
+
+
+class User(Base):
+    """ User model. """
+    __tablename__: str = "user"
+    id: int = db.Column(db.Integer, primary_key=True)
+    username: str = db.Column(db.String(80), unique=True, nullable=False)
+    password: str = db.Column(db.String(300), nullable=False)
+
+    organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=True)
+    organisation: db.relationship = db.relationship('Organisation', backref=db.backref('users'), lazy='subquery')
+
+    def __init__(self, username: str, password: str,
+                 organisation: Organisation or None = None,
+                 session: sqlsession = None) -> None:
+        """ Constructor for the User class. Let's use encode the password with bcrypt before committing it to the
+        database. """
+        self.username: str = username
+        self.password: str = bcrypt.hash(password)
+        if organisation and not isinstance(organisation, Organisation) and not isinstance(organisation, str):
+            raise TypeError('organisation must be an Organisation object or a string')
+        if isinstance(organisation, Organisation):
+            self.organisation: Organisation = organisation
+        elif organisation:
+            if not session:
+                raise ValueError('session must be provided if organisation is a string')
+            org = session.query(Organisation).filter_by(name=organisation).first()
+            self.organisation: Organisation = org
+
+    def __iter__(self) -> dict:
+        """ Iterator for the object. Used to serialize the object as a dictionary.
+
+        :return: The iterator.
+        """
+        user = {
+            "id": self.id,
+            "username": self.username,
+            "organisation": dict(self.organisation) if self.organisation else None
+        }
+        for key, value in user.items():
+            yield key, value
+
+    def validate_password(self, password: str) -> bool:
+        """ Checks if a user password is valid
+
+        :param password: the password to check
+        :return: True if the password is valid, False otherwise
+        """
+        return bcrypt.verify(password, self.password)
+
+    def change_password(self, old_password: str, new_password: str, session: sqlsession) -> bool:
+        """ Change the user password.
+
+        :param old_password: the old password
+        :param new_password: the new password
+        :param session: the database session
+        :return: True if the password was changed, False otherwise
+        """
+        if self.validate_password(old_password):
+            self.password = bcrypt.hash(new_password)
+            session.commit()
+            return True
+        return False
+
+
+def login_user(username: str, password: str, session: sqlsession) -> tuple[Response, int]:
+    """ Login a user and return a JWT token. The username and password are retrieved from the request body.
+
+    @param username
+    @param password
+    @param session: the database session
+    @return: Response, int: the response message and the response code
+    """
+    user = session.query(User).filter_by(username=username).first()
+    user = dict(user) if user and user.validate_password(password) else None
+    if not user:
+        return jsonify({"msg": "Bad username or password"}), 401
+    access_token = create_access_token(identity=user['id'], expires_delta=timedelta(days=1000000))
+    return jsonify(access_token=access_token), 200
