@@ -10,7 +10,7 @@ from ptmd.clients import GoogleDriveConnector
 from ptmd.database import boot, User, Organisation
 
 
-def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str: User], dict[str: Organisation]]:
+def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str, User], dict[str, Organisation]]:
     """ Initialize the application. This will the directories on Google Drive, get their
     identifiers and create the database with partners and users.
 
