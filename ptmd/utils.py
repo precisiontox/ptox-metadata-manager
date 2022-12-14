@@ -18,9 +18,9 @@ def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str: User],
     :param session: the database SQLAlchemy session
     :return: A tuple containing the organisations and users from the database.
     """
+    connector = GoogleDriveConnector()
     users_from_database = session.query(User).all()
     if not users_from_database:
-        connector = GoogleDriveConnector()
         folders = connector.create_directories()
         organisations, users = boot(organisations=folders['partners'],
                                     users=users, insert=True, session=session)
