@@ -22,4 +22,3 @@ def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str: User],
 
     organisations = session.query(Organisation).all()
     return {user.username: user.id for user in users_from_database}, {org.name: org.gdrive_id for org in organisations}
-

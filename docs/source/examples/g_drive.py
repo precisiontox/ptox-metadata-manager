@@ -1,7 +1,6 @@
 from os import path
 
 from ptmd import HarvesterInput, GoogleDriveConnector
-from ptmd.database import boot, app
 
 
 HERE = path.abspath(path.dirname(__file__))

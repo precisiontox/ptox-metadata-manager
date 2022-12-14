@@ -92,4 +92,3 @@ class TestAPIQueries(TestCase):
             data["exposure_conditions"][0]["doses"] = ["BMD10"]
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': '456'}})
-

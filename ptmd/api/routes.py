@@ -1,6 +1,6 @@
 from flask_jwt_extended import jwt_required
 
-from ptmd.database import app, login_user
+from ptmd.database import app
 from .queries import login as login_user, get_me, create_gdrive_file
 
 
