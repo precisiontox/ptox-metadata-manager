@@ -18,6 +18,7 @@ SWAGGER_DATA_PATH = path.join(ROOT_PATH, 'resources', 'api')
 @app.route("/api/login", methods=["POST"])
 @swag_from(path.join(SWAGGER_DATA_PATH, 'login.yml'))
 def login():
+    """ Route to log in a user. Acquire data from a JSON request """
     return login_user()
 
 
