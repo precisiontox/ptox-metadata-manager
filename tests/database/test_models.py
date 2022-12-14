@@ -72,3 +72,10 @@ class TestModel(TestCase):
             logged_in = login_user(user_input['username'], 'wrong_password', self.session)
             self.assertEqual(logged_in[0].json, ({"msg": "Bad username or password"}))
             self.assertEqual(logged_in[1], 401)
+
+        user_input['organisation'] = 'test'
+        with self.assertRaises(ValueError) as context:
+            user = User(**user_input)
+        self.assertEqual("session must be provided if organisation is a string", str(context.exception))
+        user = User(**user_input, session=self.session)
+        self.assertIsNone(user.organisation)
