@@ -44,6 +44,8 @@ Finally, it will boot the flask API.
 python -m app
 ```
 
+Once the API is booted go to http://localhost:5000/apidocs to see the Swagger documentation.
+
 ## Testing
 You will need the development dependencies installed to run the tests.
 ```shell
