@@ -29,7 +29,6 @@
         "type": "number",
         "minimum": 4
       },
-      "time_points": [],
       "exposure": {
           "type": "array",
           "description": "The exposure represent a list of chemical names and doses.",

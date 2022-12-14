@@ -1,0 +1,94 @@
+The login route
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: body
+    in: body
+    required: true
+    schema:
+      id: Create File
+      schema:
+        $ref: '#/definitions/Create File'
+definitions:
+  Create File:
+    type: object
+    required:
+      - partner
+      - organism
+      - exposure_batch
+      - replicate4exposure
+      - replicate4control
+      - replicate_blank
+      - start_date
+      - end_date
+      - exposure_conditions
+    properties:
+      partner:
+        type: string
+        description: The name of the partner
+        example: UOB
+      organism:
+        type: string
+        description: The name of the organism
+        example: organism1
+      exposure_batch:
+        type: string
+        description: The code of the current exposure batch
+        example: AC
+      replicate4exposure:
+        type: integer
+        description: The number of replicate for the exposure
+        example: 4
+      replicate4control:
+        type: integer
+        description: The number of replicate for the control
+        example: 4
+      replicate_blank:
+        type: integer
+        description: The number of blanks in the experiment
+        example: 2
+      start_date:
+        type: string
+        description: The start date of the experiment
+        example: 2020-01-01
+      end_date:
+        type: string
+        description: The end date of the experiment
+        example: 2020-10-01
+      exposure_conditions:
+        type: array
+        description: The exposure conditions
+        items:
+            $ref: '#/definitions/Exposure Conditions'
+        example: [{"chemical_name": "chemical1", "doses": ["BMD10", "BMD25"], "timepoints": 2}]
+  Exposure Conditions:
+    type: object
+    required:
+      - chemical_name
+      - doses
+      - timepoints
+    properties:
+        chemical_name:
+            type: string
+            description: The name of the chemical
+        doses:
+            type: array
+            description: The doses of the chemical
+            schema:
+                $ref: '#/definitions/Dose'
+        timepoints:
+            type: integer
+            description: The number of timepoints
+  Dose:
+    type: string
+    description: The dose of the chemical
+    enum: ["0", "BMD10", "BMD25", "10mg/L"]
+
+responses:
+  200:
+    description: The URL to the google spreadsheet
+    example: {"data": {"file_url": https://docs.google.com/spreadsheets/d/1}}

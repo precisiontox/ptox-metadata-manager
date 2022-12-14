@@ -10,6 +10,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flasgger import Swagger
 
 from .const import SQLALCHEMY_SECRET_KEY
 
@@ -20,3 +21,4 @@ app.config['SECRET_KEY'] = SQLALCHEMY_SECRET_KEY
 jwt = JWTManager(app)
 CORS(app)
 Base = db.Model
+swagger = Swagger(app)
