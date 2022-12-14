@@ -11,19 +11,19 @@ class MockGoogleAuth(GoogleAuth):
     credentials = None
     access_token_expired = True
 
-    def LoadCredentialsFile(self, *args, **kwargs):
+    def LoadCredentialsFile(*args, **kwargs):
         pass
 
-    def LocalWebserverAuth(self, *args, **kwargs):
+    def LocalWebserverAuth(*args, **kwargs):
         pass
 
     def SaveCredentialsFile(self, *args, **kwargs):
         pass
 
-    def Refresh(self):
+    def Refresh(*args, **kwargs):
         pass
 
-    def Authorize(self):
+    def Authorize(self, *args, **kwargs):
         pass
 
     def SaveCredentials(self, backend=None):
@@ -53,7 +53,7 @@ class MockGoogleDrive:
         return FileMock()
 
 
-@patch('ptmd.clients.gdrive.core.GoogleAuth')
+@patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
 @patch('ptmd.clients.gdrive.core.GoogleDrive', return_value=MockGoogleDrive())
 class TestGDriveConnector(TestCase):
 

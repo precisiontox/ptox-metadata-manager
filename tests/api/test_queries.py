@@ -5,6 +5,7 @@ from json import dumps
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from flask_jwt_extended import create_access_token
+from pydrive2.auth import GoogleAuth
 
 from ptmd.api import app
 from ptmd.database import Base, User, Organisation
@@ -14,6 +15,29 @@ engine = create_engine("sqlite:///:memory:")
 Base.metadata.create_all(engine)
 session = sessionmaker(bind=engine)()
 HEADERS = {'Content-Type': 'application/json'}
+
+
+class MockGoogleAuth(GoogleAuth):
+    credentials = None
+    access_token_expired = True
+
+    def LoadCredentialsFile(*args, **kwargs):
+        pass
+
+    def LocalWebserverAuth(*args, **kwargs):
+        pass
+
+    def SaveCredentialsFile(self, *args, **kwargs):
+        pass
+
+    def Refresh(*args, **kwargs):
+        pass
+
+    def Authorize(*args, **kwargs):
+        pass
+
+    def SaveCredentials(self, backend=None):
+        pass
 
 
 @patch('ptmd.api.queries.get_session', return_value=session)
@@ -57,8 +81,9 @@ class TestAPIQueries(TestCase):
             self.assertEqual(response.status_code, 401)
             self.assertEqual(response.json, {'msg': 'Invalid token'})
 
+    @patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
     @patch('ptmd.api.queries.GoogleDriveConnector.upload_file', return_value=({"alternateLink": "456"}))
-    def test_create_gdrive_file(self, mock_upload, mock_get_session):
+    def test_create_gdrive_file(self, mock_upload, mock_auth, mock_get_session):
         organisation = {'name': 'UOB', 'gdrive_id': '456'}
         new_organisation = Organisation(**organisation)
         session.add(new_organisation)
