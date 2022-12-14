@@ -58,7 +58,6 @@ class GoogleDriveConnector:
     def refresh_connection(self):
         """ This function will refresh the connection to the Google Drive when the token has expired. """
         if self.__google_auth.access_token_expired:
-            print(self.__google_auth)
             self.__google_auth.Refresh()
             self.__google_auth.SaveCredentialsFile(self.__credential_file)
             self.google_drive = GoogleDrive(self.__google_auth)

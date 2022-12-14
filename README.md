@@ -29,7 +29,7 @@ and create a new OAuth client ID. Download the credentials file and copy it at t
 following command and accept the application in your browser to generate the credential file (path in .env).
 It will also generate the database once you are done.
 ```shell
-python -m ptmd -r init
+python -m app
 ```
 
 ## Verify and generate the documentation

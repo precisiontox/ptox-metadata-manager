@@ -1,3 +1,9 @@
+""" This module contains utility functions for the application. It contains the initialization function that will create
+the database and the Google Drive directories.
+
+@author: D. Batista (Terazus)
+"""
+
 from sqlalchemy.orm import session as sqlsession
 
 from ptmd.clients import GoogleDriveConnector

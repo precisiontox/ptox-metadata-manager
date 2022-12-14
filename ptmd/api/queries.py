@@ -1,3 +1,11 @@
+""" All queries related to the dataabase and the Google Drive integration are defined here.
+It contains:
+    - login_user to log in a user
+    - get_me to get the current user
+    - create_gdrive_file to create a file in the Google Drive using the data provided by the user
+
+:author: D. Batista (Terazus)
+"""
 from os import path
 
 from flask import jsonify, request, Response
@@ -11,6 +19,10 @@ from .utils import get_session
 
 
 def login() -> tuple[Response, int]:
+    """ Function to log in a user. Acquire data from a JSON request
+
+    :return: tuple containing a JSON response and a status code
+    """
     session: Session = get_session()
     username: str = request.json.get('username', None)
     password: str = request.json.get('password', None)
@@ -22,6 +34,10 @@ def login() -> tuple[Response, int]:
 
 
 def get_me() -> tuple[Response, int]:
+    """ Function to get the current user. Acquire data from the JWT
+
+    :return: tuple containing a JSON response and a status code
+    """
     try:
         session: Session = get_session()
         user_id: int = get_jwt()['sub']
@@ -33,6 +49,11 @@ def get_me() -> tuple[Response, int]:
 
 
 def create_gdrive_file() -> tuple[Response, int]:
+    """ Function to create a file in the Google Drive using the data provided by the user. Acquire data from a
+    JSON request.
+
+    :return: tuple containing a JSON response and a status code
+    """
     filepath: str = path.join(ROOT_PATH, 'resources', 'test.xlsx')
     data = {
         'partner': request.json.get('partner', None),
