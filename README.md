@@ -9,14 +9,14 @@
 
 ## Getting started
 ### Requirements:
-- Python 3.9 or newer
-- A Google Cloud Platform account with the Google Drive API enabled.
-- An SQL database running. Tested with SQLite.
+-  Python 3.9 or newer
+-  A Google Cloud Platform account with the Google Drive API enabled.
+-  An SQL database running. Tested with SQLite.
 
 ### Setup:
 Clone and install the dependencies in a virtual environment:
 ```shell
-git clone https://github.com/ISA-tools/ptmd.git
+git clone https://github.com/precisiontox/ptox-metadata-manager.git
 cd ptox-metadata-manager
 python -m venv venv
 source venv/bin/activate
@@ -54,8 +54,15 @@ coverage report -m
 
 ## Verify and generate the documentation
 You will need the development dependencies installed to generate the documentation.
+For Unix based systems:
 ```shell
 docstr-coverage ptmd/ --fail-under=100
 cd docs
 make html
+```
+
+For Windows:
+```shell
+docstr-coverage ptmd/ --fail-under=100
+.\docs\make.bat html
 ```
