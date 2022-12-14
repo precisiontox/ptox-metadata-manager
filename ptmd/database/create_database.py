@@ -13,7 +13,7 @@ from .models import User, Organisation
 def boot(session: sqlsession,
          organisations: dict = (),
          users: list[dict] = (),
-         insert: bool = False) -> list[dict[str: Organisation], dict[str: User]]:
+         insert: bool = False) -> list[dict[str, Organisation], dict[str, User]]:
     """ Boot the database. This will create all tables and insert the default users.
 
     :param session: the database SQLAlchemy session
@@ -22,8 +22,8 @@ def boot(session: sqlsession,
     :param insert: bool: insert the default users
     :return: a list containing users and organisations
     """
-    created_organisations: dict[str: Organisation] = {}
-    created_users: dict[str: User] = {}
+    created_organisations: dict[str, Organisation] = {}
+    created_users: dict[int, User] = {}
     if insert:
         created_organisations = create_organisations(organisations=organisations, session=session)
         created_users = create_users(users=users, session=session)
@@ -31,7 +31,7 @@ def boot(session: sqlsession,
     return [created_organisations, created_users]
 
 
-def create_organisations(organisations: dict, session: sqlsession) -> dict[str: Organisation]:
+def create_organisations(organisations: dict, session: sqlsession) -> dict[str, Organisation]:
     """ Create organisations in the database.
 
     :param organisations: list[str]: list of organisations names
@@ -49,7 +49,7 @@ def create_organisations(organisations: dict, session: sqlsession) -> dict[str: 
     return organisation
 
 
-def create_users(users: list[dict], session: sqlsession) -> dict[str: User]:
+def create_users(users: list[dict], session: sqlsession) -> dict[int, User]:
     """ Create users in the database.
 
     :param users: list[dict]: list of users
