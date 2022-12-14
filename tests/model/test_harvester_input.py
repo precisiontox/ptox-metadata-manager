@@ -256,7 +256,7 @@ class TestHarvesterInputErrors(TestCase):
 
         for col in SAMPLE_SHEET_BASE_COLUMNS:
             self.assertIn(col, sample_dataframe.columns)
-        self.assertEqual(4, len(sample_dataframe.index))
+        self.assertEqual(10, len(sample_dataframe.index))
         self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
 
         for col in GENERAL_SHEET_BASE_COLUMNS:

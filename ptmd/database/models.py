@@ -16,8 +16,8 @@ from .config import Base, db
 
 class Organisation(Base):
     """ Organisation model. """
-    __tablename__ = 'organisation'
-    organisation_id = db.Column(db.Integer, primary_key=True)
+    __tablename__: str = 'organisation'
+    organisation_id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False, unique=True)
     gdrive_id: str = db.Column(db.String(100), nullable=True, unique=True)
 
@@ -26,7 +26,7 @@ class Organisation(Base):
 
         :return: The iterator.
         """
-        organisation = {
+        organisation: dict = {
             'organisation_id': self.organisation_id,
             'name': self.name,
             'gdrive_id': self.gdrive_id if self.gdrive_id else None
@@ -43,16 +43,24 @@ class User(Base):
     password: str = db.Column(db.String(300), nullable=False)
 
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=True)
-    organisation: db.relationship = db.relationship('Organisation', backref=db.backref('users'))
+    organisation: db.relationship = db.relationship('Organisation', backref=db.backref('users'), lazy='subquery')
 
-    def __init__(self, username: str, password: str, organisation: Organisation or None = None) -> None:
+    def __init__(self, username: str, password: str,
+                 organisation: Organisation or None = None,
+                 session: sqlsession = None) -> None:
         """ Constructor for the User class. Let's use encode the password with bcrypt before committing it to the
         database. """
         self.username: str = username
         self.password: str = bcrypt.hash(password)
-        if organisation and not isinstance(organisation, Organisation):
-            raise TypeError('organisation must be an Organisation object')
-        self.organisation: Organisation or None = organisation if organisation else None
+        if organisation and not isinstance(organisation, Organisation) and not isinstance(organisation, str):
+            raise TypeError('organisation must be an Organisation object or a string')
+        if isinstance(organisation, Organisation):
+            self.organisation: Organisation = organisation
+        elif organisation:
+            if not session:
+                raise ValueError('session must be provided if organisation is a string')
+            org = session.query(Organisation).filter_by(name=organisation).first()
+            self.organisation: Organisation = org
 
     def __iter__(self) -> dict:
         """ Iterator for the object. Used to serialize the object as a dictionary.

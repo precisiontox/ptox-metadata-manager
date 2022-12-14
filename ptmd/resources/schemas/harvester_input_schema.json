@@ -40,7 +40,8 @@
       "replicates_blank": {
         "type": "number",
         "minimum": 1,
-        "maximum": 3
+        "maximum": 3,
+        "definition": "The number of replicates for the blank samples."
       },
       "start_date": {
         "type": "string",

@@ -100,5 +100,5 @@ class TestGDriveConnector(TestCase):
         xlsx_file = path.join(here, '..', '..', 'data', 'excel', 'test.xlsx')
         gdrive_connector = GoogleDriveConnector()
         file_metadata = gdrive_connector.upload_file(file_path=xlsx_file,
-                                                     partner={'name': "UOX", 'id': 123})
+                                                     directory_id=123)
         self.assertEqual(content_exist_mock.return_value, file_metadata)

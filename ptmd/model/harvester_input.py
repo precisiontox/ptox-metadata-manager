@@ -305,9 +305,9 @@ class HarvesterInput:
         general_dataframe = pandas_concat([general_dataframe, general_series.to_frame().T],
                                           ignore_index=False, sort=False, copy=False)
         for chemical in self.exposure_conditions:
-            for replicate in range(self.replicate4exposure):
-                for dose in chemical.doses:
-                    for tp in range(chemical.timepoints):
+            for dose in chemical.doses:
+                for tp in range(chemical.timepoints):
+                    for replicate in range(self.replicate4exposure):
                         time_point = tp + 1
                         series = Series([
                             '', '', '', '', '', '', '', '',
@@ -318,6 +318,27 @@ class HarvesterInput:
                         ], index=sample_dataframe.columns)
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
+
+            for replicate in range(self.replicate4control):
+                series = Series([
+                    '', '', '', '', '', '', '', '',
+                    replicate + 1,
+                    "CONTROL (SEE VEHICLE)",
+                    0,
+                    'TP1',
+                ], index=sample_dataframe.columns)
+                sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                                 ignore_index=False, sort=False, copy=False)
+        for blank in range(self.replicate_blank):
+            series = Series([
+                '', '', '', '', '', '', '', '',
+                0,
+                'EXTRACTION BLANK',
+                "0",
+                'TP0',
+            ], index=sample_dataframe.columns)
+            sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                             ignore_index=False, sort=False, copy=False)
         return sample_dataframe, general_dataframe
 
     def save_file(self, path: str) -> str:
@@ -331,7 +352,7 @@ class HarvesterInput:
         dataframes[1].to_excel(writer,
                                sheet_name='General Information', index=False, columns=GENERAL_SHEET_BASE_COLUMNS)
         dataframes[0].to_excel(writer,
-                               sheet_name='SAMPLE_TEST', columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
+                               sheet_name='Exposure conditions', columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
         writer.close()
         self.file_path = path
         return path

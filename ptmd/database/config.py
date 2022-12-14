@@ -1,6 +1,6 @@
 """ Configuration file for Flask and SQLAlchemy. This is where all extensions are initialised and the assembly between
 Flask and SQLAlchemy is established. This file also contains the Base variable that is required to establish a
-connection to the database and bindings to the JWT managers, the CORS managers and, later, the session mananger
+connection to the database and bindings to the JWT managers, the CORS managers and, later, the session manager
 # TODO: add session manager from flask-session
 
 :author: D. Batista (Terazus)
@@ -20,4 +20,3 @@ app.config['SECRET_KEY'] = SQLALCHEMY_SECRET_KEY
 jwt = JWTManager(app)
 CORS(app)
 Base = db.Model
-Table = db.Table

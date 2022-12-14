@@ -48,12 +48,12 @@ class TestModel(TestCase):
 
     @patch('ptmd.database.models.create_access_token', return_value='OK')
     def test_user_with_organisation(self, mock_create_access_token):
-        user_input = {'username': 'rw', 'organisation': 'UOB', 'password': 'test'}
+        user_input = {'username': 'rw', 'organisation': 123, 'password': 'test'}
         with self.assertRaises(TypeError) as context:
-            user = User(**user_input)
+            user = User(**user_input, session=self.session)
             self.session.add(user)
             self.session.commit()
-        self.assertEqual(str(context.exception), 'organisation must be an Organisation object')
+        self.assertEqual(str(context.exception), 'organisation must be an Organisation object or a string')
         organisation = Organisation(name=user_input['organisation'], gdrive_id='test_id')
         user_input['organisation'] = organisation
         user = User(**user_input)

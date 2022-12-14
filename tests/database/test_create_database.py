@@ -28,13 +28,13 @@ class TestCreateDatabase(TestCase):
     @patch('ptmd.database.create_database.create_organisations', return_value={'UOX': 1})
     @patch('ptmd.database.create_database.create_users', return_value={'test': 1})
     def test_boot(self, mocked_create_users, mock_create_organisations):
-        organisations, users = boot(self.engine, drop_all=False, insert=False)
+        organisations, users = boot(session=self.session, insert=False)
         self.assertFalse(mocked_create_users.called)
         self.assertFalse(mock_create_organisations.called)
         self.assertEqual(organisations, {})
         self.assertEqual(users, {})
 
-        organisations, users = boot(self.engine, insert=True, drop_all=True)
+        organisations, users = boot(session=self.session, insert=True)
         self.assertEqual(organisations, mock_create_organisations.return_value)
         self.assertEqual(users, mocked_create_users.return_value)
 

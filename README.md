@@ -41,8 +41,23 @@ make html
 
 
 ## TODO:
+- [x] Add controls and controls replicates to the spreadsheet.
+-----
 - [ ] Set permissions for the Google spreadsheets and directories.
-- [ ] Add controls and controls replicates to the spreadsheet.
 - [ ] Determine pattern for ID gen.
+- [ ] Are all the fields in the form/api required ? If not which one are ?
 - [ ] Add a proper title to spreadsheets and sheets.
-- [ ] Create a script to generate a database user for each organisation.
+  - file naming pattern: partner-organism-exposure_batch-start-end-today
+- [ ] What are the phases mentioned by mu-en/martin in her presentation on Globus ?
+- [ ] Any specific style they want to use for the spreadsheets ?
+- [ ] Rename the first sheet to user inputs and store everything but the exposure conditions.
+- [ ] Are the controls time matched
+- [ ] Clarify the definition of each field so that it can be shown to the end user.
+- [ ] Define the 3 values allowed for 'Sample Conditions' in the final spreadsheet.
+- [ ] Should values be computed by the API or provided as a spreadsheet macro ?
+- [ ] Do we know the vehicle associated with each chemical ?
+- [ ] How do we handle the case where user want to submit multiple times a day ?
+  - two different button: one create from new, one create from previous session, defining if the form
+  should be prefilled with the previous session data. If it's the case, add a checkbox to either create a new
+  file or overwrite the previous one.
+- [ ] For phenotype: add a field for the phenotype code. Under a CV (see ???)
