@@ -7,28 +7,38 @@ create_users().
 from sqlalchemy.orm import session as sqlsession
 
 from ptmd.logger import LOGGER
-from .models import User, Organisation
+from .models import User, Organisation, Chemical, Organism
 
 
-def boot(session: sqlsession,
-         organisations: dict = (),
-         users: list[dict] = (),
-         insert: bool = False) -> list[dict[str, Organisation], dict[str, User]]:
+def boot(
+        session: sqlsession,
+        organisations: dict = (),
+        users: list[dict] = (),
+        chemicals: list[dict] = (),
+        organisms: list[dict] = (),
+        insert: bool = False
+) -> list[dict[str, Organisation], dict[str, User], dict[str, Chemical], dict[str, Organism]]:
     """ Boot the database. This will create all tables and insert the default users.
 
     :param session: the database SQLAlchemy session
     :param organisations: list of organisations
+    :param chemicals: list of chemicals coming from the precision toxicology API
     :param users: list of users
+    :param organisms: list of organisms coming from the precision toxicology API
     :param insert: bool: insert the default users
     :return: a list containing users and organisations
     """
     created_organisations: dict[str, Organisation] = {}
     created_users: dict[int, User] = {}
+    created_chemicals: dict[str, Chemical] = {}
+    created_organisms: dict[str, Organism] = {}
     if insert:
         created_organisations = create_organisations(organisations=organisations, session=session)
         created_users = create_users(users=users, session=session)
+        created_chemicals = create_chemicals(chemicals=chemicals, session=session)
+        created_organisms = create_organisms(organisms=organisms, session=session)
     LOGGER.info('Database boot completed')
-    return [created_organisations, created_users]
+    return [created_organisations, created_users, created_chemicals, created_organisms]
 
 
 def create_organisations(organisations: dict, session: sqlsession) -> dict[str, Organisation]:
@@ -64,3 +74,45 @@ def create_users(users: list[dict], session: sqlsession) -> dict[int, User]:
         created_users[user_index] = user_from_db
     session.commit()
     return created_users
+
+
+def create_chemicals(chemicals: list[dict], session: sqlsession) -> dict[str, Chemical]:
+    """ Creates the chemicals in the database.
+
+    :param chemicals: list of chemicals coming from the precision toxicology API
+    :param session: the database SQLAlchemy session
+    :return: a list of chemicals from the database
+    """
+    LOGGER.info('Creating Chemicals')
+    chemicals_in_database = {}
+    for chemical in chemicals:
+        try:
+            chemical_in_database = Chemical(**chemical)
+            session.add(chemical_in_database)
+            session.commit()
+            chemicals_in_database[chemical['common_name']] = chemical_in_database
+        except Exception as e:
+            LOGGER.error(f'Could not create chemical {chemical} with error {str(e)}')
+            session.rollback()
+    return chemicals_in_database
+
+
+def create_organisms(organisms: list[dict], session: sqlsession) -> dict[str, Organism]:
+    """ Creates the organisms in the database.
+
+    :param organisms: list of organisms coming from the precision toxicology API
+    :param session: the database SQLAlchemy session
+    :return: a list of organisms from the database
+    """
+    LOGGER.info('Creating Organisms')
+    organisms_in_database = {}
+    for organism in organisms:
+        try:
+            organism_in_database = Organism(**organism)
+            session.add(organism_in_database)
+            session.commit()
+            organisms_in_database[organism['ptox_biosystem_name']] = organism_in_database
+        except Exception as e:
+            LOGGER.error(f'Could not create organism {organism} with error {str(e)}')
+            session.rollback()
+    return organisms_in_database
