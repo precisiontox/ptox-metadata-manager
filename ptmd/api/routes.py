@@ -9,7 +9,7 @@ from flasgger import swag_from
 
 from ptmd.database import app
 from ptmd.const import ROOT_PATH
-from .queries import login as login_user, get_me, create_gdrive_file, get_organisms, get_chemicals
+from .queries import login as login_user, get_me, create_gdrive_file, get_organisms, get_chemicals, change_password
 
 
 SWAGGER_DATA_PATH = path.join(ROOT_PATH, 'resources', 'api')
@@ -50,3 +50,10 @@ def organisms():
 def chemicals():
     """ Get the list of chemicals """
     return get_chemicals()
+
+
+@app.route('/api/change_password', methods=['POST'])
+@jwt_required()
+def change_pwd():
+    """ Change the password of the current user """
+    return change_password()

@@ -54,12 +54,13 @@ class TestAPIQueries(TestCase):
             self.assertEqual(response.json, {"msg": "Missing username or password"})
             self.assertEqual(response.status_code, 400)
 
-    @patch('ptmd.api.queries.login_user', return_value=({"msg": "hello !"}, 200))
-    def test_login_success(self, mock_session, mock_login_user):
+    @patch('ptmd.api.queries.login_user', return_value=({"access_token": "hello !"}, 200))
+    def test_login_success(self, mock_login_user, mock_session):
+        pwd = "123"
         with app.test_client() as client:
             response = client.post('/api/login', headers=HEADERS,
-                                   data=dumps({'username': '123', 'password': '123'}))
-            self.assertEqual(response.json, {'msg': 'hello !'})
+                                   data=dumps({'username': '123', 'password': pwd}))
+            self.assertEqual(response.json, mock_login_user.return_value[0])
             self.assertEqual(response.status_code, 200)
 
     def test_get_me(self, mock_get_session):
@@ -140,6 +141,38 @@ class TestAPIQueries(TestCase):
             self.assertEqual(data[0], {
                 'chemical_id': 1, 'common_name': 'chemical1', 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': None
             })
+
+    def test_change_pwd(self, mock_get_session):
+        create_user()
+        with app.test_client() as client:
+            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            jwt = logged_in.json['access_token']
+            HEADERS['Authorization'] = f'Bearer {jwt}'
+
+            request = {
+                "old_password": "123",
+                "new_password": "1234",
+                "confirm_password": "123"
+            }
+            response = client.post('/api/change_password', headers=HEADERS, data=dumps(request))
+            self.assertEqual(response.json, {'msg': 'Passwords do not match'})
+            self.assertEqual(response.status_code, 400)
+
+            request["confirm_password"] = None
+            response = client.post('/api/change_password', headers=HEADERS, data=dumps(request))
+            self.assertEqual(response.json, {'msg': 'Missing new_password or confirm_password'})
+            self.assertEqual(response.status_code, 400)
+
+            request["confirm_password"] = "1234"
+            request["old_password"] = "1234567"
+            response = client.post('/api/change_password', headers=HEADERS, data=dumps(request))
+            self.assertEqual(response.json, {'msg': 'Wrong password'})
+            self.assertEqual(response.status_code, 400)
+
+            request['old_password'] = "123"
+            response = client.post('/api/change_password', headers=HEADERS, data=dumps(request))
+            self.assertEqual(response.json, {'msg': 'Password changed successfully'})
+            self.assertEqual(response.status_code, 200)
 
 
 def create_user():
