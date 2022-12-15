@@ -25,3 +25,4 @@ def init():
     """ Initialize the API """
     session = get_session()
     initialize(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}], session=session)
+    session.close()

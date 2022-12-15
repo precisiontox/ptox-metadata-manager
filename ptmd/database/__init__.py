@@ -5,6 +5,6 @@ It also provides the Base and app variables that are required to establish a con
 :author: D. Batista (Terazus)
 """
 
-from .models import User, login_user, Organisation
+from .models import User, login_user, Organisation, Chemical
 from .config import Base, app
-from .create_database import boot, create_organisations, create_users
+from .create_database import boot, create_organisations, create_users, create_chemicals, create_organisms

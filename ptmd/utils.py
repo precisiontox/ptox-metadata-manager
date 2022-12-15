@@ -6,7 +6,7 @@ the database and the Google Drive directories.
 
 from sqlalchemy.orm import session as sqlsession
 
-from ptmd.clients import GoogleDriveConnector
+from ptmd.clients import GoogleDriveConnector, pull_chemicals_from_ptox_db, pull_organisms_from_ptox_db
 from ptmd.database import boot, User, Organisation
 
 
@@ -21,10 +21,16 @@ def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str, User],
     connector = GoogleDriveConnector()
     users_from_database = session.query(User).all()
     if not users_from_database:
+        chemicals_source = pull_chemicals_from_ptox_db()
+        organisms = pull_organisms_from_ptox_db()
         folders = connector.create_directories()
-        organisations, users = boot(organisations=folders['partners'],
-                                    users=users, insert=True, session=session)
+        organisations, users, chemicals, organisms = boot(organisations=folders['partners'],
+                                                          chemicals=chemicals_source,
+                                                          users=users,
+                                                          organisms=organisms,
+                                                          insert=True, session=session)
         return organisations, users
 
     organisations = session.query(Organisation).all()
-    return {user.username: user.id for user in users_from_database}, {org.name: org.gdrive_id for org in organisations}
+    return ({user.username: user.id for user in users_from_database},
+            {org.name: org.gdrive_id for org in organisations})
