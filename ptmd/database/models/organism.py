@@ -16,7 +16,7 @@ class Organism(Base):
     ptox_biosystem_name: str = db.Column(db.String(100), nullable=False, unique=True)
     scientific_name: str = db.Column(db.String(100), nullable=False)
 
-    def __iter__(self) :
+    def __iter__(self):
         """ Iterator for the object. Used to serialize the object as a dictionary. """
         organism: dict = {
             'organism_id': self.organism_id,
