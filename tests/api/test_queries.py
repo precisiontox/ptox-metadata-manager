@@ -8,7 +8,7 @@ from flask_jwt_extended import create_access_token
 from pydrive2.auth import GoogleAuth
 
 from ptmd.api import app
-from ptmd.database import Base, User, Organisation
+from ptmd.database import Base, User, Organisation, Organism, Chemical
 
 
 engine = create_engine("sqlite:///:memory:")
@@ -63,10 +63,7 @@ class TestAPIQueries(TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_get_me(self, mock_get_session):
-        user = {'organisation': None, 'username': '123', 'password': '123'}
-        new_user = User(**user)
-        session.add(new_user)
-        session.commit()
+        create_user()
         with app.test_client() as client:
             logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
@@ -117,3 +114,37 @@ class TestAPIQueries(TestCase):
             data["exposure_conditions"][0]["doses"] = ["BMD10"]
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': '456'}})
+
+    def test_get_organisms(self, mock_get_session):
+        create_user()
+        session.add(Organism(**{'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'}))
+        session.commit()
+        with app.test_client() as client:
+            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            jwt = logged_in.json['access_token']
+            response = client.get('/api/organisms', headers={'Authorization': f'Bearer {jwt}'})
+            data = response.json
+            self.assertEqual(data[0], {'organism_id': 1, 'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'})
+            self.assertEqual(response.status_code, 200)
+        pass
+
+    def test_get_chemicals(self, mock_get_session):
+        create_user()
+        session.add(Chemical(**{'common_name': 'chemical1', 'name_hash_id': '123', 'formula': 'C1H1'}))
+        session.commit()
+        with app.test_client() as client:
+            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            jwt = logged_in.json['access_token']
+            response = client.get('/api/chemicals', headers={'Authorization': f'Bearer {jwt}'})
+            data = response.json
+            self.assertEqual(data[0], {
+                'chemical_id': 1, 'common_name': 'chemical1', 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': None
+            })
+
+
+def create_user():
+    user = {'organisation': None, 'username': '123', 'password': '123'}
+    new_user = User(**user)
+    session.add(new_user)
+    session.commit()
+    return new_user

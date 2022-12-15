@@ -9,7 +9,7 @@ from flasgger import swag_from
 
 from ptmd.database import app
 from ptmd.const import ROOT_PATH
-from .queries import login as login_user, get_me, create_gdrive_file
+from .queries import login as login_user, get_me, create_gdrive_file, get_organisms, get_chemicals
 
 
 SWAGGER_DATA_PATH = path.join(ROOT_PATH, 'resources', 'api')
@@ -36,3 +36,17 @@ def me():
 def create_file():
     """ Create and saves the spreadsheet in the Google Drive """
     return create_gdrive_file()
+
+
+@app.route('/api/organisms', methods=['GET'])
+@jwt_required()
+def organisms():
+    """ Get the list of organisms """
+    return get_organisms()
+
+
+@app.route('/api/chemicals', methods=['GET'])
+@jwt_required()
+def chemicals():
+    """ Get the list of chemicals """
+    return get_chemicals()

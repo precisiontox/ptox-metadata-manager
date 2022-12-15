@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from ptmd import HarvesterInput, GoogleDriveConnector
 from ptmd.const import ROOT_PATH
-from ptmd.database import login_user, User, Organisation
+from ptmd.database import login_user, User, Organisation, Organism, Chemical
 from .utils import get_session
 
 
@@ -78,3 +78,25 @@ def create_gdrive_file() -> tuple[Response, int]:
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 400
+
+
+def get_organisms() -> tuple[Response, int]:
+    """ Function to get the organisms from the database.
+
+    :return: tuple containing a JSON response and a status code
+    """
+    session: Session = get_session()
+    organisms: list = session.query(Organism).all()
+    session.close()
+    return jsonify([dict(o) for o in organisms]), 200
+
+
+def get_chemicals() -> tuple[Response, int]:
+    """ Function to get the chemicals from the database.
+
+    :return: tuple containing a JSON response and a status code
+    """
+    session: Session = get_session()
+    chemicals: list = session.query(Chemical).all()
+    session.close()
+    return jsonify([dict(c) for c in chemicals]), 200
