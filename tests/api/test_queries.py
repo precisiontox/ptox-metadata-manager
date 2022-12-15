@@ -8,7 +8,7 @@ from flask_jwt_extended import create_access_token
 from pydrive2.auth import GoogleAuth
 
 from ptmd.api import app
-from ptmd.database import Base, User, Organisation
+from ptmd.database import Base, User, Organisation, Organism, Chemical
 
 
 engine = create_engine("sqlite:///:memory:")
@@ -54,19 +54,17 @@ class TestAPIQueries(TestCase):
             self.assertEqual(response.json, {"msg": "Missing username or password"})
             self.assertEqual(response.status_code, 400)
 
-    @patch('ptmd.api.queries.login_user', return_value=({"msg": "hello !"}, 200))
-    def test_login_success(self, mock_session, mock_login_user):
+    @patch('ptmd.api.queries.login_user', return_value=({"access_token": "hello !"}, 200))
+    def test_login_success(self, mock_login_user, mock_session):
+        pwd = "123"
         with app.test_client() as client:
             response = client.post('/api/login', headers=HEADERS,
-                                   data=dumps({'username': '123', 'password': '123'}))
-            self.assertEqual(response.json, {'msg': 'hello !'})
+                                   data=dumps({'username': '123', 'password': pwd}))
+            self.assertEqual(response.json, mock_login_user.return_value[0])
             self.assertEqual(response.status_code, 200)
 
     def test_get_me(self, mock_get_session):
-        user = {'organisation': None, 'username': '123', 'password': '123'}
-        new_user = User(**user)
-        session.add(new_user)
-        session.commit()
+        create_user()
         with app.test_client() as client:
             logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
@@ -117,3 +115,69 @@ class TestAPIQueries(TestCase):
             data["exposure_conditions"][0]["doses"] = ["BMD10"]
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': '456'}})
+
+    def test_get_organisms(self, mock_get_session):
+        create_user()
+        session.add(Organism(**{'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'}))
+        session.commit()
+        with app.test_client() as client:
+            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            jwt = logged_in.json['access_token']
+            response = client.get('/api/organisms', headers={'Authorization': f'Bearer {jwt}'})
+            data = response.json
+            self.assertEqual(data[0], {'organism_id': 1, 'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'})
+            self.assertEqual(response.status_code, 200)
+        pass
+
+    def test_get_chemicals(self, mock_get_session):
+        create_user()
+        session.add(Chemical(**{'common_name': 'chemical1', 'name_hash_id': '123', 'formula': 'C1H1'}))
+        session.commit()
+        with app.test_client() as client:
+            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            jwt = logged_in.json['access_token']
+            response = client.get('/api/chemicals', headers={'Authorization': f'Bearer {jwt}'})
+            data = response.json
+            self.assertEqual(data[0], {
+                'chemical_id': 1, 'common_name': 'chemical1', 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': None
+            })
+
+    def test_change_pwd(self, mock_get_session):
+        create_user()
+        with app.test_client() as client:
+            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            jwt = logged_in.json['access_token']
+            HEADERS['Authorization'] = f'Bearer {jwt}'
+
+            request = {
+                "old_password": "123",
+                "new_password": "1234",
+                "confirm_password": "123"
+            }
+            response = client.post('/api/change_password', headers=HEADERS, data=dumps(request))
+            self.assertEqual(response.json, {'msg': 'Passwords do not match'})
+            self.assertEqual(response.status_code, 400)
+
+            request["confirm_password"] = None
+            response = client.post('/api/change_password', headers=HEADERS, data=dumps(request))
+            self.assertEqual(response.json, {'msg': 'Missing new_password or confirm_password'})
+            self.assertEqual(response.status_code, 400)
+
+            request["confirm_password"] = "1234"
+            request["old_password"] = "1234567"
+            response = client.post('/api/change_password', headers=HEADERS, data=dumps(request))
+            self.assertEqual(response.json, {'msg': 'Wrong password'})
+            self.assertEqual(response.status_code, 400)
+
+            request['old_password'] = "123"
+            response = client.post('/api/change_password', headers=HEADERS, data=dumps(request))
+            self.assertEqual(response.json, {'msg': 'Password changed successfully'})
+            self.assertEqual(response.status_code, 200)
+
+
+def create_user():
+    user = {'organisation': None, 'username': '123', 'password': '123'}
+    new_user = User(**user)
+    session.add(new_user)
+    session.commit()
+    return new_user

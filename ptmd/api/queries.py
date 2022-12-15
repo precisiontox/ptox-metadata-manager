@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from ptmd import HarvesterInput, GoogleDriveConnector
 from ptmd.const import ROOT_PATH
-from ptmd.database import login_user, User, Organisation
+from ptmd.database import login_user, User, Organisation, Organism, Chemical
 from .utils import get_session
 
 
@@ -78,3 +78,50 @@ def create_gdrive_file() -> tuple[Response, int]:
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 400
+
+
+def get_organisms() -> tuple[Response, int]:
+    """ Function to get the organisms from the database.
+
+    :return: tuple containing a JSON response and a status code
+    """
+    session: Session = get_session()
+    organisms: list = session.query(Organism).all()
+    session.close()
+    return jsonify([dict(o) for o in organisms]), 200
+
+
+def get_chemicals() -> tuple[Response, int]:
+    """ Function to get the chemicals from the database.
+
+    :return: tuple containing a JSON response and a status code
+    """
+    session: Session = get_session()
+    chemicals: list = session.query(Chemical).all()
+    session.close()
+    return jsonify([dict(c) for c in chemicals]), 200
+
+
+def change_password() -> tuple[Response, int]:
+    """ Function to change the password of the current user. Acquire data from a JSON request.
+
+    :return: tuple containing a JSON response and a status code
+    """
+
+    password: str = request.json.get('old_password', None)
+    new_password: str = request.json.get('new_password', None)
+    repeat_password: str = request.json.get('confirm_password', None)
+
+    if not new_password or not repeat_password:
+        return jsonify({"msg": "Missing new_password or confirm_password"}), 400
+    if new_password != repeat_password:
+        return jsonify({"msg": "Passwords do not match"}), 400
+
+    session: Session = get_session()
+    user_id: int = get_jwt()['sub']
+    user: User = session.query(User).filter_by(id=user_id).first()
+    changed: bool = user.change_password(session=session, old_password=password, new_password=new_password)
+    session.close()
+    if not changed:
+        return jsonify({"msg": "Wrong password"}), 400
+    return jsonify({"msg": "Password changed successfully"}), 200

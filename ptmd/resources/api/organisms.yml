@@ -1,0 +1,31 @@
+The route to get data organisms
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+definitions:
+  Organism Response:
+    type: object
+    properties:
+      ptox_biosystem_name:
+        type: string
+        description: precision toxicology biosystem name
+      scientific_name:
+        type: string
+        description: scientific name of the organism
+responses:
+  200:
+    description: The user data with that JWT token
+    schema:
+      $ref: '#/definitions/Organism Response'
+    examples:
+      application/json:
+        id: 1
+        username: admin
+        organization:
+          organisation_id: 1
+          name: UOX
+          gdrive_id: None
