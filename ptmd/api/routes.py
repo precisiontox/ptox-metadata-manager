@@ -39,6 +39,7 @@ def create_file():
 
 
 @app.route('/api/organisms', methods=['GET'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'organisms.yml'))
 @jwt_required()
 def organisms():
     """ Get the list of organisms """
@@ -46,6 +47,7 @@ def organisms():
 
 
 @app.route('/api/chemicals', methods=['GET'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'chemicals.yml'))
 @jwt_required()
 def chemicals():
     """ Get the list of chemicals """
@@ -53,6 +55,7 @@ def chemicals():
 
 
 @app.route('/api/change_password', methods=['POST'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'change_password.yml'))
 @jwt_required()
 def change_pwd():
     """ Change the password of the current user """
