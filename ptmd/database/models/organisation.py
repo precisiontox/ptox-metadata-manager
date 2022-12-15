@@ -1,18 +1,23 @@
+""" This module contains the organisation model.
+
+@author: D. Batista (Terazus)
+"""
 from ptmd.database.config import Base, db
 
 
 class Organisation(Base):
-    """ Organisation model. """
+    """ Organisation model.
+
+    :param name: The base class for the model.
+    :param gdrive_id: The Google Drive ID of the corresponding folder.
+    """
     __tablename__: str = 'organisation'
     organisation_id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False, unique=True)
     gdrive_id: str = db.Column(db.String(100), nullable=True, unique=True)
 
-    def __iter__(self) -> dict:
-        """ Iterator for the object. Used to serialize the object as a dictionary.
-
-        :return: The iterator.
-        """
+    def __iter__(self):
+        """ Iterator for the object. Used to serialize the object as a dictionary.  """
         organisation: dict = {
             'organisation_id': self.organisation_id,
             'name': self.name,

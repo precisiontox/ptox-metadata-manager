@@ -1,3 +1,7 @@
+""" Constants used by the pretox client. Conteains things such as the headers and the default URL for the requests
+
+"""
+
 from ptmd.const import CONFIG
 
 

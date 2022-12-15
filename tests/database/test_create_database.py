@@ -74,7 +74,7 @@ class TestCreateDatabase(TestCase):
 
     def test_create_organisms(self):
         organisms_input = [{"scientific_name": "test", "ptox_biosystem_name": "A"}]
-        organisms = create_organisms(organisms= organisms_input, session=self.session)
+        organisms = create_organisms(organisms=organisms_input, session=self.session)
         organism = dict(organisms['A'])
         self.assertEqual(organism, {'organism_id': 1, 'scientific_name': 'test', 'ptox_biosystem_name': 'A'})
         organisms = create_organisms(organisms=[{"test": 1}], session=self.session)

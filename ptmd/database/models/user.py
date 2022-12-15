@@ -1,3 +1,7 @@
+""" This module contains the user model.
+
+@author: D. Batista (Terazus)
+"""
 from passlib.hash import bcrypt
 from sqlalchemy.orm import session as sqlsession
 
@@ -6,7 +10,13 @@ from .organisation import Organisation
 
 
 class User(Base):
-    """ User model. """
+    """ User model.
+
+    :param username: the username
+    :param password: the password
+    :param organisation: the organisation the user belongs to (either an Organisation object or a string pointing to the
+    organisation name)
+    """
     __tablename__: str = "user"
     id: int = db.Column(db.Integer, primary_key=True)
     username: str = db.Column(db.String(80), unique=True, nullable=False)
