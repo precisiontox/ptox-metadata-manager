@@ -352,14 +352,26 @@ class HarvesterInput:
         for key, value in iters.items():
             yield key, value
 
-    def to_dataframe(self) -> tuple[DataFrame, DataFrame]:
-        """ Convert the object to a pandas DataFrame.
+    def get_array_of_unique_chemicals(self) -> List[str]:
+        """ Get an array of unique chemicals from the exposure conditions.
 
-        :return: The pandas DataFrame.
+        :return: The array of unique chemicals names.
         """
-        sample_dataframe = DataFrame(columns=SAMPLE_SHEET_BASE_COLUMNS)
-        general_dataframe = DataFrame(columns=GENERAL_SHEET_BASE_COLUMNS)
-        general_series = Series([
+        array_of_unique_chemicals: list[str] = []
+        for exposure_condition in self.exposure_conditions:
+            for chemical in exposure_condition.chemicals_name:
+                if chemical not in array_of_unique_chemicals:
+                    array_of_unique_chemicals.append(chemical)
+        return array_of_unique_chemicals
+
+    def build_general_dataframe(self) -> DataFrame:
+        """ Build the general dataframe for the experiment. It will end up being the first sheet of the Excel file.
+        Contains information such as the partner, the organism, the exposure conditions, the exposure batch ...
+
+        :return: The general dataframe.
+        """
+        dataframe = DataFrame(columns=GENERAL_SHEET_BASE_COLUMNS)
+        series = Series([
             self.partner,
             self.organism,
             self.exposure_batch,
@@ -367,66 +379,74 @@ class HarvesterInput:
             self.replicate_blank,
             self.start_date.strftime('%Y-%m-%d'),
             self.end_date.strftime('%Y-%m-%d'),
-        ], index=general_dataframe.columns)
-        general_dataframe = pandas_concat([general_dataframe, general_series.to_frame().T],
-                                          ignore_index=False, sort=False, copy=False)
+        ], index=dataframe.columns)
+        return pandas_concat([series, series.to_frame().T], ignore_index=False, sort=False, copy=False)
 
-        organisms_code: str = get_organism_code(self.organism)
+    def build_sample_dataframe(self, organism_code: str) -> DataFrame:
+        """ Build the sample dataframe for the experiment. It will end up being the second sheet of the Excel file.
 
-        array_of_unique_chemicals: list[str] = []
-        for exposure_condition in self.exposure_conditions:
-            for chemical in exposure_condition.chemicals_name:
-                if chemical not in array_of_unique_chemicals:
-                    array_of_unique_chemicals.append(chemical)
+        :param organism_code: The organism code from the db.
+        """
+        dataframe = DataFrame(columns=SAMPLE_SHEET_BASE_COLUMNS)
+        array_of_unique_chemicals: list[str] = self.get_array_of_unique_chemicals()
+
         chemicals_mapping: dict[str, str] = get_chemical_code_mapping(array_of_unique_chemicals)
         for exposure_condition in self.exposure_conditions:
             for chemical in exposure_condition.chemicals_name:
                 chemical_code: str = chemicals_mapping[chemical]
                 for tp in range(1, self.timepoints + 1):
                     timepoint = f'TP{tp}'
-                    for replicate in range(self.replicate4exposure):
-                        hash_id = '%s%s%s%s%s%s' % (organisms_code, self.exposure_batch, chemical_code,
+                    for replicate in range(1, self.replicate4exposure + 1):
+                        hash_id = '%s%s%s%s%s%s' % (organism_code, self.exposure_batch, chemical_code,
                                                     DOSE_MAPPING[exposure_condition.dose],
-                                                    TIME_POINT_MAPPING[timepoint], replicate + 1)
+                                                    TIME_POINT_MAPPING[timepoint], replicate)
                         series = Series([
                             '', '', '', '', '', '', '', '',
-                            replicate + 1,
-                            chemical,
-                            exposure_condition.dose,
-                            'TP%s' % tp,
+                            replicate, chemical, exposure_condition.dose, 'TP%s' % tp,
                             self.vehicle,
                             hash_id
-                        ], index=sample_dataframe.columns)
-                        sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                                         ignore_index=False, sort=False, copy=False)
+                        ], index=dataframe.columns)
+                        dataframe = pandas_concat([dataframe, series.to_frame().T],
+                                                  ignore_index=False, sort=False, copy=False)
                     for replicate in range(self.replicate4control):
-                        hash_id = '%s%s%s%sZ%s' % (organisms_code, self.exposure_batch, chemical_code,
-                                                   TIME_POINT_MAPPING[timepoint], replicate + 1)
+                        hash_id = '%s%s%s%sZ%s' % (organism_code, self.exposure_batch, chemical_code,
+                                                   TIME_POINT_MAPPING[timepoint], replicate)
                         series = Series([
                             '', '', '', '', '', '', '', '',
-                            replicate + 1,
+                            replicate,
                             "CONTROL (%s)" % self.vehicle,
                             0,
                             'TP%s' % tp,
                             self.vehicle,
                             hash_id
-                        ], index=sample_dataframe.columns)
-                        sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                                         ignore_index=False, sort=False, copy=False)
+                        ], index=dataframe.columns)
+                        dataframe = pandas_concat([dataframe, series.to_frame().T],
+                                                  ignore_index=False, sort=False, copy=False)
+        return dataframe
 
-        for blank in range(1, self.replicate_blank + 1):
-            hash_id = '%s%s998ZS%s' % (organisms_code, self.exposure_batch, blank)
-            series = Series([
-                '', '', '', '', '', '', '', '',
-                blank,
-                'EXTRACTION BLANK',
-                "0",
-                'TP0',
-                '',
-                hash_id
-            ], index=sample_dataframe.columns)
-            sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                             ignore_index=False, sort=False, copy=False)
+    def add_blanks_to_dataframe(self, dataframe: DataFrame, organism_code: str) -> DataFrame:
+        """ Add the blanks to the sample dataframe.
+
+        :param dataframe: The sample dataframe.
+        :param organism_code: The organism code from the db.
+        :return: The sample dataframe with the blanks.
+        """
+        for blank in range(self.replicate_blank):
+            hash_id = '%s%s998ZS%s' % (organism_code, self.exposure_batch, blank + 1)
+            series = Series(['', '', '', '', '', '', '', '', blank + 1, 'EXTRACTION BLANK', "0", 'TP0', '', hash_id],
+                            index=dataframe.columns)
+            dataframe = pandas_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
+        return dataframe
+
+    def to_dataframe(self) -> tuple[DataFrame, DataFrame]:
+        """ Convert the object to a pandas DataFrame.
+
+        :return: The pandas DataFrame.
+        """
+        general_dataframe = self.build_general_dataframe()
+        organism_code: str = get_organism_code(self.organism)
+        sample_dataframe = self.build_sample_dataframe(organism_code=organism_code)
+        sample_dataframe = self.add_blanks_to_dataframe(sample_dataframe, organism_code=organism_code)
         return sample_dataframe, general_dataframe
 
     def save_file(self, path: str) -> str:
