@@ -10,11 +10,12 @@ from os import path
 
 from flask import jsonify, request, Response
 from flask_jwt_extended import get_jwt
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
 
 from ptmd import HarvesterInput, GoogleDriveConnector
-from ptmd.const import ROOT_PATH
-from ptmd.database import login_user, User, Organisation, Organism, Chemical
+from ptmd.const import ROOT_PATH, CONFIG
+from ptmd.database import login_user, User, Organisation, Organism, Chemical, Base
 from .utils import get_session
 
 
@@ -23,14 +24,17 @@ def login() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
+    engine = create_engine(CONFIG['SQLALCHEMY_DATABASE_URL'])
+    session_ = sessionmaker(bind=engine)
+    session = session_()
     username: str = request.json.get('username', None)
     password: str = request.json.get('password', None)
     if not username or not password:
         session.close()
         return jsonify({"msg": "Missing username or password"}), 400
+    logged_in = login_user(username=username, password=password, session=session)
     session.close()
-    return login_user(username=username, password=password, session=session)
+    return logged_in
 
 
 def get_me() -> tuple[Response, int]:
