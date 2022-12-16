@@ -49,6 +49,16 @@
       "end_date": {
           "type": "string",
           "format": "date"
+      },
+      "vehicle": {
+        "type": "string",
+        "enum": ["water", "DMSO"],
+        "description": "The vehicle used as the solvent."
+      },
+      "timepoints": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4
       }
   }
 }

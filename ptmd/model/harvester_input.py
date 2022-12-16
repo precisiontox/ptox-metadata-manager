@@ -304,31 +304,28 @@ class HarvesterInput:
         ], index=general_dataframe.columns)
         general_dataframe = pandas_concat([general_dataframe, general_series.to_frame().T],
                                           ignore_index=False, sort=False, copy=False)
-        for chemical in self.exposure_conditions:
-            for dose in chemical.doses:
-                for tp in range(chemical.timepoints):
-                    for replicate in range(self.replicate4exposure):
-                        time_point = tp + 1
-                        series = Series([
-                            '', '', '', '', '', '', '', '',
-                            replicate + 1,
-                            chemical.chemical_name,
-                            dose,
-                            'TP%s' % time_point,
-                        ], index=sample_dataframe.columns)
-                        sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                                         ignore_index=False, sort=False, copy=False)
 
-            for replicate in range(self.replicate4control):
-                series = Series([
-                    '', '', '', '', '', '', '', '',
-                    replicate + 1,
-                    "CONTROL (SEE VEHICLE)",
-                    0,
-                    'TP1',
-                ], index=sample_dataframe.columns)
-                sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                                 ignore_index=False, sort=False, copy=False)
+        for exposure_condition in self.exposure_conditions:
+            for chemical in exposure_condition.chemicals_name:
+                for replicate in range(self.replicate4exposure):
+                    series = Series([
+                        '', '', '', '', '', '', '', '',
+                        replicate + 1,
+                        chemical,
+                        exposure_condition.dose,
+                        'TP0'
+                    ], index=sample_dataframe.columns)
+                for replicate in range(self.replicate4control):
+                    series = Series([
+                        '', '', '', '', '', '', '', '',
+                        replicate + 1,
+                        "CONTROL (SEE VEHICLE)",
+                        0,
+                        'TP0',
+                    ], index=sample_dataframe.columns)
+                    sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                                     ignore_index=False, sort=False, copy=False)
+
         for blank in range(self.replicate_blank):
             series = Series([
                 '', '', '', '', '', '', '', '',

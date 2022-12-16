@@ -98,7 +98,7 @@ class TestAPIQueries(TestCase):
             data = {
                 "partner": "UOB",
                 "organism": "organism1",
-                "exposure_conditions": [{"chemical_name": "chemical1", "doses": ["BDM10"], "timepoints": 1}],
+                "exposure_conditions": [{"chemicals_name": ["chemical1"], "dose": "BDM10"}],
                 "exposure_batch": "AA",
                 "replicate4control": 4,
                 "replicate4exposure": 4,
@@ -109,10 +109,10 @@ class TestAPIQueries(TestCase):
             headers = {'Authorization': f'Bearer {jwt}', **HEADERS}
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json["message"],
-                             "ExposureCondition.dose must be one of ['0', 'BMD10', 'BMD25', '10mg/L'] but got BDM10")
+                             "dose must be one of ['BMD10', 'BMD25', '10mg/L'] but got BDM10")
             self.assertEqual(response.status_code, 400)
 
-            data["exposure_conditions"][0]["doses"] = ["BMD10"]
+            data["exposure_conditions"][0]["dose"] = "BMD10"
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': '456'}})
 

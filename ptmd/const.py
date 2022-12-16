@@ -27,10 +27,10 @@ REPLICATES_CONTROL_MIN: int = INPUT_SCHEMA['properties']['replicates4control']['
 REPLICATES_BLANK_RANGE: namedtuple = ReplicateBlankRange(INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
                                                          INPUT_SCHEMA['properties']['replicates_blank']['maximum'])
 ALLOWED_CHEMICAL_NAMES: list[str] = EXPOSURE_SCHEMA['properties']['chemical']['enum']
-ALLOWED_DOSE_VALUES: list[str] = EXPOSURE_SCHEMA['properties']['doses']['items'][0]['enum']
-MAX_NUMBER_OF_DOSES: int = EXPOSURE_SCHEMA['properties']['doses']['maxItems']
-TIMEPOINTS_RANGE: namedtuple = TimepointsRange(EXPOSURE_SCHEMA['properties']['timepoints']['minimum'],
-                                               EXPOSURE_SCHEMA['properties']['timepoints']['maximum'])
+ALLOWED_DOSE_VALUES: list[str] = EXPOSURE_SCHEMA['properties']['dose']['enum']
+ALLOWED_VEHICLES: list[str] = INPUT_SCHEMA['properties']['vehicle']['enum']
+TIMEPOINTS_RANGE: namedtuple = TimepointsRange(INPUT_SCHEMA['properties']['timepoints']['minimum'],
+                                               INPUT_SCHEMA['properties']['timepoints']['maximum'])
 
 SAMPLE_SHEET_BASE_COLUMNS: list[str] = [
     "Shipment identifier",

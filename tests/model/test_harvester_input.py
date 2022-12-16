@@ -28,7 +28,7 @@ START_DATE = '2018-01-01'
 END_DATE = '2019-01-02'
 CLASS_NAME = HarvesterInput.__name__
 HERE = path.dirname(path.abspath(__file__))
-EXPOSURE_CONDITIONS = [{'chemical_name': CHEMICAL_NAME, 'doses': [DOSE_VALUE], 'timepoints': 1}]
+EXPOSURE_CONDITIONS = [{'chemicals_name': [CHEMICAL_NAME], 'dose': DOSE_VALUE}]
 exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
 
 
@@ -256,7 +256,7 @@ class TestHarvesterInputErrors(TestCase):
 
         for col in SAMPLE_SHEET_BASE_COLUMNS:
             self.assertIn(col, sample_dataframe.columns)
-        self.assertEqual(10, len(sample_dataframe.index))
+        self.assertEqual(6, len(sample_dataframe.index))
         self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
 
         for col in GENERAL_SHEET_BASE_COLUMNS:
