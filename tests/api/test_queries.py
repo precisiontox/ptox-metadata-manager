@@ -81,7 +81,8 @@ class TestAPIQueries(TestCase):
 
     @patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
     @patch('ptmd.api.queries.GoogleDriveConnector.upload_file', return_value=({"alternateLink": "456"}))
-    def test_create_gdrive_file(self, mock_upload, mock_auth, mock_get_session):
+    @patch('ptmd.model.exposure_condition.get_allowed_chemicals', return_value=["chemical1", "chemical2"])
+    def test_create_gdrive_file(self, mock_chem, mock_upload, mock_auth, mock_get_session):
         organisation = {'name': 'UOB', 'gdrive_id': '456'}
         new_organisation = Organisation(**organisation)
         session.add(new_organisation)

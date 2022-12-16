@@ -52,7 +52,6 @@ class HarvesterInput:
         """ The harvester constructor """
         self.partner = partner
         self.organism = organism
-        self.exposure_conditions = exposure_conditions if exposure_conditions else []
         self.exposure_batch = exposure_batch
         self.replicate4exposure = replicate4exposure
         self.replicate4control = replicate4control
@@ -62,6 +61,7 @@ class HarvesterInput:
         self.timepoints = timepoints
         self.vehicle = vehicle
         self.timepoint_zero = timepoint_zero
+        self.exposure_conditions = exposure_conditions if exposure_conditions else []
         self.file_path = None
 
     @property

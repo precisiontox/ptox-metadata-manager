@@ -4,6 +4,7 @@
 """
 from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
 from ptmd.model.exceptions import InputTypeError, InputValueError
+from ptmd.database import get_allowed_chemicals
 
 
 class ExposureCondition:
@@ -15,6 +16,7 @@ class ExposureCondition:
 
     def __init__(self, chemicals_name: list[str], dose: str) -> None:
         """ Exposition with a chemical as a given dose. """
+        self.allowed_chemicals = get_allowed_chemicals()
         self.chemicals_name = chemicals_name
         self.dose = dose
 
