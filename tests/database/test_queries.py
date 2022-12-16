@@ -22,7 +22,8 @@ class MockQuery:
     def all():
         return [MockChemical()]
 
-    def filter_by(self, *args, **kwargs):
+    @staticmethod
+    def filter_by(*args, **kwargs):
         return MockChemical()
 
 

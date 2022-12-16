@@ -393,9 +393,8 @@ class HarvesterInput:
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
                     for replicate in range(self.replicate4control):
-                        hash_id = '%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
-                                                     DOSE_MAPPING[exposure_condition.dose],
-                                                     TIME_POINT_MAPPING[timepoint], replicate + 1)
+                        hash_id = '%s%s---%sZ%s' % (organisms_code, self.exposure_batch,
+                                                    TIME_POINT_MAPPING[timepoint], replicate + 1)
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,

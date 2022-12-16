@@ -177,8 +177,7 @@ class TestHarvesterInputErrors(TestCase):
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date='foo', end_date=END_DATE, timepoints=TIMEPOINTS)
-        self.assertEqual("start_date must be a datetime but got str with value foo",
-                         str(context.exception))
+        self.assertEqual("start_date must be a datetime but got str with value foo",  str(context.exception))
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -193,8 +192,7 @@ class TestHarvesterInputErrors(TestCase):
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date='foo', timepoints=TIMEPOINTS)
-        self.assertEqual("end_date must be a datetime but got str with value foo",
-                         str(context.exception))
+        self.assertEqual("end_date must be a datetime but got str with value foo", str(context.exception))
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
