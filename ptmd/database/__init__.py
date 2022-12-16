@@ -13,7 +13,8 @@ from .queries import (
     create_organisations,
     create_users,
     create_chemicals,
-    create_organisms
+    create_organisms,
+    get_allowed_organisms
 )
 from .config import Base, app
 from .utils import get_session

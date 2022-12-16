@@ -11,10 +11,11 @@ from dateutil.parser import parse as parse_date
 from pandas import DataFrame, Series, concat as pandas_concat, ExcelWriter
 
 from ptmd.const import (
-    ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
+    ALLOWED_PARTNERS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN, REPLICATES_BLANK_RANGE,
     SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS, TIMEPOINTS_RANGE, ALLOWED_VEHICLES
 )
+from ptmd.database import get_allowed_organisms
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
 
@@ -50,6 +51,7 @@ class HarvesterInput:
                  timepoint_zero: bool = False,
                  exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
         """ The harvester constructor """
+        self.allowed_organisms = get_allowed_organisms()
         self.partner = partner
         self.organism = organism
         self.exposure_batch = exposure_batch
@@ -100,8 +102,8 @@ class HarvesterInput:
         """
         if not isinstance(value, str):
             raise InputTypeError(str, value, 'organism')
-        if value not in ALLOWED_ORGANISMS:
-            raise InputValueError(ALLOWED_ORGANISMS, value, 'organism')
+        if value not in self.allowed_organisms:
+            raise InputValueError(self.allowed_organisms, value, 'organism')
         self.__organism = value
 
     @property

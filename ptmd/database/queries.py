@@ -10,35 +10,11 @@ from ptmd.logger import LOGGER
 
 from flask_jwt_extended import create_access_token
 from flask import jsonify, Response
+from sqlalchemy import or_
 from sqlalchemy.orm import session as sqlsession
 
 from ptmd.database.utils import get_session
 from .models import User, Organisation, Chemical, Organism
-
-
-def login_user(username: str, password: str, session: sqlsession) -> tuple[Response, int]:
-    """ Login a user and return a JWT token. The username and password are retrieved from the request body.
-
-    @param username
-    @param password
-    @param session: the database session
-    @return: Response, int: the response message and the response code
-    """
-    user = session.query(User).filter_by(username=username).first()
-    user = dict(user) if user and user.validate_password(password) else None
-    if not user:
-        return jsonify({"msg": "Bad username or password"}), 401
-    access_token = create_access_token(identity=user['id'], expires_delta=timedelta(days=1000000))
-    return jsonify(access_token=access_token), 200
-
-
-def get_allowed_chemicals() -> list[str]:
-    """ Get the list of allowed chemicals names.
-    """
-    session = get_session()
-    allowed_chemicals = [chemical.common_name for chemical in session.query(Chemical).all()]
-    session.close()
-    return allowed_chemicals
 
 
 def boot(
@@ -70,6 +46,44 @@ def boot(
         created_organisms = create_organisms(organisms=organisms, session=session)
     LOGGER.info('Database boot completed')
     return [created_organisations, created_users, created_chemicals, created_organisms]
+
+
+def login_user(username: str, password: str, session: sqlsession) -> tuple[Response, int]:
+    """ Login a user and return a JWT token. The username and password are retrieved from the request body.
+
+    @param username
+    @param password
+    @param session: the database session
+    @return: Response, int: the response message and the response code
+    """
+    user = session.query(User).filter_by(username=username).first()
+    user = dict(user) if user and user.validate_password(password) else None
+    if not user:
+        return jsonify({"msg": "Bad username or password"}), 401
+    access_token = create_access_token(identity=user['id'], expires_delta=timedelta(days=1000000))
+    return jsonify(access_token=access_token), 200
+
+
+def get_allowed_chemicals() -> list[str]:
+    """ Get the list of allowed chemicals names.
+
+    :return: a list of chemicals names
+    """
+    session = get_session()
+    allowed_chemicals = [chemical.common_name for chemical in session.query(Chemical).all()]
+    session.close()
+    return allowed_chemicals
+
+
+def get_allowed_organisms() -> list[str]:
+    """ Get the list of allowed organisms names.
+
+    :return: a list of organisms names
+    """
+    session = get_session()
+    allowed_organism = [organism.ptox_biosystem_name for organism in session.query(Organism).all()]
+    session.close()
+    return allowed_organism
 
 
 def create_organisations(organisations: dict, session: sqlsession) -> dict[str, Organisation]:

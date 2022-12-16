@@ -34,9 +34,10 @@ TIMEPOINTS = 3
 VEHICLE = ALLOWED_VEHICLES[0]
 
 
+@patch('ptmd.model.harvester_input.get_allowed_organisms', return_value=ALLOWED_ORGANISMS)
 @patch('ptmd.model.exposure_condition.get_allowed_chemicals', return_value=ALLOWED_CHEMICAL_NAMES)
 class TestHarvesterInputErrors(TestCase):
-    def test_constructor_errors_with_partner(self, mock_get_allowed_chemicals):
+    def test_constructor_errors_with_partner(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=1, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -51,7 +52,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual("partner must be one of %s but got %s" % (ALLOWED_PARTNERS, 'foo'),
                          str(context.exception))
 
-    def test_constructor_errors_with_chemical_organism(self, mock_get_allowed_chemicals):
+    def test_constructor_errors_with_chemical_organism(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=1, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -66,7 +67,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual("organism must be one of %s but got %s" % (ALLOWED_ORGANISMS, 'foo'),
                          str(context.exception))
 
-    def test_constructor_errors_with_exposure_conditions(self, mock_get_allowed_chemicals):
+    def test_constructor_errors_with_exposure_conditions(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         error = "__init__() got an unexpected keyword argument 'foo'"
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER,
@@ -99,7 +100,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual("HarvesterInput.exposure must be a list of ExposureCondition or dict but got list "
                          "with value ['foo', 'bar']", str(context.exception))
 
-    def test_constructor_errors_with_exposure_batch(self, mock_get_allowed_chemicals):
+    def test_constructor_errors_with_exposure_batch(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=1,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -121,7 +122,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual("exposure_batch must be less than 2 characters but got 3 (value: AAA)",
                          str(context.exception))
 
-    def test_constructor_error_replicates_exposure(self, mock_get_allowed_chemicals):
+    def test_constructor_error_replicates_exposure(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure='foo', replicate4control=REPLICATES_CONTROL,
@@ -137,7 +138,7 @@ class TestHarvesterInputErrors(TestCase):
         error = 'replicate4exposure must be greater than %s but got 0' % REPLICATES_EXPOSURE_MIN
         self.assertEqual(error, str(context.exception))
 
-    def test_constructor_error_replicates_control(self, mock_get_allowed_chemicals):
+    def test_constructor_error_replicates_control(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control='foo',
@@ -153,7 +154,7 @@ class TestHarvesterInputErrors(TestCase):
         error = 'replicate4control must be greater than %s but got 0' % REPLICATES_EXPOSURE_MIN
         self.assertEqual(error, str(context.exception))
 
-    def test_constructor_error_replicate_blank(self, mock_get_allowed_chemicals):
+    def test_constructor_error_replicate_blank(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -170,7 +171,7 @@ class TestHarvesterInputErrors(TestCase):
                                                                          REPLICATES_BLANK_RANGE.max)
         self.assertEqual(error, str(context.exception))
 
-    def test_constructor_error_start_date(self, mock_get_allowed_chemicals):
+    def test_constructor_error_start_date(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -186,7 +187,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual("start_date must be a datetime but got int with value 123",
                          str(context.exception))
 
-    def test_constructor_error_end_date(self, mock_get_allowed_chemicals):
+    def test_constructor_error_end_date(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -202,7 +203,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual("end_date must be a datetime but got int with value 123",
                          str(context.exception))
 
-    def test_constructor_error_timepoints(self, mock_get_allowed_chemicals):
+    def test_constructor_error_timepoints(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -217,7 +218,7 @@ class TestHarvesterInputErrors(TestCase):
         error = "timepoints must be between %s and %s but got 100" % (TIMEPOINTS_RANGE.min, TIMEPOINTS_RANGE.max)
         self.assertEqual(error, str(context.exception))
 
-    def test_constructor_error_vehicle(self, mock_get_allowed_chemicals):
+    def test_constructor_error_vehicle(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -231,7 +232,7 @@ class TestHarvesterInputErrors(TestCase):
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("vehicle must be one of %s but got foo" % ALLOWED_VEHICLES, str(context.exception))
 
-    def test_constructor_error_tp0(self, mock_get_allowed_chemicals):
+    def test_constructor_error_tp0(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
@@ -240,7 +241,7 @@ class TestHarvesterInputErrors(TestCase):
                            timepoint_zero='foo')
         self.assertEqual("timepoint_zero must be a bool but got str with value foo", str(context.exception))
 
-    def test_constructor_success(self, mock_get_allowed_chemicals):
+    def test_constructor_success(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
         harvester = make_harvester()
         self.assertEqual(ALLOWED_PARTNERS[0], harvester.partner)
@@ -253,7 +254,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual(REPLICATES_BLANK, harvester.replicate_blank)
         self.assertIsInstance(harvester.start_date, datetime)
 
-    def test_add_exposure_batch(self, mock_get_allowed_chemicals):
+    def test_add_exposure_batch(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
         harvester = make_harvester()
         harvester.add_exposure_condition(EXPOSURE_CONDITIONS[0])
@@ -265,7 +266,7 @@ class TestHarvesterInputErrors(TestCase):
             harvester.add_exposure_condition('foo')
         self.assertEqual("The exposure condition must be a dict or an ExposureCondition object", str(context.exception))
 
-    def test_to_dict(self, mock_get_allowed_chemicals):
+    def test_to_dict(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
         expected = {
             'partner': PARTNER,
@@ -295,7 +296,7 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual(expected, dict(harvester))
         self.assertFalse(harvester.timepoint_zero)
 
-    def test_to_dataframe(self, mock_get_allowed_chemicals):
+    def test_to_dataframe(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         harvester = make_harvester()
         dataframes = harvester.to_dataframe()
         sample_dataframe = dataframes[0]
@@ -309,13 +310,13 @@ class TestHarvesterInputErrors(TestCase):
         for col in GENERAL_SHEET_BASE_COLUMNS:
             self.assertIn(col, general_dataframe.columns)
 
-    def test_save_dataframe(self, mock_get_allowed_chemicals):
+    def test_save_dataframe(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
         harvester = make_harvester()
         file_path = harvester.save_file(output_path)
         self.assertIsNotNone(file_path)
 
-    def test_delete_file(self, mock_get_allowed_chemicals):
+    def test_delete_file(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         output_path = path.join(HERE, '..', 'data', 'excel', 'temp.xlsx')
         harvester = make_harvester()
         file_path = harvester.save_file(output_path)
