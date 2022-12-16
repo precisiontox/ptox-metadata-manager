@@ -16,7 +16,7 @@ from ptmd.const import (
     SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS, TIMEPOINTS_RANGE, ALLOWED_VEHICLES,
     DOSE_MAPPING, TIME_POINT_MAPPING
 )
-from ptmd.database import get_allowed_organisms, get_organism_code
+from ptmd.database import get_allowed_organisms, get_organism_code, get_chemical_code_mapping
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
 
@@ -373,14 +373,21 @@ class HarvesterInput:
 
         organisms_code: str = get_organism_code(self.organism)
 
+        array_of_unique_chemicals: list[str] = []
         for exposure_condition in self.exposure_conditions:
             for chemical in exposure_condition.chemicals_name:
+                if chemical not in array_of_unique_chemicals:
+                    array_of_unique_chemicals.append(chemical)
+        chemicals_mapping: dict[str, str] = get_chemical_code_mapping(array_of_unique_chemicals)
+        for exposure_condition in self.exposure_conditions:
+            for chemical in exposure_condition.chemicals_name:
+                chemical_code: str = chemicals_mapping[chemical]
                 for tp in range(1, self.timepoints + 1):
                     timepoint = f'TP{tp}'
                     for replicate in range(self.replicate4exposure):
-                        hash_id = '%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
-                                                     DOSE_MAPPING[exposure_condition.dose],
-                                                     TIME_POINT_MAPPING[timepoint], replicate + 1)
+                        hash_id = '%s%s%s%s%s%s' % (organisms_code, self.exposure_batch, chemical_code,
+                                                    DOSE_MAPPING[exposure_condition.dose],
+                                                    TIME_POINT_MAPPING[timepoint], replicate + 1)
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,
@@ -393,8 +400,8 @@ class HarvesterInput:
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
                     for replicate in range(self.replicate4control):
-                        hash_id = '%s%s---%sZ%s' % (organisms_code, self.exposure_batch,
-                                                    TIME_POINT_MAPPING[timepoint], replicate + 1)
+                        hash_id = '%s%s%s%sZ%s' % (organisms_code, self.exposure_batch, chemical_code,
+                                                   TIME_POINT_MAPPING[timepoint], replicate + 1)
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,
