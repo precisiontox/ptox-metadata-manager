@@ -125,7 +125,8 @@ class TestAPIQueries(TestCase):
             jwt = logged_in.json['access_token']
             response = client.get('/api/organisms', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json
-            self.assertEqual(data[0], {'organism_id': 1, 'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'})
+            expected_organism = {'organism_id': 1, 'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'}
+            self.assertEqual(data['data'], [expected_organism])
             self.assertEqual(response.status_code, 200)
         pass
 
@@ -138,9 +139,9 @@ class TestAPIQueries(TestCase):
             jwt = logged_in.json['access_token']
             response = client.get('/api/chemicals', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json
-            self.assertEqual(data[0], {
-                'chemical_id': 1, 'common_name': 'chemical1', 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': None
-            })
+            expected_chemical = {'chemical_id': 1, 'common_name': 'chemical1',
+                                 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': None}
+            self.assertEqual(data["data"], [expected_chemical])
 
     def test_change_pwd(self, mock_get_session):
         create_user()

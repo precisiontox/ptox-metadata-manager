@@ -54,8 +54,8 @@ def create_gdrive_file() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    filepath: str = path.join(ROOT_PATH, 'resources', 'test.xlsx')
-    data = {
+    directory_path: str = path.join(ROOT_PATH, 'resources')
+    data: dict = {
         'partner': request.json.get('partner', None),
         'organism': request.json.get('organism', None),
         'exposure_batch': request.json.get('exposure_batch', None),
@@ -67,6 +67,8 @@ def create_gdrive_file() -> tuple[Response, int]:
         'replicate4exposure': request.json.get('replicate4exposure', None),
     }
     try:
+        filename: str = f"{data['partner']}_{data['organism']}_{data['exposure_batch']}.xlsx"
+        filepath: str = path.join(directory_path, filename)
         inputs: HarvesterInput = HarvesterInput(**data)
         inputs.save_file(filepath)
         session: Session = get_session()
@@ -86,9 +88,9 @@ def get_organisms() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    organisms: list = session.query(Organism).all()
+    organisms: dict[str, list] = {"data": [dict(organism) for organism in session.query(Organism).all()]}
     session.close()
-    return jsonify([dict(o) for o in organisms]), 200
+    return jsonify(organisms), 200
 
 
 def get_chemicals() -> tuple[Response, int]:
@@ -97,9 +99,9 @@ def get_chemicals() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    chemicals: list = session.query(Chemical).all()
+    chemicals: dict[str, list] = {"data": [dict(chemical) for chemical in session.query(Chemical).all()]}
     session.close()
-    return jsonify([dict(c) for c in chemicals]), 200
+    return jsonify(chemicals), 200
 
 
 def change_password() -> tuple[Response, int]:
