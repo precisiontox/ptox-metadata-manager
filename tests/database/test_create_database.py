@@ -25,10 +25,10 @@ class TestCreateDatabase(TestCase):
     def tearDownClass(cls) -> None:
         cls.engine.dispose()
 
-    @patch('ptmd.database.create_database.create_organisations', return_value={'UOX': 1})
-    @patch('ptmd.database.create_database.create_users', return_value={'test': 1})
-    @patch('ptmd.database.create_database.create_chemicals', return_value={'test': 1})
-    @patch('ptmd.database.create_database.create_organisms', return_value={'test': 1})
+    @patch('ptmd.database.queries.create_organisations', return_value={'UOX': 1})
+    @patch('ptmd.database.queries.create_users', return_value={'test': 1})
+    @patch('ptmd.database.queries.create_chemicals', return_value={'test': 1})
+    @patch('ptmd.database.queries.create_organisms', return_value={'test': 1})
     def test_boot(self, mock_organisms, mock_chemicals, mocked_create_users, mock_create_organisations):
         organisations, users, chemicals, organisms = boot(session=self.session, insert=False)
         self.assertFalse(mocked_create_users.called)
@@ -73,9 +73,10 @@ class TestCreateDatabase(TestCase):
         self.assertEqual(chemicals, {})
 
     def test_create_organisms(self):
-        organisms_input = [{"scientific_name": "test", "ptox_biosystem_name": "A"}]
+        organisms_input = [{"scientific_name": "test", "ptox_biosystem_name": "A", "ptox_biosystem_code": "A"}]
         organisms = create_organisms(organisms=organisms_input, session=self.session)
         organism = dict(organisms['A'])
-        self.assertEqual(organism, {'organism_id': 1, 'scientific_name': 'test', 'ptox_biosystem_name': 'A'})
+        exp = {'organism_id': 1, 'scientific_name': 'test', 'ptox_biosystem_name': 'A', "ptox_biosystem_code": "A"}
+        self.assertEqual(organism, exp)
         organisms = create_organisms(organisms=[{"test": 1}], session=self.session)
         self.assertEqual(organisms, {})

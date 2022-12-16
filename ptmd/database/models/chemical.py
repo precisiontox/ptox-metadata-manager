@@ -18,7 +18,7 @@ class Chemical(Base):
     common_name: str = db.Column(db.String(100), nullable=False, unique=True)
     name_hash_id: str = db.Column(db.String(100), nullable=True)
     formula: str = db.Column(db.String(100), nullable=False)
-    ptx_code: int = db.Column(db.Integer, nullable=True, unique=True)
+    ptx_code: int = db.Column(db.Integer, nullable=False, unique=True)
 
     def __iter__(self) -> None:
         """ Iterator for the object. Used to serialize the object as a dictionary. """

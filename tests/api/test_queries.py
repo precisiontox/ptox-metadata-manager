@@ -81,7 +81,11 @@ class TestAPIQueries(TestCase):
 
     @patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
     @patch('ptmd.api.queries.GoogleDriveConnector.upload_file', return_value=({"alternateLink": "456"}))
-    def test_create_gdrive_file(self, mock_upload, mock_auth, mock_get_session):
+    @patch('ptmd.model.exposure_condition.get_allowed_chemicals', return_value=["chemical1", "chemical2"])
+    @patch('ptmd.model.harvester_input.get_allowed_organisms', return_value=['organism1'])
+    @patch('ptmd.model.harvester_input.get_organism_code', return_value=['A'])
+    def test_create_gdrive_file(self, mock_organism_code,
+                                mock_organism, mock_chem, mock_upload, mock_auth, mock_get_session):
         organisation = {'name': 'UOB', 'gdrive_id': '456'}
         new_organisation = Organisation(**organisation)
         session.add(new_organisation)
@@ -98,49 +102,57 @@ class TestAPIQueries(TestCase):
             data = {
                 "partner": "UOB",
                 "organism": "organism1",
-                "exposure_conditions": [{"chemical_name": "chemical1", "doses": ["BDM10"], "timepoints": 1}],
+                "exposure_conditions": [{"chemicals_name": ["chemical1"], "dose": "BDM10"}],
                 "exposure_batch": "AA",
                 "replicate4control": 4,
                 "replicate4exposure": 4,
                 "replicate_blank": 2,
                 "start_date": "2021-01-01",
                 "end_date": "2022-01-01",
+                "timepoints": 3,
+                "vehicle": "water",
             }
             headers = {'Authorization': f'Bearer {jwt}', **HEADERS}
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json["message"],
-                             "ExposureCondition.dose must be one of ['0', 'BMD10', 'BMD25', '10mg/L'] but got BDM10")
+                             "dose must be one of ['BMD10', 'BMD25', '10mg/L'] but got BDM10")
             self.assertEqual(response.status_code, 400)
 
-            data["exposure_conditions"][0]["doses"] = ["BMD10"]
+            data["exposure_conditions"][0]["dose"] = "BMD10"
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': '456'}})
 
     def test_get_organisms(self, mock_get_session):
         create_user()
-        session.add(Organism(**{'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'}))
+        org = {'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1', "ptox_biosystem_code": "A"}
+        session.add(Organism(**org))
         session.commit()
+        session.close()
         with app.test_client() as client:
             logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
             response = client.get('/api/organisms', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json
-            self.assertEqual(data[0], {'organism_id': 1, 'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'})
+            expected_organism = {'organism_id': 1, 'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1',
+                                 "ptox_biosystem_code": "A"}
+            self.assertEqual(data['data'], [expected_organism])
             self.assertEqual(response.status_code, 200)
         pass
 
     def test_get_chemicals(self, mock_get_session):
         create_user()
-        session.add(Chemical(**{'common_name': 'chemical1', 'name_hash_id': '123', 'formula': 'C1H1'}))
+        chemical = {'common_name': 'chemical1', 'name_hash_id': '123', 'formula': 'C1H1', "ptx_code": 1}
+        session.add(Chemical(**chemical))
         session.commit()
+        session.close()
         with app.test_client() as client:
             logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
             response = client.get('/api/chemicals', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json
-            self.assertEqual(data[0], {
-                'chemical_id': 1, 'common_name': 'chemical1', 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': None
-            })
+            expected_chemical = {'chemical_id': 1, 'common_name': 'chemical1',
+                                 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': 1}
+            self.assertEqual(data["data"], [expected_chemical])
 
     def test_change_pwd(self, mock_get_session):
         create_user()

@@ -13,9 +13,9 @@ from flask_jwt_extended import get_jwt
 from sqlalchemy.orm import Session
 
 from ptmd import HarvesterInput, GoogleDriveConnector
+from ptmd.utils import get_session
 from ptmd.const import ROOT_PATH
 from ptmd.database import login_user, User, Organisation, Organism, Chemical
-from .utils import get_session
 
 
 def login() -> tuple[Response, int]:
@@ -23,14 +23,15 @@ def login() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
+    session = get_session()
     username: str = request.json.get('username', None)
     password: str = request.json.get('password', None)
     if not username or not password:
         session.close()
         return jsonify({"msg": "Missing username or password"}), 400
+    logged_in = login_user(username=username, password=password, session=session)
     session.close()
-    return login_user(username=username, password=password, session=session)
+    return logged_in
 
 
 def get_me() -> tuple[Response, int]:
@@ -54,26 +55,30 @@ def create_gdrive_file() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    filepath: str = path.join(ROOT_PATH, 'resources', 'test.xlsx')
-    data = {
-        'partner': request.json.get('partner', None),
-        'organism': request.json.get('organism', None),
-        'exposure_batch': request.json.get('exposure_batch', None),
-        'replicate_blank': request.json.get('replicate_blank', None),
-        'start_date': request.json.get('start_date', None),
-        'end_date': request.json.get('end_date', None),
-        'exposure_conditions': request.json.get('exposure_conditions', None),
-        'replicate4control': request.json.get('replicate4control', None),
-        'replicate4exposure': request.json.get('replicate4exposure', None),
+    directory_path: str = path.join(ROOT_PATH, 'resources')
+    data: dict = {
+        "partner": request.json.get("partner", None),
+        "organism": request.json.get("organism", None),
+        "exposure_batch": request.json.get("exposure_batch", None),
+        "replicate_blank": request.json.get("replicate_blank", None),
+        "start_date": request.json.get("start_date", None),
+        "end_date": request.json.get("end_date", None),
+        "exposure_conditions": request.json.get("exposure_conditions", None),
+        "replicate4control": request.json.get("replicate4control", None),
+        "replicate4exposure": request.json.get("replicate4exposure", None),
+        "timepoints": request.json.get("timepoints", None),
+        "vehicle": request.json.get("vehicle", None),
     }
     try:
+        filename: str = f"{data['partner']}_{data['organism']}_{data['exposure_batch']}.xlsx"
+        filepath: str = path.join(directory_path, filename)
         inputs: HarvesterInput = HarvesterInput(**data)
         inputs.save_file(filepath)
         session: Session = get_session()
         folder_id: str = session.query(Organisation).filter_by(name=data['partner']).first().gdrive_id
         session.close()
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
-        response: dict = gdrive.upload_file(directory_id=folder_id, file_path=filepath)
+        response: dict = gdrive.upload_file(directory_id=folder_id, file_path=filepath, title=filename)
         inputs.delete_file()
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
@@ -86,9 +91,9 @@ def get_organisms() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    organisms: list = session.query(Organism).all()
+    organisms: dict[str, list] = {"data": [dict(organism) for organism in session.query(Organism).all()]}
     session.close()
-    return jsonify([dict(o) for o in organisms]), 200
+    return jsonify(organisms), 200
 
 
 def get_chemicals() -> tuple[Response, int]:
@@ -97,9 +102,10 @@ def get_chemicals() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    chemicals: list = session.query(Chemical).all()
+    response: list[Chemical] = session.query(Chemical).filter(Chemical.ptx_code < 998).all()
+    chemicals: dict[str, list] = {"data": [dict(chemical) for chemical in response]}
     session.close()
-    return jsonify([dict(c) for c in chemicals]), 200
+    return jsonify(chemicals), 200
 
 
 def change_password() -> tuple[Response, int]:

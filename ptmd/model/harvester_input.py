@@ -11,14 +11,14 @@ from dateutil.parser import parse as parse_date
 from pandas import DataFrame, Series, concat as pandas_concat, ExcelWriter
 
 from ptmd.const import (
-    ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
-    REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN,
-    REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS
+    ALLOWED_PARTNERS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
+    REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN, REPLICATES_BLANK_RANGE,
+    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS, TIMEPOINTS_RANGE, ALLOWED_VEHICLES,
+    DOSE_MAPPING, TIME_POINT_MAPPING
 )
+from ptmd.database import get_allowed_organisms, get_organism_code
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
-from ptmd.model.utils import get_field_name
 
 
 class HarvesterInput:
@@ -33,6 +33,9 @@ class HarvesterInput:
     :param start_date:
     :param end_date:
     :param exposure_conditions: list of chemical names and doses
+    :param timepoints: number of timepoints
+    :param vehicle: vehicle used in the experiment
+    :param timepoint_zero: if the controls should be included at TP0
     """
 
     def __init__(self,
@@ -44,17 +47,24 @@ class HarvesterInput:
                  replicate_blank: int,
                  start_date: str or datetime,
                  end_date: str or datetime,
+                 timepoints: int,
+                 vehicle: str,
+                 timepoint_zero: bool = False,
                  exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
         """ The harvester constructor """
+        self.allowed_organisms = get_allowed_organisms()
         self.partner = partner
         self.organism = organism
-        self.exposure_conditions = exposure_conditions if exposure_conditions else []
         self.exposure_batch = exposure_batch
         self.replicate4exposure = replicate4exposure
         self.replicate4control = replicate4control
         self.replicate_blank = replicate_blank
         self.start_date = start_date
         self.end_date = end_date
+        self.timepoints = timepoints
+        self.vehicle = vehicle
+        self.timepoint_zero = timepoint_zero
+        self.exposure_conditions = exposure_conditions if exposure_conditions else []
         self.file_path = None
 
     @property
@@ -72,9 +82,9 @@ class HarvesterInput:
         :return: The partner.
         """
         if not isinstance(value, str):
-            raise InputTypeError(str, value, get_field_name(self, 'partner'))
+            raise InputTypeError(str, value, 'partner')
         if value not in ALLOWED_PARTNERS:
-            raise InputValueError(ALLOWED_PARTNERS, value, get_field_name(self, 'partner'))
+            raise InputValueError(ALLOWED_PARTNERS, value, 'partner')
         self.__partner = value
 
     @property
@@ -92,9 +102,9 @@ class HarvesterInput:
         :param value: The organism.
         """
         if not isinstance(value, str):
-            raise InputTypeError(str, value, get_field_name(self, 'organism'))
-        if value not in ALLOWED_ORGANISMS:
-            raise InputValueError(ALLOWED_ORGANISMS, value, get_field_name(self, 'organism'))
+            raise InputTypeError(str, value, 'organism')
+        if value not in self.allowed_organisms:
+            raise InputValueError(self.allowed_organisms, value, 'organism')
         self.__organism = value
 
     @property
@@ -146,14 +156,14 @@ class HarvesterInput:
         :param value: The exposure batch.
         """
         if not isinstance(value, str):
-            raise InputTypeError(str, value, get_field_name(self, 'exposure_batch'))
+            raise InputTypeError(str, value, 'exposure_batch')
         if len(value) > EXPOSURE_BATCH_MAX_LENGTH:
-            field_name = get_field_name(self, 'exposure_batch')
+            field_name = 'exposure_batch'
             raise ValueError("%s must be less than %s characters but got %s (value: %s)" % (
                 field_name, EXPOSURE_BATCH_MAX_LENGTH, len(value), value
             ))
         if not match(ALLOWED_EXPOSURE_BATCH, value):
-            raise InputValueError('AA to ZZ', value, get_field_name(self, 'exposure_batch'))
+            raise InputValueError('AA to ZZ', value, 'exposure_batch')
         self.__exposure_batch = value
 
     @property
@@ -171,9 +181,9 @@ class HarvesterInput:
         :param value: The replicate for exposure.
         """
         if not isinstance(value, int):
-            raise InputTypeError(int, value, get_field_name(self, 'replicate4exposure'))
+            raise InputTypeError(int, value, 'replicate4exposure')
         if value < REPLICATES_EXPOSURE_MIN:
-            raise InputMinError(REPLICATES_EXPOSURE_MIN, value, get_field_name(self, 'replicate4exposure'))
+            raise InputMinError(REPLICATES_EXPOSURE_MIN, value, 'replicate4exposure')
         self.__replicate4exposure = value
 
     @property
@@ -191,9 +201,9 @@ class HarvesterInput:
         :param value: The replicate for exposure.
         """
         if not isinstance(value, int):
-            raise InputTypeError(int, value, get_field_name(self, 'replicate4control'))
+            raise InputTypeError(int, value, 'replicate4control')
         if value < REPLICATES_EXPOSURE_MIN:
-            raise InputMinError(REPLICATES_CONTROL_MIN, value, get_field_name(self, 'replicate4control'))
+            raise InputMinError(REPLICATES_CONTROL_MIN, value, 'replicate4control')
         self.__replicate4control = value
 
     @property
@@ -211,10 +221,9 @@ class HarvesterInput:
         :param value: The replicate for exposure.
         """
         if not isinstance(value, int):
-            raise InputTypeError(int, value, get_field_name(self, 'replicate_blank'))
+            raise InputTypeError(int, value, 'replicate_blank')
         if value < REPLICATES_BLANK_RANGE.min or value > REPLICATES_BLANK_RANGE.max:
-            raise InputRangeError(REPLICATES_BLANK_RANGE,
-                                  value, get_field_name(self, 'replicate_blank'))
+            raise InputRangeError(REPLICATES_BLANK_RANGE, value, 'replicate_blank')
         self.__replicate_blank = value
 
     @property
@@ -239,8 +248,8 @@ class HarvesterInput:
                 self.__start_date = parse_date(value)
                 return
             except ValueError:
-                raise InputTypeError(datetime, value, get_field_name(self, 'start_date'))
-        raise InputTypeError(datetime, value, get_field_name(self, 'start_date'))
+                raise InputTypeError(datetime, value, 'start_date')
+        raise InputTypeError(datetime, value, 'start_date')
 
     @property
     def end_date(self) -> datetime:
@@ -264,8 +273,63 @@ class HarvesterInput:
                 self.__end_date = parse_date(value)
                 return
             except ValueError:
-                raise InputTypeError(datetime, value, get_field_name(self, 'end_date'))
-        raise InputTypeError(datetime, value, get_field_name(self, 'end_date'))
+                raise InputTypeError(datetime, value, 'end_date')
+        raise InputTypeError(datetime, value, 'end_date')
+
+    @property
+    def timepoints(self) -> int:
+        """ Getter for the timepoints.
+
+        :return: The timepoints.
+        """
+        return self.__timepoints
+
+    @timepoints.setter
+    def timepoints(self, value: int) -> None:
+        """ Setter for the timepoints.
+
+        :param value: The timepoints.
+        """
+        if not isinstance(value, int):
+            raise InputTypeError(int, value, 'timepoints')
+        if value < TIMEPOINTS_RANGE.min or value > TIMEPOINTS_RANGE.max:
+            raise InputRangeError(TIMEPOINTS_RANGE, value, 'timepoints')
+        self.__timepoints = value
+
+    @property
+    def vehicle(self) -> str:
+        """ Getter for the vehicle.
+
+        :return: The vehicle.
+        """
+        return self.__vehicle
+
+    @vehicle.setter
+    def vehicle(self, value: str) -> None:
+        """ Setter for the vehicle.
+
+        :param value: The vehicle.
+        """
+        if not isinstance(value, str):
+            raise InputTypeError(str, value, 'vehicle')
+        if value not in ALLOWED_VEHICLES:
+            raise InputValueError(ALLOWED_VEHICLES, value, 'vehicle')
+        self.__vehicle = value
+
+    @property
+    def timepoint_zero(self) -> bool:
+        """ Getter for the timepoint zero.
+
+        :return: The timepoint zero.
+        """
+        return self.__timepoint_zero
+
+    @timepoint_zero.setter
+    def timepoint_zero(self, value: bool) -> None:
+        """ Setter for the timepoint zero. """
+        if not isinstance(value, bool):
+            raise InputTypeError(bool, value, 'timepoint_zero')
+        self.__timepoint_zero = value
 
     def __iter__(self):
         """ Iterator for the class. Used to serialize the object to a dictionary.
@@ -273,15 +337,17 @@ class HarvesterInput:
         :return: The iterator.
         """
         iters = {
-            'partner': self.partner,
-            'organism': self.organism,
-            'exposure_conditions': [dict(exposure_condition) for exposure_condition in self.exposure_conditions],
-            'exposure_batch': self.exposure_batch,
-            'replicate4exposure': self.replicate4exposure,
-            'replicate4control': self.replicate4control,
-            'replicate_blank': self.replicate_blank,
-            'start_date': self.start_date.strftime('%Y-%m-%d'),
-            'end_date': self.end_date.strftime('%Y-%m-%d')
+            "partner": self.partner,
+            "organism": self.organism,
+            "exposure_conditions": [dict(exposure_condition) for exposure_condition in self.exposure_conditions],
+            "exposure_batch": self.exposure_batch,
+            "replicate4exposure": self.replicate4exposure,
+            "replicate4control": self.replicate4control,
+            "replicate_blank": self.replicate_blank,
+            "start_date": self.start_date.strftime("%Y-%m-%d"),
+            "end_date": self.end_date.strftime("%Y-%m-%d"),
+            "timepoints": self.timepoints,
+            "vehicle": self.vehicle
         }
         for key, value in iters.items():
             yield key, value
@@ -304,38 +370,53 @@ class HarvesterInput:
         ], index=general_dataframe.columns)
         general_dataframe = pandas_concat([general_dataframe, general_series.to_frame().T],
                                           ignore_index=False, sort=False, copy=False)
-        for chemical in self.exposure_conditions:
-            for dose in chemical.doses:
-                for tp in range(chemical.timepoints):
+
+        organisms_code: str = get_organism_code(self.organism)
+
+        for exposure_condition in self.exposure_conditions:
+            for chemical in exposure_condition.chemicals_name:
+                for tp in range(1, self.timepoints + 1):
+                    timepoint = f'TP{tp}'
                     for replicate in range(self.replicate4exposure):
-                        time_point = tp + 1
+                        hash_id = '%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
+                                                     DOSE_MAPPING[exposure_condition.dose],
+                                                     TIME_POINT_MAPPING[timepoint], replicate + 1)
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,
-                            chemical.chemical_name,
-                            dose,
-                            'TP%s' % time_point,
+                            chemical,
+                            exposure_condition.dose,
+                            'TP%s' % tp,
+                            self.vehicle,
+                            hash_id
+                        ], index=sample_dataframe.columns)
+                        sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
+                                                         ignore_index=False, sort=False, copy=False)
+                    for replicate in range(self.replicate4control):
+                        hash_id = '%s%s---%sZ%s' % (organisms_code, self.exposure_batch,
+                                                    TIME_POINT_MAPPING[timepoint], replicate + 1)
+                        series = Series([
+                            '', '', '', '', '', '', '', '',
+                            replicate + 1,
+                            "CONTROL (%s)" % self.vehicle,
+                            0,
+                            'TP%s' % tp,
+                            self.vehicle,
+                            hash_id
                         ], index=sample_dataframe.columns)
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
 
-            for replicate in range(self.replicate4control):
-                series = Series([
-                    '', '', '', '', '', '', '', '',
-                    replicate + 1,
-                    "CONTROL (SEE VEHICLE)",
-                    0,
-                    'TP1',
-                ], index=sample_dataframe.columns)
-                sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                                 ignore_index=False, sort=False, copy=False)
-        for blank in range(self.replicate_blank):
+        for blank in range(1, self.replicate_blank + 1):
+            hash_id = '%s%s998ZS%s' % (organisms_code, self.exposure_batch, blank)
             series = Series([
                 '', '', '', '', '', '', '', '',
-                0,
+                blank,
                 'EXTRACTION BLANK',
                 "0",
                 'TP0',
+                '',
+                hash_id
             ], index=sample_dataframe.columns)
             sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                              ignore_index=False, sort=False, copy=False)

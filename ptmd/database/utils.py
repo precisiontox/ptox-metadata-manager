@@ -1,4 +1,4 @@
-""" Utility module for the API
+""" Utilities for the database connection
 
 @author: D. Batista (Terazus)
 """
@@ -7,8 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from ptmd.const import CONFIG
-from ptmd.utils import initialize
-from ptmd.database import Base
+from .config import Base
 
 
 def get_session() -> Session:
@@ -19,10 +18,3 @@ def get_session() -> Session:
     engine = create_engine(CONFIG['SQLALCHEMY_DATABASE_URL'])
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine)()
-
-
-def init():
-    """ Initialize the API """
-    session = get_session()
-    initialize(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}], session=session)
-    session.close()

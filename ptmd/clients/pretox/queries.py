@@ -4,7 +4,7 @@
 """
 from requests import post
 
-from .const import DEFAULT_URL, HEADERS
+from ptmd.clients.pretox.const import DEFAULT_URL, HEADERS
 
 
 def pull_chemicals_from_ptox_db(endpoint: str = DEFAULT_URL) -> list[dict]:
@@ -21,7 +21,7 @@ def pull_chemicals_from_ptox_db(endpoint: str = DEFAULT_URL) -> list[dict]:
         raise ConnectionError(f"Error fetching chemicals from the precision toxicology API at "
                               f"{endpoint}: {data['errors']}")
     for chemical in data['chemical']:
-        if chemical['ptx_code'] and chemical['ptx_code'] < 997:
+        if chemical['ptx_code']:
             if chemical['name_hash_id'] == '-':
                 chemical['name_hash_id'] = None
             chemicals.append(chemical)
@@ -34,10 +34,10 @@ def pull_organisms_from_ptox_db(endpoint: str = DEFAULT_URL) -> list[dict]:
     :param endpoint: the graphQL endpoint to pull the data from.
     :return: a list of organisms from the ptox database.
     """
-    request: str = "{ organism(filters:{ limit: 1000 }) { ptox_biosystem_name scientific_name }}"
+    request: str = "{ organism(filters:{ limit: 1000 }) { ptox_biosystem_name scientific_name ptox_biosystem_code}}"
     response = post(endpoint, headers=HEADERS, json={"query": request}, verify=False)
     data = response.json()
     if response.status_code >= 400:
         raise ConnectionError(f"Error fetching organisms from the precision toxicology API at "
                               f"{endpoint}: {data['errors']}")
-    return [organism for organism in data['organism']]
+    return [organism for organism in data['organism'] if organism['ptox_biosystem_code'] != '-']

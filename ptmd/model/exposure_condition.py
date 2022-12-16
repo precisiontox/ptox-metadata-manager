@@ -2,84 +2,66 @@
 
 @author: Terazus (D. Batista)
 """
-from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES, TIMEPOINTS_RANGE
-from ptmd.model.exceptions import InputTypeError, InputValueError, InputRangeError
-from ptmd.model.utils import get_field_name
+from ptmd.const import ALLOWED_DOSE_VALUES
+from ptmd.model.exceptions import InputTypeError, InputValueError
+from ptmd.database import get_allowed_chemicals
 
 
 class ExposureCondition:
     """ The ExposureCondition is an object with a chemical name and a dose value.
 
-    :param chemical_name: The name of the chemical.
-    :param doses: a list of doses for that chemical.
+    :param chemicals_name: The name of the chemical.
+    :param dose: a list of dose for that chemical.
     """
 
-    def __init__(self, chemical_name: str, doses: list[str], timepoints: int = 1) -> None:
+    def __init__(self, chemicals_name: list[str], dose: str) -> None:
         """ Exposition with a chemical as a given dose. """
-        self.chemical_name = chemical_name
-        self.doses = doses
-        self.timepoints = timepoints
+        self.allowed_chemicals = get_allowed_chemicals()
+        self.chemicals_name = chemicals_name
+        self.dose = dose
 
     @property
-    def chemical_name(self) -> str:
+    def chemicals_name(self) -> list[str]:
         """ Getter for the chemical name.
 
         :return: The chemical name.
         """
-        return self.__chemical_name
+        return self.__chemicals_name
 
-    @chemical_name.setter
-    def chemical_name(self, value: str) -> None:
-        """ Setter for the chemical name.
+    @chemicals_name.setter
+    def chemicals_name(self, values: list[str]) -> None:
+        """ Setter for the chemicals name.
 
-        :param value: The chemical name.
+        :param values: The list of chemicals name.
         """
-        if not isinstance(value, str):
-            raise InputTypeError(str, value, get_field_name(self, 'chemical_name'))
-        if value not in ALLOWED_CHEMICAL_NAMES:
-            raise InputValueError(ALLOWED_CHEMICAL_NAMES, value, get_field_name(self, 'chemical_name'))
-        self.__chemical_name = value
+        if not isinstance(values, list):
+            raise InputTypeError(list, values, 'chemicals_name')
+        for chemical_name in values:
+            if not isinstance(chemical_name, str):
+                raise InputTypeError(str, chemical_name, 'chemicals_name')
+            if chemical_name not in self.allowed_chemicals:
+                raise InputValueError("/api/chemicals", chemical_name, 'chemicals_name')
+        self.__chemicals_name = values
 
     @property
-    def doses(self) -> list[str]:
+    def dose(self) -> str:
         """ Getter for the dose.
 
         :return: The dose.
         """
-        return self.__doses
+        return self.__dose
 
-    @doses.setter
-    def doses(self, values: list[str]) -> None:
+    @dose.setter
+    def dose(self, value: str) -> None:
         """ Setter for the dose.
 
-        :param values: The dose.
+        :param value: The dose.
         """
-        if not isinstance(values, list):
-            raise InputTypeError(list, values, get_field_name(self, 'dose'))
-        for value in values:
-            if value not in ALLOWED_DOSE_VALUES:
-                raise InputValueError(ALLOWED_DOSE_VALUES, value, get_field_name(self, 'dose'))
-        self.__doses = values
-
-    @property
-    def timepoints(self) -> int:
-        """ Getter for the timepoints.
-
-        :return: The timepoints.
-        """
-        return self.__timepoints
-
-    @timepoints.setter
-    def timepoints(self, value: int) -> None:
-        """ Setter for the timepoints.
-
-        :param value: Number of timepoints.
-        """
-        if not isinstance(value, int):
-            raise InputTypeError(int, value, get_field_name(self, 'timepoints'))
-        if value < TIMEPOINTS_RANGE.min or value > TIMEPOINTS_RANGE.max:
-            raise InputRangeError(TIMEPOINTS_RANGE, value, get_field_name(self, 'timepoints'))
-        self.__timepoints = value
+        if not isinstance(value, str):
+            raise InputTypeError(str, value, 'dose')
+        if value not in ALLOWED_DOSE_VALUES:
+            raise InputValueError(ALLOWED_DOSE_VALUES, value, 'dose')
+        self.__dose = value
 
     def __eq__(self, other) -> bool:
         """ Equality operator.
@@ -87,9 +69,7 @@ class ExposureCondition:
         :param other: The other object to compare to.
         :return: True if the objects are equal, False otherwise.
         """
-        return (self.__doses == other.__doses
-                and self.__chemical_name == other.__chemical_name
-                and self.__timepoints == other.__timepoints)
+        return any(dose in other.__dose for dose in self.__dose) and self.__chemicals_name == other.__chemicals_name
 
     def __ne__(self, other):
         """ Inequality operator.
@@ -105,9 +85,8 @@ class ExposureCondition:
         :return: The iterator.
         """
         iters = {
-            'chemical_name': self.__chemical_name,
-            'doses': self.__doses,
-            'timepoints': self.__timepoints
+            'chemicals_name': self.__chemicals_name,
+            'dose': self.__dose
         }
         for key, value in iters.items():
             yield key, value

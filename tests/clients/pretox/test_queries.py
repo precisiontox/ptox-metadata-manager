@@ -16,8 +16,7 @@ class MockedResponse:
 
 CHEMICALS = {"chemical": [
     {'ptx_code': 100, 'name_hash_id': '-'},
-    {'ptx_code': 996, 'name_hash_id': 'hello'},
-    {'ptx_code': 997, 'name_hash_id': 'world'},
+    {'ptx_code': 996, 'name_hash_id': 'hello'}
 ]}
 ORGANISMS = {"organism": []}
 MOCKED_CHEMICAL_RESPONSE = MockedResponse(200, CHEMICALS)

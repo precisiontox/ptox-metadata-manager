@@ -3,11 +3,10 @@ the database and the Google Drive directories.
 
 @author: D. Batista (Terazus)
 """
-
 from sqlalchemy.orm import session as sqlsession
 
 from ptmd.clients import GoogleDriveConnector, pull_chemicals_from_ptox_db, pull_organisms_from_ptox_db
-from ptmd.database import boot, User, Organisation
+from ptmd.database import boot, User, Organisation, get_session
 
 
 def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str, User], dict[str, Organisation]]:
@@ -34,3 +33,10 @@ def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str, User],
     organisations = session.query(Organisation).all()
     return ({user.username: user.id for user in users_from_database},
             {org.name: org.gdrive_id for org in organisations})
+
+
+def init():
+    """ Initialize the API """
+    session = get_session()
+    initialize(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}], session=session)
+    session.close()

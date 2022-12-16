@@ -26,6 +26,7 @@ definitions:
       - start_date
       - end_date
       - exposure_conditions
+      - timepoints
     properties:
       partner:
         type: string
@@ -59,34 +60,40 @@ definitions:
         type: string
         description: The end date of the experiment
         example: 2020-10-01
+      timepoints:
+        type: int
+        description: The number of timepoints in the experiment
+        example: 3
+      vehicle:
+        type: string
+        description: The vehicle used in the experiment
+        example: DMSO
+        enum:
+          - DMSO
+          - water
       exposure_conditions:
         type: array
         description: The exposure conditions
         items:
             $ref: '#/definitions/Exposure Conditions'
-        example: [{"chemical_name": "chemical1", "doses": ["BMD10", "BMD25"], "timepoints": 2}]
+        example: [{"chemicals_name": ["Ethoprophos"], "dose": "BMD10"}]
   Exposure Conditions:
     type: object
     required:
-      - chemical_name
-      - doses
-      - timepoints
+      - chemicals_name
+      - dose
     properties:
-        chemical_name:
-            type: string
-            description: The name of the chemical
-        doses:
+        chemicals_name:
             type: array
-            description: The doses of the chemical
-            schema:
-                $ref: '#/definitions/Dose'
-        timepoints:
-            type: integer
-            description: The number of timepoints
-  Dose:
-    type: string
-    description: The dose of the chemical
-    enum: ["0", "BMD10", "BMD25", "10mg/L"]
+            description: The names of the chemicals
+            items:
+                type: string
+                example: ["Ethoprophos"]
+                description: See GET /api/chemicals for the list of chemicals.
+        dose:
+            type: string
+            description: The dose for these chemicals
+            enum: ["BMD10", "BMD25", "10mg/L"]
 
 responses:
   200:

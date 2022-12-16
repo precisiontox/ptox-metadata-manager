@@ -4,20 +4,22 @@
   "type": "object",
   "description": "A JSON Schema representing an exposure condition",
   "properties": {
-      "chemical": {
-        "type": "string",
-        "enum": ["chemical1", "chemical2", "chemical3"],
-        "description": "The chemical name."
-      },
-      "doses": {
-          "type": "array",
-          "items": [{"type": "string", "enum": ["0", "BMD10", "BMD25", "10mg/L"]}],
-          "maxItems": 4
-      },
-      "timepoints": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 4
-      }
+    "chemical": {
+      "type": "string",
+      "enum": [
+        "chemical1",
+        "chemical2",
+        "chemical3"
+      ],
+      "description": "The chemical name."
+    },
+    "dose": {
+      "type": "string",
+      "enum": [
+        "BMD10",
+        "BMD25",
+        "10mg/L"
+      ]
+    }
   }
 }

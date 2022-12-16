@@ -46,7 +46,7 @@ class TestModel(TestCase):
         organisation_in_db = dict(self.session.query(Organisation).first())
         self.assertEqual(organisation_in_db, expected_organisation)
 
-    @patch('ptmd.database.models.queries.create_access_token', return_value='OK')
+    @patch('ptmd.database.queries.create_access_token', return_value='OK')
     def test_user_with_organisation(self, mock_create_access_token):
         user_input = {'username': 'rw', 'organisation': 123, 'password': 'test'}
         with self.assertRaises(TypeError) as context:
