@@ -10,8 +10,9 @@ from flask_jwt_extended import create_access_token
 from flask import jsonify, Response
 from sqlalchemy.orm import session as sqlsession
 
-from .user import User
-from .chemical import Chemical
+from ptmd.database.utils import get_session
+from ptmd.database.models.user import User
+from ptmd.database.models.chemical import Chemical
 
 
 def login_user(username: str, password: str, session: sqlsession) -> tuple[Response, int]:
@@ -30,11 +31,10 @@ def login_user(username: str, password: str, session: sqlsession) -> tuple[Respo
     return jsonify(access_token=access_token), 200
 
 
-def chemicals_exist(chemicals: list[str], session: sqlsession) -> bool:
-    """ Check if a list of chemicals exists in the database.
-
-    @param chemicals: list of chemicals
-    @param session: the database session
-    @return: bool: True if all chemicals exist, False otherwise
+def get_allowed_chemicals() -> list[str]:
+    """ Get the list of allowed chemicals names.
     """
-    return all(session.query(Chemical).filter_by(common_name=chemical).first() for chemical in chemicals)
+    session = get_session()
+    allowed_chemicals = [chemical.common_name for chemical in session.query(Chemical).all()]
+    session.close()
+    return allowed_chemicals

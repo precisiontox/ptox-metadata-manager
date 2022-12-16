@@ -17,8 +17,8 @@ class TestAPIUtilities(TestCase):
         mock_init.assert_called_with(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}],
                                      session=mock_get_session.return_value)
 
-    @patch('ptmd.utils.Base.metadata.create_all', return_value=None)
-    @patch('ptmd.utils.create_engine', return_value="abc")
+    @patch('ptmd.database.Base.metadata.create_all', return_value=None)
+    @patch('ptmd.database.utils.create_engine', return_value="abc")
     def test_get_session(self, mock_create_engine, mock_create_all):
         session = get_session()
         self.assertIsInstance(session, Session)
