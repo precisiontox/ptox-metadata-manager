@@ -32,6 +32,13 @@ ALLOWED_VEHICLES: list[str] = INPUT_SCHEMA['properties']['vehicle']['enum']
 TIMEPOINTS_RANGE: namedtuple = TimepointsRange(INPUT_SCHEMA['properties']['timepoints']['minimum'],
                                                INPUT_SCHEMA['properties']['timepoints']['maximum'])
 
+DOSE_MAPPING: dict = {
+    "0": "Z",
+    "BMD10": "L",
+    "BMD25": "M",
+    "10mg/l": "H",
+}
+
 SAMPLE_SHEET_BASE_COLUMNS: list[str] = [
     "Shipment identifier",
     "Label tube / identifier",

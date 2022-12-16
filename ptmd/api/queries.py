@@ -92,7 +92,7 @@ def get_organisms() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    organisms: dict[str, list] = {"data": [dict(organism) for organism in session.query(Organism).all()]}
+    organisms: dict[str, list] = {"data": [dict(organism) for organism in session.query(Organism).filter_by().all()]}
     session.close()
     return jsonify(organisms), 200
 
@@ -103,7 +103,8 @@ def get_chemicals() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    chemicals: dict[str, list] = {"data": [dict(chemical) for chemical in session.query(Chemical).all()]}
+    chemicals: dict[str, list] = {"data": [dict(chemical) for chemical
+                                           in session.query(Chemical).filter(Chemical.ptx_code < 998).all()]}
     session.close()
     return jsonify(chemicals), 200
 
