@@ -83,7 +83,9 @@ class TestAPIQueries(TestCase):
     @patch('ptmd.api.queries.GoogleDriveConnector.upload_file', return_value=({"alternateLink": "456"}))
     @patch('ptmd.model.exposure_condition.get_allowed_chemicals', return_value=["chemical1", "chemical2"])
     @patch('ptmd.model.harvester_input.get_allowed_organisms', return_value=['organism1'])
-    def test_create_gdrive_file(self, mock_organism, mock_chem, mock_upload, mock_auth, mock_get_session):
+    @patch('ptmd.model.harvester_input.get_organism_code', return_value=['A'])
+    def test_create_gdrive_file(self, mock_organism_code,
+                                mock_organism, mock_chem, mock_upload, mock_auth, mock_get_session):
         organisation = {'name': 'UOB', 'gdrive_id': '456'}
         new_organisation = Organisation(**organisation)
         session.add(new_organisation)

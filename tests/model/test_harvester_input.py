@@ -296,7 +296,8 @@ class TestHarvesterInputErrors(TestCase):
         self.assertEqual(expected, dict(harvester))
         self.assertFalse(harvester.timepoint_zero)
 
-    def test_to_dataframe(self, mock_get_allowed_chemicals, mock_allowed_organisms):
+    @patch('ptmd.model.harvester_input.get_organism_code', return_value="X")
+    def test_to_dataframe(self, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
         harvester = make_harvester()
         dataframes = harvester.to_dataframe()
         sample_dataframe = dataframes[0]
@@ -310,13 +311,15 @@ class TestHarvesterInputErrors(TestCase):
         for col in GENERAL_SHEET_BASE_COLUMNS:
             self.assertIn(col, general_dataframe.columns)
 
-    def test_save_dataframe(self, mock_get_allowed_chemicals, mock_allowed_organisms):
+    @patch('ptmd.model.harvester_input.get_organism_code', return_value="X")
+    def test_save_dataframe(self, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
         output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
         harvester = make_harvester()
         file_path = harvester.save_file(output_path)
         self.assertIsNotNone(file_path)
 
-    def test_delete_file(self, mock_get_allowed_chemicals, mock_allowed_organisms):
+    @patch('ptmd.model.harvester_input.get_organism_code', return_value="X")
+    def test_delete_file(self, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
         output_path = path.join(HERE, '..', 'data', 'excel', 'temp.xlsx')
         harvester = make_harvester()
         file_path = harvester.save_file(output_path)

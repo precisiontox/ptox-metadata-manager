@@ -1,13 +1,17 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from ptmd.database.queries import get_allowed_chemicals, get_allowed_organisms
+from ptmd.database.queries import get_allowed_chemicals, get_allowed_organisms, get_organism_code
 
 
 class MockChemical:
     def __init__(self) -> None:
         self.common_name = 'A NAME'
         self.ptox_biosystem_name = 'ANOTHER NAME'
+        self.ptox_biosystem_code = 'A'
+
+    def first(self) -> object:
+        return self
 
 
 class MockQuery:
@@ -17,6 +21,9 @@ class MockQuery:
     @staticmethod
     def all():
         return [MockChemical()]
+
+    def filter_by(self, *args, **kwargs):
+        return MockChemical()
 
 
 class MockSession:
@@ -40,3 +47,7 @@ class TestDBQueries(TestCase):
     @patch('ptmd.database.queries.get_session', return_value=MockSession())
     def test_get_allowed_organisms(self, mock_get_session):
         self.assertEqual(get_allowed_organisms(), ['ANOTHER NAME'])
+
+    @patch('ptmd.database.queries.get_session', return_value=MockSession())
+    def test_get_organism_code(self, mock_get_session):
+        self.assertEqual(get_organism_code('A'), 'A')

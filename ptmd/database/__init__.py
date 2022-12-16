@@ -8,13 +8,14 @@ It also provides the Base and app variables that are required to establish a con
 from .models import User, Organisation, Chemical, Organism
 from .queries import (
     login_user,
-    get_allowed_chemicals,
     boot,
     create_organisations,
     create_users,
     create_chemicals,
     create_organisms,
-    get_allowed_organisms
+    get_allowed_organisms,
+    get_allowed_chemicals,
+    get_organism_code
 )
 from .config import Base, app
 from .utils import get_session

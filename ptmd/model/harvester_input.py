@@ -13,9 +13,10 @@ from pandas import DataFrame, Series, concat as pandas_concat, ExcelWriter
 from ptmd.const import (
     ALLOWED_PARTNERS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN, REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS, TIMEPOINTS_RANGE, ALLOWED_VEHICLES
+    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS, TIMEPOINTS_RANGE, ALLOWED_VEHICLES,
+    DOSE_MAPPING, TIME_POINT_MAPPING
 )
-from ptmd.database import get_allowed_organisms
+from ptmd.database import get_allowed_organisms, get_organism_code
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
 
@@ -370,40 +371,53 @@ class HarvesterInput:
         general_dataframe = pandas_concat([general_dataframe, general_series.to_frame().T],
                                           ignore_index=False, sort=False, copy=False)
 
+        organisms_code: str = get_organism_code(self.organism)
+
         for exposure_condition in self.exposure_conditions:
             for chemical in exposure_condition.chemicals_name:
                 for tp in range(1, self.timepoints + 1):
+                    timepoint = f'TP{tp}'
                     for replicate in range(self.replicate4exposure):
+                        hash_id = f'%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
+                                                      DOSE_MAPPING[exposure_condition.dose],
+                                                      TIME_POINT_MAPPING[timepoint], replicate + 1)
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,
                             chemical,
                             exposure_condition.dose,
                             'TP%s' % tp,
-                            self.vehicle
+                            self.vehicle,
+                            hash_id
                         ], index=sample_dataframe.columns)
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
                     for replicate in range(self.replicate4control):
+                        hash_id = f'%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
+                                                      DOSE_MAPPING[exposure_condition.dose],
+                                                      TIME_POINT_MAPPING[timepoint], replicate + 1)
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,
                             "CONTROL (%s)" % self.vehicle,
                             0,
                             'TP%s' % tp,
-                            self.vehicle
+                            self.vehicle,
+                            hash_id
                         ], index=sample_dataframe.columns)
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
 
-        for blank in range(self.replicate_blank):
+        for blank in range(1, self.replicate_blank + 1):
+            hash_id = '%s%s998ZS%s' % (organisms_code, self.exposure_batch, blank)
             series = Series([
                 '', '', '', '', '', '', '', '',
-                0,
+                blank,
                 'EXTRACTION BLANK',
                 "0",
                 'TP0',
-                ''
+                '',
+                hash_id
             ], index=sample_dataframe.columns)
             sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                              ignore_index=False, sort=False, copy=False)

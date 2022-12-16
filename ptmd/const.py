@@ -38,6 +38,14 @@ DOSE_MAPPING: dict = {
     "BMD25": "M",
     "10mg/l": "H",
 }
+TIME_POINT_MAPPING: dict = {
+    "TP0": "S",
+    "TP1": "A",
+    "TP2": "B",
+    "TP3": "C",
+    "TP4": "D",
+    "TP5": "E",
+}
 
 SAMPLE_SHEET_BASE_COLUMNS: list[str] = [
     "Shipment identifier",
@@ -53,6 +61,7 @@ SAMPLE_SHEET_BASE_COLUMNS: list[str] = [
     "dose",
     "time point",
     "vehicle",
+    "PrecisionTox short identifier"
 ]
 
 GENERAL_SHEET_BASE_COLUMNS: list[str] = [

@@ -4,7 +4,6 @@ create_users(). login_user() and get_allowed_chemicals().
 :author: D. Batista (Terazus)
 """
 
-
 from datetime import timedelta
 from ptmd.logger import LOGGER
 
@@ -64,6 +63,11 @@ def login_user(username: str, password: str, session: sqlsession) -> tuple[Respo
     return jsonify(access_token=access_token), 200
 
 
+''' --------------------------------------------------------------------------------
+                                        GETTERS 
+-------------------------------------------------------------------------------- '''
+
+
 def get_allowed_chemicals() -> list[str]:
     """ Get the list of allowed chemicals names.
 
@@ -84,6 +88,19 @@ def get_allowed_organisms() -> list[str]:
     allowed_organism = [organism.ptox_biosystem_name for organism in session.query(Organism).all()]
     session.close()
     return allowed_organism
+
+
+def get_organism_code(organism_name: str) -> str or None:
+    """ Get the organism code from the organism name."""
+    session = get_session()
+    organism = session.query(Organism).filter_by(ptox_biosystem_name=organism_name).first()
+    session.close()
+    return organism.ptox_biosystem_code if organism else None
+
+
+''' --------------------------------------------------------------------------------
+                                        SETTERS 
+-------------------------------------------------------------------------------- '''
 
 
 def create_organisations(organisations: dict, session: sqlsession) -> dict[str, Organisation]:
