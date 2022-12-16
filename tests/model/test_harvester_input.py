@@ -13,7 +13,8 @@ from ptmd.const import (
     REPLICATES_EXPOSURE_MIN,
     REPLICATES_BLANK_RANGE,
     SAMPLE_SHEET_BASE_COLUMNS,
-    GENERAL_SHEET_BASE_COLUMNS
+    GENERAL_SHEET_BASE_COLUMNS,
+    TIMEPOINTS_RANGE
 )
 
 PARTNER = ALLOWED_PARTNERS[0]
@@ -198,6 +199,21 @@ class TestHarvesterInputErrors(TestCase):
                            start_date=START_DATE, end_date=123, timepoints=TIMEPOINTS)
         self.assertEqual("end_date must be a datetime but got int with value 123",
                          str(context.exception))
+
+    def test_constructor_error_timepoints(self):
+        with self.assertRaises(TypeError) as context:
+            HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
+                           replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                           replicate_blank=REPLICATES_BLANK,
+                           start_date=START_DATE, end_date=END_DATE, timepoints='foo')
+        self.assertEqual("timepoints must be a int but got str with value foo", str(context.exception))
+        with self.assertRaises(ValueError) as context:
+            HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
+                           replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                           replicate_blank=REPLICATES_BLANK,
+                           start_date=START_DATE, end_date=END_DATE, timepoints=100)
+        error = "timepoints must be between %s and %s but got 100" % (TIMEPOINTS_RANGE.min, TIMEPOINTS_RANGE.max)
+        self.assertEqual(error, str(context.exception))
 
     def test_constructor_success(self):
 

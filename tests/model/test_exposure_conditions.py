@@ -11,13 +11,17 @@ CLASS_NAME = ExposureCondition.__name__
 
 class TestExposureCondition(TestCase):
 
-    def test_constructor_errors_with_chemical_name(self):
+    def test_constructor_errors_with_chemicals_name(self):
         with self.assertRaises(TypeError) as context:
             ExposureCondition(chemicals_name=1, dose=[DOSE_VALUE])
         self.assertEqual("chemicals_name must be a list but got int with value 1", str(context.exception))
+        with self.assertRaises(ValueError) as context:
+            ExposureCondition(chemicals_name=['foo'], dose=DOSE_VALUE)
+        self.assertEqual("chemicals_name must be one of ['chemical1', 'chemical2', 'chemical3'] but got foo",
+                         str(context.exception))
         with self.assertRaises(TypeError) as context:
-            ExposureCondition(chemicals_name='foo', dose=DOSE_VALUE)
-        self.assertEqual("chemicals_name must be a list but got str with value foo", str(context.exception))
+            ExposureCondition(chemicals_name=[1], dose=DOSE_VALUE)
+        self.assertEqual("chemicals_name must be a str but got int with value 1", str(context.exception))
 
     def test_constructor_errors_with_chemical_dose(self):
         with self.assertRaises(TypeError) as context:
