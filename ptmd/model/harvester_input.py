@@ -12,9 +12,8 @@ from pandas import DataFrame, Series, concat as pandas_concat, ExcelWriter
 
 from ptmd.const import (
     ALLOWED_PARTNERS, ALLOWED_ORGANISMS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
-    REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN,
-    REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS, TIMEPOINTS_RANGE
+    REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN, REPLICATES_BLANK_RANGE,
+    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS, TIMEPOINTS_RANGE, ALLOWED_VEHICLES
 )
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
@@ -33,6 +32,8 @@ class HarvesterInput:
     :param end_date:
     :param exposure_conditions: list of chemical names and doses
     :param timepoints: number of timepoints
+    :param vehicle: vehicle used in the experiment
+    :param timepoint_zero: if the controls should be included at TP0
     """
 
     def __init__(self,
@@ -45,6 +46,8 @@ class HarvesterInput:
                  start_date: str or datetime,
                  end_date: str or datetime,
                  timepoints: int,
+                 vehicle: str,
+                 timepoint_zero: bool = False,
                  exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
         """ The harvester constructor """
         self.partner = partner
@@ -57,6 +60,8 @@ class HarvesterInput:
         self.start_date = start_date
         self.end_date = end_date
         self.timepoints = timepoints
+        self.vehicle = vehicle
+        self.timepoint_zero = timepoint_zero
         self.file_path = None
 
     @property
@@ -288,6 +293,41 @@ class HarvesterInput:
             raise InputRangeError(TIMEPOINTS_RANGE, value, 'timepoints')
         self.__timepoints = value
 
+    @property
+    def vehicle(self) -> str:
+        """ Getter for the vehicle.
+
+        :return: The vehicle.
+        """
+        return self.__vehicle
+
+    @vehicle.setter
+    def vehicle(self, value: str) -> None:
+        """ Setter for the vehicle.
+
+        :param value: The vehicle.
+        """
+        if not isinstance(value, str):
+            raise InputTypeError(str, value, 'vehicle')
+        if value not in ALLOWED_VEHICLES:
+            raise InputValueError(ALLOWED_VEHICLES, value, 'vehicle')
+        self.__vehicle = value
+
+    @property
+    def timepoint_zero(self) -> bool:
+        """ Getter for the timepoint zero.
+
+        :return: The timepoint zero.
+        """
+        return self.__timepoint_zero
+
+    @timepoint_zero.setter
+    def timepoint_zero(self, value: bool) -> None:
+        """ Setter for the timepoint zero. """
+        if not isinstance(value, bool):
+            raise InputTypeError(bool, value, 'timepoint_zero')
+        self.__timepoint_zero = value
+
     def __iter__(self):
         """ Iterator for the class. Used to serialize the object to a dictionary.
 
@@ -303,7 +343,8 @@ class HarvesterInput:
             "replicate_blank": self.replicate_blank,
             "start_date": self.start_date.strftime("%Y-%m-%d"),
             "end_date": self.end_date.strftime("%Y-%m-%d"),
-            "timepoints": self.timepoints
+            "timepoints": self.timepoints,
+            "vehicle": self.vehicle
         }
         for key, value in iters.items():
             yield key, value
@@ -337,6 +378,7 @@ class HarvesterInput:
                             chemical,
                             exposure_condition.dose,
                             'TP%s' % tp,
+                            self.vehicle
                         ], index=sample_dataframe.columns)
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
@@ -344,9 +386,10 @@ class HarvesterInput:
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,
-                            "CONTROL (SEE VEHICLE)",
+                            "CONTROL (%s)" % self.vehicle,
                             0,
                             'TP%s' % tp,
+                            self.vehicle
                         ], index=sample_dataframe.columns)
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
@@ -358,6 +401,7 @@ class HarvesterInput:
                 'EXTRACTION BLANK',
                 "0",
                 'TP0',
+                ''
             ], index=sample_dataframe.columns)
             sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                              ignore_index=False, sort=False, copy=False)

@@ -86,14 +86,15 @@ class GoogleDriveConnector:
             folders_ids['partners'][partner] = folder['id'] if folder else None
         return folders_ids
 
-    def upload_file(self, directory_id: str or int, file_path: str) -> dict:
+    def upload_file(self, directory_id: str or int, file_path: str, title: str = 'SAMPLE_TEST') -> dict:
         """ This function will upload the file to the Google Drive.
 
         :param directory_id: The partner organisation Google Drive folder identifier.
         :param file_path: The path to the file to be uploaded.
+        :param title: The title of the file to be uploaded.
         """
         file_metadata = {
-            'title': 'SAMPLE_TEST',
+            'title': title,
             'mimeType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'parents': [{'id': directory_id}]
         }

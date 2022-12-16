@@ -45,6 +45,7 @@ SAMPLE_SHEET_BASE_COLUMNS: list[str] = [
     "chemical name",
     "dose",
     "time point",
+    "vehicle",
 ]
 
 GENERAL_SHEET_BASE_COLUMNS: list[str] = [

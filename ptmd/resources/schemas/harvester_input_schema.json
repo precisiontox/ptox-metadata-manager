@@ -58,7 +58,11 @@
       "timepoints": {
           "type": "number",
           "minimum": 0,
-          "maximum": 4
+          "maximum": 5
+      },
+      "time point zero": {
+        "type": "boolean",
+        "description": "A boolean to indicate if there should be controls for time point zero."
       }
   }
 }

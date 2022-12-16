@@ -64,6 +64,13 @@ definitions:
         type: int
         description: The number of timepoints in the experiment
         example: 3
+      vehicle:
+        type: string
+        description: The vehicle used in the experiment
+        example: DMSO
+        enum:
+          - DMSO
+          - water
       exposure_conditions:
         type: array
         description: The exposure conditions

@@ -14,7 +14,7 @@ from ptmd.const import (
     REPLICATES_BLANK_RANGE,
     SAMPLE_SHEET_BASE_COLUMNS,
     GENERAL_SHEET_BASE_COLUMNS,
-    TIMEPOINTS_RANGE
+    TIMEPOINTS_RANGE, ALLOWED_VEHICLES
 )
 
 PARTNER = ALLOWED_PARTNERS[0]
@@ -31,6 +31,7 @@ HERE = path.dirname(path.abspath(__file__))
 EXPOSURE_CONDITIONS = [{'chemicals_name': [CHEMICAL_NAME], 'dose': DOSE_VALUE}]
 exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
 TIMEPOINTS = 3
+VEHICLE = ALLOWED_VEHICLES[0]
 
 
 class TestHarvesterInputErrors(TestCase):
@@ -38,13 +39,13 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=1, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("partner must be a str but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner='foo', organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("partner must be one of %s but got %s" % (ALLOWED_PARTNERS, 'foo'),
                          str(context.exception))
@@ -53,13 +54,13 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=1, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("organism must be a str but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism='foo', exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("organism must be one of %s but got %s" % (ALLOWED_ORGANISMS, 'foo'),
                          str(context.exception))
@@ -72,7 +73,7 @@ class TestHarvesterInputErrors(TestCase):
                            exposure_conditions=[{'foo': 'bar'}],
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertIn(error, str(context.exception))
         with self.assertRaises(TypeError) as context:
@@ -81,7 +82,7 @@ class TestHarvesterInputErrors(TestCase):
                            exposure_conditions='foo',
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("HarvesterInput.exposure must be a list of ExposureCondition or dict but got str with value "
                          "foo", str(context.exception))
@@ -92,7 +93,7 @@ class TestHarvesterInputErrors(TestCase):
                            exposure_conditions=['foo', 'bar'],
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("HarvesterInput.exposure must be a list of ExposureCondition or dict but got list "
                          "with value ['foo', 'bar']", str(context.exception))
@@ -101,20 +102,20 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=1,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("exposure_batch must be a str but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch='fo',
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("exposure_batch must be one of AA to ZZ but got fo",
                          str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch='AAA',
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("exposure_batch must be less than 2 characters but got 3 (value: AAA)",
                          str(context.exception))
@@ -123,14 +124,14 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure='foo', replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("replicate4exposure must be a int but got str with value foo",
                          str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=0, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         error = 'replicate4exposure must be greater than %s but got 0' % REPLICATES_EXPOSURE_MIN
         self.assertEqual(error, str(context.exception))
@@ -139,14 +140,14 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control='foo',
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("replicate4control must be a int but got str with value foo",
                          str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=0,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         error = 'replicate4control must be greater than %s but got 0' % REPLICATES_EXPOSURE_MIN
         self.assertEqual(error, str(context.exception))
@@ -155,14 +156,14 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank='foo',
+                           replicate_blank='foo', vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("replicate_blank must be a int but got str with value foo",
                          str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=5,
+                           replicate_blank=5, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         error = "replicate_blank must be between %s and %s but got 5" % (REPLICATES_BLANK_RANGE.min,
                                                                          REPLICATES_BLANK_RANGE.max)
@@ -172,14 +173,14 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date='foo', end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("start_date must be a datetime but got str with value foo",
                          str(context.exception))
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=123, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("start_date must be a datetime but got int with value 123",
                          str(context.exception))
@@ -188,14 +189,14 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date='foo', timepoints=TIMEPOINTS)
         self.assertEqual("end_date must be a datetime but got str with value foo",
                          str(context.exception))
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=123, timepoints=TIMEPOINTS)
         self.assertEqual("end_date must be a datetime but got int with value 123",
                          str(context.exception))
@@ -204,22 +205,45 @@ class TestHarvesterInputErrors(TestCase):
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints='foo')
         self.assertEqual("timepoints must be a int but got str with value foo", str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
-                           replicate_blank=REPLICATES_BLANK,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                            start_date=START_DATE, end_date=END_DATE, timepoints=100)
         error = "timepoints must be between %s and %s but got 100" % (TIMEPOINTS_RANGE.min, TIMEPOINTS_RANGE.max)
         self.assertEqual(error, str(context.exception))
 
-    def test_constructor_success(self):
+    def test_constructor_error_vehicle(self):
+        with self.assertRaises(TypeError) as context:
+            HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
+                           replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                           replicate_blank=REPLICATES_BLANK, vehicle=123,
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("vehicle must be a str but got int with value 123", str(context.exception))
+        with self.assertRaises(ValueError) as context:
+            HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
+                           replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                           replicate_blank=REPLICATES_BLANK, vehicle='foo',
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("vehicle must be one of %s but got foo" % ALLOWED_VEHICLES, str(context.exception))
 
+    def test_constructor_error_tp0(self):
+        with self.assertRaises(TypeError) as context:
+            HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
+                           replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                           replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS,
+                           timepoint_zero='foo')
+        self.assertEqual("timepoint_zero must be a bool but got str with value foo", str(context.exception))
+
+    def test_constructor_success(self):
         harvester = make_harvester()
         self.assertEqual(ALLOWED_PARTNERS[0], harvester.partner)
         self.assertEqual(ALLOWED_ORGANISMS[0], harvester.organism)
+        self.assertEqual(VEHICLE, harvester.vehicle)
         self.assertEqual(exposure_conditions, harvester.exposure_conditions)
         self.assertEqual(EXPOSURE_BATCH, harvester.exposure_batch)
         self.assertEqual(REPLICATES_EXPOSURE, harvester.replicate4exposure)
@@ -249,7 +273,8 @@ class TestHarvesterInputErrors(TestCase):
             'replicate_blank': REPLICATES_BLANK,
             'start_date': START_DATE,
             'end_date': END_DATE,
-            'timepoints': 3
+            'timepoints': 3,
+            "vehicle": VEHICLE
         }
         start_date = parse_date(START_DATE)
         end_date = parse_date(END_DATE)
@@ -261,9 +286,10 @@ class TestHarvesterInputErrors(TestCase):
                                    replicate4control=REPLICATES_CONTROL,
                                    replicate_blank=REPLICATES_BLANK,
                                    start_date=start_date,
-                                   end_date=end_date,
+                                   end_date=end_date, vehicle=VEHICLE,
                                    timepoints=TIMEPOINTS)
         self.assertEqual(expected, dict(harvester))
+        self.assertFalse(harvester.timepoint_zero)
 
     def test_to_dataframe(self):
         harvester = make_harvester()
@@ -307,5 +333,5 @@ def make_harvester():
                           replicate4exposure=REPLICATES_EXPOSURE,
                           replicate4control=REPLICATES_CONTROL,
                           replicate_blank=REPLICATES_BLANK,
-                          start_date=START_DATE,
+                          start_date=START_DATE, vehicle=VEHICLE,
                           end_date=END_DATE, timepoints=TIMEPOINTS)

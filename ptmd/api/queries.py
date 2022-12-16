@@ -24,9 +24,7 @@ def login() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    engine = create_engine(CONFIG['SQLALCHEMY_DATABASE_URL'])
-    session_ = sessionmaker(bind=engine)
-    session = session_()
+    session = get_session()
     username: str = request.json.get('username', None)
     password: str = request.json.get('password', None)
     if not username or not password:
@@ -69,7 +67,8 @@ def create_gdrive_file() -> tuple[Response, int]:
         "exposure_conditions": request.json.get("exposure_conditions", None),
         "replicate4control": request.json.get("replicate4control", None),
         "replicate4exposure": request.json.get("replicate4exposure", None),
-        "timepoints": request.json.get("timepoints", None)
+        "timepoints": request.json.get("timepoints", None),
+        "vehicle": request.json.get("vehicle", None),
     }
     try:
         filename: str = f"{data['partner']}_{data['organism']}_{data['exposure_batch']}.xlsx"
@@ -80,7 +79,7 @@ def create_gdrive_file() -> tuple[Response, int]:
         folder_id: str = session.query(Organisation).filter_by(name=data['partner']).first().gdrive_id
         session.close()
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
-        response: dict = gdrive.upload_file(directory_id=folder_id, file_path=filepath)
+        response: dict = gdrive.upload_file(directory_id=folder_id, file_path=filepath, title=filename)
         inputs.delete_file()
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
