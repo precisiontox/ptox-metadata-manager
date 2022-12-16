@@ -2,9 +2,8 @@
 
 @author: Terazus (D. Batista)
 """
-from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES, TIMEPOINTS_RANGE
-from ptmd.model.exceptions import InputTypeError, InputValueError, InputRangeError
-from ptmd.model.utils import get_field_name
+from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
+from ptmd.model.exceptions import InputTypeError, InputValueError
 
 
 class ExposureCondition:

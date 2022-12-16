@@ -26,10 +26,10 @@ REPLICATES_CONTROL = 4
 REPLICATES_BLANK = 2
 START_DATE = '2018-01-01'
 END_DATE = '2019-01-02'
-CLASS_NAME = HarvesterInput.__name__
 HERE = path.dirname(path.abspath(__file__))
 EXPOSURE_CONDITIONS = [{'chemicals_name': [CHEMICAL_NAME], 'dose': DOSE_VALUE}]
 exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
+TIMEPOINTS = 3
 
 
 class TestHarvesterInputErrors(TestCase):
@@ -38,14 +38,14 @@ class TestHarvesterInputErrors(TestCase):
             HarvesterInput(partner=1, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".partner must be a str but got int with value 1", str(context.exception))
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("partner must be a str but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner='foo', organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".partner must be one of %s but got %s" % (ALLOWED_PARTNERS, 'foo'),
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("partner must be one of %s but got %s" % (ALLOWED_PARTNERS, 'foo'),
                          str(context.exception))
 
     def test_constructor_errors_with_chemical_organism(self):
@@ -53,14 +53,14 @@ class TestHarvesterInputErrors(TestCase):
             HarvesterInput(partner=PARTNER, organism=1, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".organism must be a str but got int with value 1", str(context.exception))
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("organism must be a str but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism='foo', exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".organism must be one of %s but got %s" % (ALLOWED_ORGANISMS, 'foo'),
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("organism must be one of %s but got %s" % (ALLOWED_ORGANISMS, 'foo'),
                          str(context.exception))
 
     def test_constructor_errors_with_exposure_conditions(self):
@@ -72,7 +72,7 @@ class TestHarvesterInputErrors(TestCase):
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertIn(error, str(context.exception))
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER,
@@ -81,7 +81,7 @@ class TestHarvesterInputErrors(TestCase):
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("HarvesterInput.exposure must be a list of ExposureCondition or dict but got str with value "
                          "foo", str(context.exception))
 
@@ -92,7 +92,7 @@ class TestHarvesterInputErrors(TestCase):
                            exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
         self.assertEqual("HarvesterInput.exposure must be a list of ExposureCondition or dict but got list "
                          "with value ['foo', 'bar']", str(context.exception))
 
@@ -101,21 +101,21 @@ class TestHarvesterInputErrors(TestCase):
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=1,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".exposure_batch must be a str but got int with value 1", str(context.exception))
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("exposure_batch must be a str but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch='fo',
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".exposure_batch must be one of AA to ZZ but got fo",
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("exposure_batch must be one of AA to ZZ but got fo",
                          str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch='AAA',
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".exposure_batch must be less than 2 characters but got 3 (value: AAA)",
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("exposure_batch must be less than 2 characters but got 3 (value: AAA)",
                          str(context.exception))
 
     def test_constructor_error_replicates_exposure(self):
@@ -123,15 +123,15 @@ class TestHarvesterInputErrors(TestCase):
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure='foo', replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".replicate4exposure must be a int but got str with value foo",
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("replicate4exposure must be a int but got str with value foo",
                          str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=0, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        error = '%s.replicate4exposure must be greater than %s but got 0' % (CLASS_NAME, REPLICATES_EXPOSURE_MIN)
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        error = 'replicate4exposure must be greater than %s but got 0' % REPLICATES_EXPOSURE_MIN
         self.assertEqual(error, str(context.exception))
 
     def test_constructor_error_replicates_control(self):
@@ -139,15 +139,15 @@ class TestHarvesterInputErrors(TestCase):
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control='foo',
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".replicate4control must be a int but got str with value foo",
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("replicate4control must be a int but got str with value foo",
                          str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=0,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=END_DATE)
-        error = '%s.replicate4control must be greater than %s but got 0' % (CLASS_NAME, REPLICATES_EXPOSURE_MIN)
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        error = 'replicate4control must be greater than %s but got 0' % REPLICATES_EXPOSURE_MIN
         self.assertEqual(error, str(context.exception))
 
     def test_constructor_error_replicate_blank(self):
@@ -155,17 +155,16 @@ class TestHarvesterInputErrors(TestCase):
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank='foo',
-                           start_date=START_DATE, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".replicate_blank must be a int but got str with value foo",
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("replicate_blank must be a int but got str with value foo",
                          str(context.exception))
         with self.assertRaises(ValueError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=5,
-                           start_date=START_DATE, end_date=END_DATE)
-        error = "%s.replicate_blank must be between %s and %s but got 5" % (CLASS_NAME,
-                                                                            REPLICATES_BLANK_RANGE.min,
-                                                                            REPLICATES_BLANK_RANGE.max)
+                           start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        error = "replicate_blank must be between %s and %s but got 5" % (REPLICATES_BLANK_RANGE.min,
+                                                                         REPLICATES_BLANK_RANGE.max)
         self.assertEqual(error, str(context.exception))
 
     def test_constructor_error_start_date(self):
@@ -173,15 +172,15 @@ class TestHarvesterInputErrors(TestCase):
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date='foo', end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".start_date must be a datetime but got str with value foo",
+                           start_date='foo', end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("start_date must be a datetime but got str with value foo",
                          str(context.exception))
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=123, end_date=END_DATE)
-        self.assertEqual(CLASS_NAME + ".start_date must be a datetime but got int with value 123",
+                           start_date=123, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("start_date must be a datetime but got int with value 123",
                          str(context.exception))
 
     def test_constructor_error_end_date(self):
@@ -189,15 +188,15 @@ class TestHarvesterInputErrors(TestCase):
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date='foo')
-        self.assertEqual(CLASS_NAME + ".end_date must be a datetime but got str with value foo",
+                           start_date=START_DATE, end_date='foo', timepoints=TIMEPOINTS)
+        self.assertEqual("end_date must be a datetime but got str with value foo",
                          str(context.exception))
         with self.assertRaises(TypeError) as context:
             HarvesterInput(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                            replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                            replicate_blank=REPLICATES_BLANK,
-                           start_date=START_DATE, end_date=123)
-        self.assertEqual(CLASS_NAME + ".end_date must be a datetime but got int with value 123",
+                           start_date=START_DATE, end_date=123, timepoints=TIMEPOINTS)
+        self.assertEqual("end_date must be a datetime but got int with value 123",
                          str(context.exception))
 
     def test_constructor_success(self):
@@ -233,7 +232,8 @@ class TestHarvesterInputErrors(TestCase):
             'replicate4control': REPLICATES_CONTROL,
             'replicate_blank': REPLICATES_BLANK,
             'start_date': START_DATE,
-            'end_date': END_DATE
+            'end_date': END_DATE,
+            'timepoints': 3
         }
         start_date = parse_date(START_DATE)
         end_date = parse_date(END_DATE)
@@ -245,7 +245,8 @@ class TestHarvesterInputErrors(TestCase):
                                    replicate4control=REPLICATES_CONTROL,
                                    replicate_blank=REPLICATES_BLANK,
                                    start_date=start_date,
-                                   end_date=end_date)
+                                   end_date=end_date,
+                                   timepoints=TIMEPOINTS)
         self.assertEqual(expected, dict(harvester))
 
     def test_to_dataframe(self):
@@ -256,7 +257,7 @@ class TestHarvesterInputErrors(TestCase):
 
         for col in SAMPLE_SHEET_BASE_COLUMNS:
             self.assertIn(col, sample_dataframe.columns)
-        self.assertEqual(6, len(sample_dataframe.index))
+        self.assertEqual(26, len(sample_dataframe.index))
         self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
 
         for col in GENERAL_SHEET_BASE_COLUMNS:
@@ -291,4 +292,4 @@ def make_harvester():
                           replicate4control=REPLICATES_CONTROL,
                           replicate_blank=REPLICATES_BLANK,
                           start_date=START_DATE,
-                          end_date=END_DATE)
+                          end_date=END_DATE, timepoints=TIMEPOINTS)

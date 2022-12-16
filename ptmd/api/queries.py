@@ -56,15 +56,16 @@ def create_gdrive_file() -> tuple[Response, int]:
     """
     directory_path: str = path.join(ROOT_PATH, 'resources')
     data: dict = {
-        'partner': request.json.get('partner', None),
-        'organism': request.json.get('organism', None),
-        'exposure_batch': request.json.get('exposure_batch', None),
-        'replicate_blank': request.json.get('replicate_blank', None),
-        'start_date': request.json.get('start_date', None),
-        'end_date': request.json.get('end_date', None),
-        'exposure_conditions': request.json.get('exposure_conditions', None),
-        'replicate4control': request.json.get('replicate4control', None),
-        'replicate4exposure': request.json.get('replicate4exposure', None),
+        "partner": request.json.get("partner", None),
+        "organism": request.json.get("organism", None),
+        "exposure_batch": request.json.get("exposure_batch", None),
+        "replicate_blank": request.json.get("replicate_blank", None),
+        "start_date": request.json.get("start_date", None),
+        "end_date": request.json.get("end_date", None),
+        "exposure_conditions": request.json.get("exposure_conditions", None),
+        "replicate4control": request.json.get("replicate4control", None),
+        "replicate4exposure": request.json.get("replicate4exposure", None),
+        "timepoints": request.json.get("timepoints", None)
     }
     try:
         filename: str = f"{data['partner']}_{data['organism']}_{data['exposure_batch']}.xlsx"

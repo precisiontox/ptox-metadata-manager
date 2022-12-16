@@ -105,6 +105,7 @@ class TestAPIQueries(TestCase):
                 "replicate_blank": 2,
                 "start_date": "2021-01-01",
                 "end_date": "2022-01-01",
+                "timepoints": 3
             }
             headers = {'Authorization': f'Bearer {jwt}', **HEADERS}
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
