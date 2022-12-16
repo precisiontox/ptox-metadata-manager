@@ -13,9 +13,9 @@ from flask_jwt_extended import get_jwt
 from sqlalchemy.orm import Session
 
 from ptmd import HarvesterInput, GoogleDriveConnector
+from ptmd.utils import get_session
 from ptmd.const import ROOT_PATH
 from ptmd.database import login_user, User, Organisation, Organism, Chemical
-from .utils import get_session
 
 
 def login() -> tuple[Response, int]:
@@ -91,7 +91,7 @@ def get_organisms() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    organisms: dict[str, list] = {"data": [dict(organism) for organism in session.query(Organism).filter_by().all()]}
+    organisms: dict[str, list] = {"data": [dict(organism) for organism in session.query(Organism).all()]}
     session.close()
     return jsonify(organisms), 200
 
@@ -102,8 +102,8 @@ def get_chemicals() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    chemicals: dict[str, list] = {"data": [dict(chemical) for chemical
-                                           in session.query(Chemical).filter(Chemical.ptx_code < 998).all()]}
+    response: list[Chemical] = session.query(Chemical).filter(Chemical.ptx_code < 998).all()
+    chemicals: dict[str, list] = {"data": [dict(chemical) for chemical in response]}
     session.close()
     return jsonify(chemicals), 200
 

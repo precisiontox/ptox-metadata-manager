@@ -11,6 +11,7 @@ from flask import jsonify, Response
 from sqlalchemy.orm import session as sqlsession
 
 from .user import User
+from .chemical import Chemical
 
 
 def login_user(username: str, password: str, session: sqlsession) -> tuple[Response, int]:
@@ -27,3 +28,13 @@ def login_user(username: str, password: str, session: sqlsession) -> tuple[Respo
         return jsonify({"msg": "Bad username or password"}), 401
     access_token = create_access_token(identity=user['id'], expires_delta=timedelta(days=1000000))
     return jsonify(access_token=access_token), 200
+
+
+def chemicals_exist(chemicals: list[str], session: sqlsession) -> bool:
+    """ Check if a list of chemicals exists in the database.
+
+    @param chemicals: list of chemicals
+    @param session: the database session
+    @return: bool: True if all chemicals exist, False otherwise
+    """
+    return all(session.query(Chemical).filter_by(common_name=chemical).first() for chemical in chemicals)

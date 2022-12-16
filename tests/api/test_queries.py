@@ -120,29 +120,34 @@ class TestAPIQueries(TestCase):
 
     def test_get_organisms(self, mock_get_session):
         create_user()
-        session.add(Organism(**{'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'}))
+        org = {'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1', "ptox_biosystem_code": "A"}
+        session.add(Organism(**org))
         session.commit()
+        session.close()
         with app.test_client() as client:
             logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
             response = client.get('/api/organisms', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json
-            expected_organism = {'organism_id': 1, 'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1'}
+            expected_organism = {'organism_id': 1, 'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1',
+                                 "ptox_biosystem_code": "A"}
             self.assertEqual(data['data'], [expected_organism])
             self.assertEqual(response.status_code, 200)
         pass
 
     def test_get_chemicals(self, mock_get_session):
         create_user()
-        session.add(Chemical(**{'common_name': 'chemical1', 'name_hash_id': '123', 'formula': 'C1H1'}))
+        chemical = {'common_name': 'chemical1', 'name_hash_id': '123', 'formula': 'C1H1', "ptx_code": 1}
+        session.add(Chemical(**chemical))
         session.commit()
+        session.close()
         with app.test_client() as client:
             logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
             response = client.get('/api/chemicals', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json
             expected_chemical = {'chemical_id': 1, 'common_name': 'chemical1',
-                                 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': None}
+                                 'formula': 'C1H1', 'name_hash_id': '123', 'ptx_code': 1}
             self.assertEqual(data["data"], [expected_chemical])
 
     def test_change_pwd(self, mock_get_session):

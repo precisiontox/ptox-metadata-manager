@@ -73,9 +73,10 @@ class TestCreateDatabase(TestCase):
         self.assertEqual(chemicals, {})
 
     def test_create_organisms(self):
-        organisms_input = [{"scientific_name": "test", "ptox_biosystem_name": "A"}]
+        organisms_input = [{"scientific_name": "test", "ptox_biosystem_name": "A", "ptox_biosystem_code": "A"}]
         organisms = create_organisms(organisms=organisms_input, session=self.session)
         organism = dict(organisms['A'])
-        self.assertEqual(organism, {'organism_id': 1, 'scientific_name': 'test', 'ptox_biosystem_name': 'A'})
+        exp = {'organism_id': 1, 'scientific_name': 'test', 'ptox_biosystem_name': 'A', "ptox_biosystem_code": "A"}
+        self.assertEqual(organism, exp)
         organisms = create_organisms(organisms=[{"test": 1}], session=self.session)
         self.assertEqual(organisms, {})
