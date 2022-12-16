@@ -76,7 +76,7 @@ definitions:
         description: The exposure conditions
         items:
             $ref: '#/definitions/Exposure Conditions'
-        example: [{"chemicals_name": ["chemical1"], "dose": "BMD10"}]
+        example: [{"chemicals_name": ["Ethoprophos"], "dose": "BMD10"}]
   Exposure Conditions:
     type: object
     required:
@@ -88,7 +88,8 @@ definitions:
             description: The names of the chemicals
             items:
                 type: string
-                example: ["chemical1", "chemical2"]
+                example: ["Ethoprophos"]
+                description: See GET /api/chemicals for the list of chemicals.
         dose:
             type: string
             description: The dose for these chemicals

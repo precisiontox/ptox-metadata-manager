@@ -39,8 +39,8 @@ class ExposureCondition:
         for chemical_name in values:
             if not isinstance(chemical_name, str):
                 raise InputTypeError(str, chemical_name, 'chemicals_name')
-            if chemical_name not in ALLOWED_CHEMICAL_NAMES:
-                raise InputValueError(ALLOWED_CHEMICAL_NAMES, chemical_name, 'chemicals_name')
+            if chemical_name not in self.allowed_chemicals:
+                raise InputValueError("/api/chemicals", chemical_name, 'chemicals_name')
         self.__chemicals_name = values
 
     @property

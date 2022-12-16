@@ -18,7 +18,7 @@ class TestExposureCondition(TestCase):
         self.assertEqual("chemicals_name must be a list but got int with value 1", str(context.exception))
         with self.assertRaises(ValueError) as context:
             ExposureCondition(chemicals_name=['foo'], dose=DOSE_VALUE)
-        self.assertEqual("chemicals_name must be one of ['chemical1', 'chemical2', 'chemical3'] but got foo",
+        self.assertEqual("chemicals_name must be one of /api/chemicals but got foo",
                          str(context.exception))
         with self.assertRaises(TypeError) as context:
             ExposureCondition(chemicals_name=[1], dose=DOSE_VALUE)
