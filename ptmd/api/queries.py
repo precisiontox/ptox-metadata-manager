@@ -10,12 +10,11 @@ from os import path
 
 from flask import jsonify, request, Response
 from flask_jwt_extended import get_jwt
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session
 
 from ptmd import HarvesterInput, GoogleDriveConnector
-from ptmd.const import ROOT_PATH, CONFIG
-from ptmd.database import login_user, User, Organisation, Organism, Chemical, Base
+from ptmd.const import ROOT_PATH
+from ptmd.database import login_user, User, Organisation, Organism, Chemical
 from .utils import get_session
 
 
