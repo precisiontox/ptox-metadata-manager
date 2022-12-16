@@ -9,7 +9,6 @@ from ptmd.logger import LOGGER
 
 from flask_jwt_extended import create_access_token
 from flask import jsonify, Response
-from sqlalchemy import or_
 from sqlalchemy.orm import session as sqlsession
 
 from ptmd.database.utils import get_session
@@ -63,11 +62,6 @@ def login_user(username: str, password: str, session: sqlsession) -> tuple[Respo
     return jsonify(access_token=access_token), 200
 
 
-''' --------------------------------------------------------------------------------
-                                        GETTERS 
--------------------------------------------------------------------------------- '''
-
-
 def get_allowed_chemicals() -> list[str]:
     """ Get the list of allowed chemicals names.
 
@@ -96,11 +90,6 @@ def get_organism_code(organism_name: str) -> str or None:
     organism = session.query(Organism).filter_by(ptox_biosystem_name=organism_name).first()
     session.close()
     return organism.ptox_biosystem_code if organism else None
-
-
-''' --------------------------------------------------------------------------------
-                                        SETTERS 
--------------------------------------------------------------------------------- '''
 
 
 def create_organisations(organisations: dict, session: sqlsession) -> dict[str, Organisation]:

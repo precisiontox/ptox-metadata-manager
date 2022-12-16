@@ -378,9 +378,9 @@ class HarvesterInput:
                 for tp in range(1, self.timepoints + 1):
                     timepoint = f'TP{tp}'
                     for replicate in range(self.replicate4exposure):
-                        hash_id = f'%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
-                                                      DOSE_MAPPING[exposure_condition.dose],
-                                                      TIME_POINT_MAPPING[timepoint], replicate + 1)
+                        hash_id = '%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
+                                                     DOSE_MAPPING[exposure_condition.dose],
+                                                     TIME_POINT_MAPPING[timepoint], replicate + 1)
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,
@@ -393,9 +393,9 @@ class HarvesterInput:
                         sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
                                                          ignore_index=False, sort=False, copy=False)
                     for replicate in range(self.replicate4control):
-                        hash_id = f'%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
-                                                      DOSE_MAPPING[exposure_condition.dose],
-                                                      TIME_POINT_MAPPING[timepoint], replicate + 1)
+                        hash_id = '%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
+                                                     DOSE_MAPPING[exposure_condition.dose],
+                                                     TIME_POINT_MAPPING[timepoint], replicate + 1)
                         series = Series([
                             '', '', '', '', '', '', '', '',
                             replicate + 1,
