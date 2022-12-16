@@ -25,10 +25,10 @@ class TestCreateDatabase(TestCase):
     def tearDownClass(cls) -> None:
         cls.engine.dispose()
 
-    @patch('ptmd.database.create_database.create_organisations', return_value={'UOX': 1})
-    @patch('ptmd.database.create_database.create_users', return_value={'test': 1})
-    @patch('ptmd.database.create_database.create_chemicals', return_value={'test': 1})
-    @patch('ptmd.database.create_database.create_organisms', return_value={'test': 1})
+    @patch('ptmd.database.queries.create_organisations', return_value={'UOX': 1})
+    @patch('ptmd.database.queries.create_users', return_value={'test': 1})
+    @patch('ptmd.database.queries.create_chemicals', return_value={'test': 1})
+    @patch('ptmd.database.queries.create_organisms', return_value={'test': 1})
     def test_boot(self, mock_organisms, mock_chemicals, mocked_create_users, mock_create_organisations):
         organisations, users, chemicals, organisms = boot(session=self.session, insert=False)
         self.assertFalse(mocked_create_users.called)
