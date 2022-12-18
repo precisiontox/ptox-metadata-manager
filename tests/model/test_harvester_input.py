@@ -8,8 +8,6 @@ from dateutil.parser import parse as parse_date
 from ptmd.model import HarvesterInput, ExposureCondition
 from ptmd.const import (
     ALLOWED_PARTNERS,
-    ALLOWED_ORGANISMS,
-    ALLOWED_CHEMICAL_NAMES,
     ALLOWED_DOSE_VALUES,
     REPLICATES_EXPOSURE_MIN,
     REPLICATES_BLANK_RANGE,
@@ -18,6 +16,8 @@ from ptmd.const import (
     TIMEPOINTS_RANGE, ALLOWED_VEHICLES
 )
 
+ALLOWED_ORGANISMS = ["organism1", "organism2", "organism3"]
+ALLOWED_CHEMICAL_NAMES = ["chemical1", "chemical2", "chemical3"]
 PARTNER = ALLOWED_PARTNERS[0]
 ORGANISM = ALLOWED_ORGANISMS[0]
 CHEMICAL_NAME = ALLOWED_CHEMICAL_NAMES[0]

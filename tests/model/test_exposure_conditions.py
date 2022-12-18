@@ -2,9 +2,9 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from ptmd.model.exposure_condition import ExposureCondition
-from ptmd.const import ALLOWED_CHEMICAL_NAMES, ALLOWED_DOSE_VALUES
+from ptmd.const import ALLOWED_DOSE_VALUES
 
-
+ALLOWED_CHEMICAL_NAMES = ["chemical1", "chemical2", "chemical3"]
 CHEMICAL_NAME = ALLOWED_CHEMICAL_NAMES[0]
 DOSE_VALUE = ALLOWED_DOSE_VALUES[0]
 

@@ -19,7 +19,8 @@ from ptmd.database import get_allowed_organisms, get_organism_code, get_chemical
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
 from .interfaces import HarvesterInput as HarvesterInputInterface
-from .spreadsheet import build_general_dataframe, build_sample_dataframe, save_to_excel
+from .dataframes import build_general_dataframe, build_sample_dataframe
+from ptmd.clients.excel import save_to_excel
 
 
 class HarvesterInput(HarvesterInputInterface):

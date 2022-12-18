@@ -13,8 +13,8 @@
       },
       "organism": {
         "type": "string",
-        "enum": ["organism1", "organism2", "organism3"],
-        "description": "The organism code from which the samples were generated."
+        "description": "The organism code from which the samples were generated.",
+        "_api": "GET /api/organisms"
       },
       "exposure_batch": {
         "type": "string",

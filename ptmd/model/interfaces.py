@@ -1,3 +1,8 @@
+""" Types for the models
+
+@author: D. Batista (Terazus)
+"""
+
 from abc import ABCMeta
 from datetime import datetime
 

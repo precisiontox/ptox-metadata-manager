@@ -19,14 +19,12 @@ with open(EXPOSURE_SCHEMA_PATH, 'r') as f:
     EXPOSURE_SCHEMA: dict = loads(f.read())
 
 ALLOWED_PARTNERS: list[str] = INPUT_SCHEMA['properties']['partner']['enum']
-ALLOWED_ORGANISMS: list[str] = INPUT_SCHEMA['properties']['organism']['enum']
 ALLOWED_EXPOSURE_BATCH: str = INPUT_SCHEMA['properties']['exposure_batch']['pattern']
 EXPOSURE_BATCH_MAX_LENGTH: int = INPUT_SCHEMA['properties']['exposure_batch']['maxLength']
 REPLICATES_EXPOSURE_MIN: int = INPUT_SCHEMA['properties']['replicates4exposure']['minimum']
 REPLICATES_CONTROL_MIN: int = INPUT_SCHEMA['properties']['replicates4control']['minimum']
 REPLICATES_BLANK_RANGE: namedtuple = ReplicateBlankRange(INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
                                                          INPUT_SCHEMA['properties']['replicates_blank']['maximum'])
-ALLOWED_CHEMICAL_NAMES: list[str] = EXPOSURE_SCHEMA['properties']['chemical']['enum']
 ALLOWED_DOSE_VALUES: list[str] = EXPOSURE_SCHEMA['properties']['dose']['enum']
 ALLOWED_VEHICLES: list[str] = INPUT_SCHEMA['properties']['vehicle']['enum']
 TIMEPOINTS_RANGE: namedtuple = TimepointsRange(INPUT_SCHEMA['properties']['timepoints']['minimum'],
@@ -51,7 +49,7 @@ SAMPLE_SHEET_COLUMNS: list[str] = [
     "Shipment identifier",
     "Label tube / identifier",
     "Box No.",
-    "FreezerBoxID",
+    "FreezerBox identifier",
     "Sample position in box",
     "Mass including tube (mg)",
     "Mass excluding tube (mg)",
