@@ -5,9 +5,10 @@
 from ptmd.const import ALLOWED_DOSE_VALUES
 from ptmd.model.exceptions import InputTypeError, InputValueError
 from ptmd.database import get_allowed_chemicals
+from .interfaces import ExposureCondition as ExposureConditionInterface
 
 
-class ExposureCondition:
+class ExposureCondition(ExposureConditionInterface):
     """ The ExposureCondition is an object with a chemical name and a dose value.
 
     :param chemicals_name: The name of the chemical.

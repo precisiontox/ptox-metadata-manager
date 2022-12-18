@@ -13,8 +13,8 @@ from ptmd.const import (
     ALLOWED_DOSE_VALUES,
     REPLICATES_EXPOSURE_MIN,
     REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS,
-    GENERAL_SHEET_BASE_COLUMNS,
+    SAMPLE_SHEET_COLUMNS,
+    GENERAL_SHEET_COLUMNS,
     TIMEPOINTS_RANGE, ALLOWED_VEHICLES
 )
 
@@ -302,17 +302,17 @@ class TestHarvesterInputErrors(TestCase):
         sample_dataframe = dataframes[0]
         general_dataframe = dataframes[1]
 
-        for col in SAMPLE_SHEET_BASE_COLUMNS:
+        for col in SAMPLE_SHEET_COLUMNS:
             self.assertIn(col, sample_dataframe.columns)
         self.assertEqual(26, len(sample_dataframe.index))
-        self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
+        self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_COLUMNS))
 
-        for col in GENERAL_SHEET_BASE_COLUMNS:
+        for col in GENERAL_SHEET_COLUMNS:
             self.assertIn(col, general_dataframe.columns)
 
     @patch('ptmd.model.harvester_input.get_organism_code', return_value="X")
     @patch('ptmd.model.harvester_input.get_chemical_code_mapping', return_value={'chemical1': '001'})
-    def test_save_dataframe(self, mock_chem_map, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
+    def test_save_dataframe(self, mock_chem_map, mock_org_code, mock_get_allowed_chemicals, mock_allowed_organisms):
         output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
         harvester = make_harvester()
         file_path = harvester.save_file(output_path)

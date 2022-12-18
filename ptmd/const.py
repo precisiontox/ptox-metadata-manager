@@ -47,11 +47,11 @@ TIME_POINT_MAPPING: dict = {
     "TP5": "E",
 }
 
-SAMPLE_SHEET_BASE_COLUMNS: list[str] = [
+SAMPLE_SHEET_COLUMNS: list[str] = [
     "Shipment identifier",
     "Label tube / identifier",
     "Box No.",
-    "FreezerBoxID [SENDER TO ADD LABEL TO BOX]",
+    "FreezerBoxID",
     "Sample position in box",
     "Mass including tube (mg)",
     "Mass excluding tube (mg)",
@@ -60,18 +60,20 @@ SAMPLE_SHEET_BASE_COLUMNS: list[str] = [
     "chemical name",
     "dose",
     "time point",
-    "vehicle",
     "PrecisionTox short identifier"
 ]
 
-GENERAL_SHEET_BASE_COLUMNS: list[str] = [
+GENERAL_SHEET_COLUMNS: list[str] = [
     "partner",
     "organism",
     "exposure batch",
-    "replicates for control",
-    "replicates blanks",
+    "control",
+    "replicates",
+    "blanks",
     "start date",
     "end date",
+    "timepoints",
+    "vehicle",
 ]
 
 # Loading .env file
