@@ -8,16 +8,16 @@ from dateutil.parser import parse as parse_date
 from ptmd.model import HarvesterInput, ExposureCondition
 from ptmd.const import (
     ALLOWED_PARTNERS,
-    ALLOWED_ORGANISMS,
-    ALLOWED_CHEMICAL_NAMES,
     ALLOWED_DOSE_VALUES,
     REPLICATES_EXPOSURE_MIN,
     REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS,
-    GENERAL_SHEET_BASE_COLUMNS,
+    SAMPLE_SHEET_COLUMNS,
+    GENERAL_SHEET_COLUMNS,
     TIMEPOINTS_RANGE, ALLOWED_VEHICLES
 )
 
+ALLOWED_ORGANISMS = ["organism1", "organism2", "organism3"]
+ALLOWED_CHEMICAL_NAMES = ["chemical1", "chemical2", "chemical3"]
 PARTNER = ALLOWED_PARTNERS[0]
 ORGANISM = ALLOWED_ORGANISMS[0]
 CHEMICAL_NAME = ALLOWED_CHEMICAL_NAMES[0]
@@ -295,29 +295,32 @@ class TestHarvesterInputErrors(TestCase):
         self.assertFalse(harvester.timepoint_zero)
 
     @patch('ptmd.model.harvester_input.get_organism_code', return_value="X")
-    def test_to_dataframe(self, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
+    @patch('ptmd.model.harvester_input.get_chemical_code_mapping', return_value={'chemical1': '001'})
+    def test_to_dataframe(self, mock_chem_map, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
         harvester = make_harvester()
         dataframes = harvester.to_dataframe()
         sample_dataframe = dataframes[0]
         general_dataframe = dataframes[1]
 
-        for col in SAMPLE_SHEET_BASE_COLUMNS:
+        for col in SAMPLE_SHEET_COLUMNS:
             self.assertIn(col, sample_dataframe.columns)
         self.assertEqual(26, len(sample_dataframe.index))
-        self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_BASE_COLUMNS))
+        self.assertEqual(len(sample_dataframe.iloc[0]), len(SAMPLE_SHEET_COLUMNS))
 
-        for col in GENERAL_SHEET_BASE_COLUMNS:
+        for col in GENERAL_SHEET_COLUMNS:
             self.assertIn(col, general_dataframe.columns)
 
     @patch('ptmd.model.harvester_input.get_organism_code', return_value="X")
-    def test_save_dataframe(self, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
+    @patch('ptmd.model.harvester_input.get_chemical_code_mapping', return_value={'chemical1': '001'})
+    def test_save_dataframe(self, mock_chem_map, mock_org_code, mock_get_allowed_chemicals, mock_allowed_organisms):
         output_path = path.join(HERE, '..', 'data', 'excel', 'test.xlsx')
         harvester = make_harvester()
         file_path = harvester.save_file(output_path)
         self.assertIsNotNone(file_path)
 
     @patch('ptmd.model.harvester_input.get_organism_code', return_value="X")
-    def test_delete_file(self, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
+    @patch('ptmd.model.harvester_input.get_chemical_code_mapping', return_value={'chemical1': '001'})
+    def test_delete_file(self, mock_chem_map, mock_organism_code, mock_get_allowed_chemicals, mock_allowed_organisms):
         output_path = path.join(HERE, '..', 'data', 'excel', 'temp.xlsx')
         harvester = make_harvester()
         file_path = harvester.save_file(output_path)

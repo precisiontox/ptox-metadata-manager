@@ -15,7 +15,8 @@ from .queries import (
     create_organisms,
     get_allowed_organisms,
     get_allowed_chemicals,
-    get_organism_code
+    get_organism_code,
+    get_chemical_code_mapping
 )
 from .config import Base, app
 from .utils import get_session

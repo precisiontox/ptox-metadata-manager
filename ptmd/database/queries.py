@@ -67,7 +67,7 @@ def get_allowed_chemicals() -> list[str]:
 
     :return: a list of chemicals names
     """
-    session = get_session()
+    session: sqlsession = get_session()
     allowed_chemicals = [chemical.common_name for chemical in session.query(Chemical).all()]
     session.close()
     return allowed_chemicals
@@ -78,7 +78,7 @@ def get_allowed_organisms() -> list[str]:
 
     :return: a list of organisms names
     """
-    session = get_session()
+    session: sqlsession = get_session()
     allowed_organism = [organism.ptox_biosystem_name for organism in session.query(Organism).all()]
     session.close()
     return allowed_organism
@@ -86,10 +86,25 @@ def get_allowed_organisms() -> list[str]:
 
 def get_organism_code(organism_name: str) -> str or None:
     """ Get the organism code from the organism name."""
-    session = get_session()
+    session: sqlsession = get_session()
     organism = session.query(Organism).filter_by(ptox_biosystem_name=organism_name).first()
     session.close()
     return organism.ptox_biosystem_code if organism else None
+
+
+def get_chemical_code_mapping(chemicals: list[str]) -> dict[str, str]:
+    """ Get the chemical code from the chemical name.
+
+    :param chemicals: list[str]: list of chemicals names
+    :return: list of chemicals codes
+    """
+    session: sqlsession = get_session()
+    chemicals_mapping = {}
+    for chemical in chemicals:
+        chemical = session.query(Chemical).filter_by(common_name=chemical).first()
+        chemicals_mapping[chemical.common_name] = str(chemical.ptx_code).rjust(3, '0')
+    session.close()
+    return chemicals_mapping
 
 
 def create_organisations(organisations: dict, session: sqlsession) -> dict[str, Organisation]:

@@ -6,12 +6,8 @@
   "properties": {
     "chemical": {
       "type": "string",
-      "enum": [
-        "chemical1",
-        "chemical2",
-        "chemical3"
-      ],
-      "description": "The chemical name."
+      "description": "The chemical name.",
+      "_api": "GET /api/chemicals"
     },
     "dose": {
       "type": "string",

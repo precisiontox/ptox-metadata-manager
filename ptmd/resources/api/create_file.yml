@@ -35,7 +35,7 @@ definitions:
       organism:
         type: string
         description: The name of the organism
-        example: organism1
+        example: Drosophila_melanogaster_female
       exposure_batch:
         type: string
         description: The code of the current exposure batch

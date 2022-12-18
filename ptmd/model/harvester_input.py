@@ -8,20 +8,22 @@ from typing import List
 from datetime import datetime
 
 from dateutil.parser import parse as parse_date
-from pandas import DataFrame, Series, concat as pandas_concat, ExcelWriter
+from pandas import DataFrame
 
 from ptmd.const import (
     ALLOWED_PARTNERS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN, REPLICATES_BLANK_RANGE,
-    SAMPLE_SHEET_BASE_COLUMNS, GENERAL_SHEET_BASE_COLUMNS, TIMEPOINTS_RANGE, ALLOWED_VEHICLES,
-    DOSE_MAPPING, TIME_POINT_MAPPING
+    TIMEPOINTS_RANGE, ALLOWED_VEHICLES
 )
-from ptmd.database import get_allowed_organisms, get_organism_code
+from ptmd.database import get_allowed_organisms, get_organism_code, get_chemical_code_mapping
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
+from .interfaces import HarvesterInput as HarvesterInputInterface
+from .dataframes import build_general_dataframe, build_sample_dataframe
+from ptmd.clients.excel import save_to_excel
 
 
-class HarvesterInput:
+class HarvesterInput(HarvesterInputInterface):
     """ A class to represent the input for the harvester and generate the pandas DataFrame and Excel files.
 
     :param partner: precision tox code of the partner
@@ -52,20 +54,20 @@ class HarvesterInput:
                  timepoint_zero: bool = False,
                  exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
         """ The harvester constructor """
-        self.allowed_organisms = get_allowed_organisms()
-        self.partner = partner
-        self.organism = organism
-        self.exposure_batch = exposure_batch
-        self.replicate4exposure = replicate4exposure
-        self.replicate4control = replicate4control
-        self.replicate_blank = replicate_blank
-        self.start_date = start_date
-        self.end_date = end_date
-        self.timepoints = timepoints
-        self.vehicle = vehicle
-        self.timepoint_zero = timepoint_zero
-        self.exposure_conditions = exposure_conditions if exposure_conditions else []
-        self.file_path = None
+        self.allowed_organisms: list[str] = get_allowed_organisms()
+        self.partner: str = partner
+        self.organism: str = organism
+        self.exposure_batch: str = exposure_batch
+        self.replicate4exposure: int = replicate4exposure
+        self.replicate4control: int = replicate4control
+        self.replicate_blank: int = replicate_blank
+        self.start_date: str or datetime = start_date
+        self.end_date: str or datetime = end_date
+        self.timepoints: int = timepoints
+        self.vehicle: str = vehicle
+        self.timepoint_zero: bool = timepoint_zero
+        self.exposure_conditions: list[ExposureCondition] = exposure_conditions if exposure_conditions else []
+        self.file_path: str or None = None
 
     @property
     def partner(self) -> str:
@@ -352,75 +354,29 @@ class HarvesterInput:
         for key, value in iters.items():
             yield key, value
 
+    def __get_array_of_unique_chemicals(self) -> List[str]:
+        """ Get an array of unique chemicals from the exposure conditions.
+
+        :return: The array of unique chemicals names.
+        """
+        array_of_unique_chemicals: list[str] = []
+        for exposure_condition in self.exposure_conditions:
+            for chemical in exposure_condition.chemicals_name:
+                if chemical not in array_of_unique_chemicals:
+                    array_of_unique_chemicals.append(chemical)
+        return array_of_unique_chemicals
+
     def to_dataframe(self) -> tuple[DataFrame, DataFrame]:
         """ Convert the object to a pandas DataFrame.
 
         :return: The pandas DataFrame.
         """
-        sample_dataframe = DataFrame(columns=SAMPLE_SHEET_BASE_COLUMNS)
-        general_dataframe = DataFrame(columns=GENERAL_SHEET_BASE_COLUMNS)
-        general_series = Series([
-            self.partner,
-            self.organism,
-            self.exposure_batch,
-            self.replicate4control,
-            self.replicate_blank,
-            self.start_date.strftime('%Y-%m-%d'),
-            self.end_date.strftime('%Y-%m-%d'),
-        ], index=general_dataframe.columns)
-        general_dataframe = pandas_concat([general_dataframe, general_series.to_frame().T],
-                                          ignore_index=False, sort=False, copy=False)
-
-        organisms_code: str = get_organism_code(self.organism)
-
-        for exposure_condition in self.exposure_conditions:
-            for chemical in exposure_condition.chemicals_name:
-                for tp in range(1, self.timepoints + 1):
-                    timepoint = f'TP{tp}'
-                    for replicate in range(self.replicate4exposure):
-                        hash_id = '%s%s---%s%s%s' % (organisms_code, self.exposure_batch,
-                                                     DOSE_MAPPING[exposure_condition.dose],
-                                                     TIME_POINT_MAPPING[timepoint], replicate + 1)
-                        series = Series([
-                            '', '', '', '', '', '', '', '',
-                            replicate + 1,
-                            chemical,
-                            exposure_condition.dose,
-                            'TP%s' % tp,
-                            self.vehicle,
-                            hash_id
-                        ], index=sample_dataframe.columns)
-                        sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                                         ignore_index=False, sort=False, copy=False)
-                    for replicate in range(self.replicate4control):
-                        hash_id = '%s%s---%sZ%s' % (organisms_code, self.exposure_batch,
-                                                    TIME_POINT_MAPPING[timepoint], replicate + 1)
-                        series = Series([
-                            '', '', '', '', '', '', '', '',
-                            replicate + 1,
-                            "CONTROL (%s)" % self.vehicle,
-                            0,
-                            'TP%s' % tp,
-                            self.vehicle,
-                            hash_id
-                        ], index=sample_dataframe.columns)
-                        sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                                         ignore_index=False, sort=False, copy=False)
-
-        for blank in range(1, self.replicate_blank + 1):
-            hash_id = '%s%s998ZS%s' % (organisms_code, self.exposure_batch, blank)
-            series = Series([
-                '', '', '', '', '', '', '', '',
-                blank,
-                'EXTRACTION BLANK',
-                "0",
-                'TP0',
-                '',
-                hash_id
-            ], index=sample_dataframe.columns)
-            sample_dataframe = pandas_concat([sample_dataframe, series.to_frame().T],
-                                             ignore_index=False, sort=False, copy=False)
-        return sample_dataframe, general_dataframe
+        sample_dataframe: DataFrame = build_sample_dataframe(
+            harvester=self,
+            organism_code=get_organism_code(self.organism),
+            chemicals_mapping=get_chemical_code_mapping(self.__get_array_of_unique_chemicals())
+        )
+        return sample_dataframe, build_general_dataframe(harvester=self)
 
     def save_file(self, path: str) -> str:
         """ Save the sample sheet to a file.
@@ -429,13 +385,7 @@ class HarvesterInput:
         :return: The path to the file the sample sheet was saved to.
         """
         dataframes = self.to_dataframe()
-        writer = ExcelWriter(path)
-        dataframes[1].to_excel(writer,
-                               sheet_name='General Information', columns=GENERAL_SHEET_BASE_COLUMNS, index=False)
-        dataframes[0].to_excel(writer,
-                               sheet_name='Exposure conditions', columns=SAMPLE_SHEET_BASE_COLUMNS, index=False)
-        writer.close()
-        self.file_path = path
+        self.file_path = save_to_excel(dataframes=dataframes, path=path)
         return path
 
     def delete_file(self) -> None:

@@ -7,6 +7,13 @@
 ![Documentation Coverage](./docs_badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/pretox-metadata-manager/badge/?version=latest)](https://pretox-metadata-manager.readthedocs.io/en/latest/?badge=latest)
 
+
+## Introduction
+The precision toxicology metadata manager is a tool to manage metadata for the precision toxicology project. 
+It is a web application that allows users to create study designs from a very simple form and generates a metadata
+excel stub saved in Google Drive. This repository contains the source code for the API.
+
+
 ## Getting started
 ### Requirements:
 -  Python 3.9 or newer
@@ -68,3 +75,6 @@ For Windows:
 docstr-coverage ptmd/ --fail-under=100
 .\docs\make.bat html
 ```
+
+## Authors:
+-  [B. Dominique](https://github.com/terazus), University of Oxford.
