@@ -75,3 +75,6 @@ For Windows:
 docstr-coverage ptmd/ --fail-under=100
 .\docs\make.bat html
 ```
+
+## Authors:
+-  [B. Dominique](https://github.com/terazus), University of Oxford.
