@@ -11,7 +11,7 @@
 ## Introduction
 The precision toxicology metadata manager is a tool to manage metadata for the precision toxicology project. 
 It is a web application that allows users to create study designs from a very simple form and generates a metadata
-excel stub saved in Google Drive. This repository contains the source code for the API written in Flasks.
+excel stub saved in Google Drive. This repository contains the source code for the API.
 
 
 ## Getting started
