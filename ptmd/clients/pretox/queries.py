@@ -21,6 +21,7 @@ def pull_chemicals_from_ptox_db(endpoint: str = DEFAULT_URL) -> list[dict]:
         raise ConnectionError(f"Error fetching chemicals from the precision toxicology API at "
                               f"{endpoint}: {data['errors']}")
     for chemical in data['chemical']:
+        chemical['common_name'] = chemical['common_name'].strip()
         if chemical['ptx_code']:
             if chemical['name_hash_id'] == '-':
                 chemical['name_hash_id'] = None
