@@ -64,9 +64,9 @@ class GoogleDriveConnector:
 
     def create_directories(self) -> dict[str, str]:
         """ This function will create the nested directories/folders within the Google Drive. """
-        root_folder: dict[str: str] = content_exist(google_drive=self.google_drive,
+        root_folder: dict[str, str] = content_exist(google_drive=self.google_drive,
                                                     folder_name=ROOT_FOLDER_METADATA['title'])
-        folders_ids: dict[str: str | str: dict[str: str]] = {
+        folders_ids: dict[str, dict[str, str or None]] or dict[str, str] = {
             "root_directory": root_folder['id'] if root_folder else None,
             "partners": {key: None for key in ALLOWED_PARTNERS}
         }
