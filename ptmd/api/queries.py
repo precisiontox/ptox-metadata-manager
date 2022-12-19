@@ -23,13 +23,13 @@ def login() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    session = get_session()
+    session: Session = get_session()
     username: str = request.json.get('username', None)
     password: str = request.json.get('password', None)
     if not username or not password:
         session.close()
         return jsonify({"msg": "Missing username or password"}), 400
-    logged_in = login_user(username=username, password=password, session=session)
+    logged_in: tuple[Response, int] = login_user(username=username, password=password, session=session)
     session.close()
     return logged_in
 

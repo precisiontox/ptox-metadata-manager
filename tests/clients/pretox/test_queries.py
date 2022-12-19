@@ -15,8 +15,8 @@ class MockedResponse:
 
 
 CHEMICALS = {"chemical": [
-    {'ptx_code': 100, 'name_hash_id': '-'},
-    {'ptx_code': 996, 'name_hash_id': 'hello'}
+    {'ptx_code': 100, 'name_hash_id': '-', 'common_name': 'Acetaminophen'},
+    {'ptx_code': 996, 'name_hash_id': 'hello', 'common_name': 'test'}
 ]}
 ORGANISMS = {"organism": []}
 MOCKED_CHEMICAL_RESPONSE = MockedResponse(200, CHEMICALS)
@@ -31,7 +31,8 @@ class TestQueries(TestCase):
         with patch('ptmd.clients.pretox.queries.post', return_value=MOCKED_CHEMICAL_RESPONSE):
             chemicals = pull_chemicals_from_ptox_db()
             self.assertEqual(chemicals,
-                             [{'ptx_code': 100, 'name_hash_id': None}, {'ptx_code': 996, 'name_hash_id': 'hello'}])
+                             [{'ptx_code': 100, 'name_hash_id': None, 'common_name': 'Acetaminophen'},
+                              {'ptx_code': 996, 'name_hash_id': 'hello', 'common_name': 'test'}])
 
     def test_pull_chemicals_from_ptox_db_error(self):
         with patch('ptmd.clients.pretox.queries.post', return_value=MOCKED_ERROR):

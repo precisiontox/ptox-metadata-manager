@@ -70,7 +70,7 @@ class ExposureCondition(ExposureConditionInterface):
         :param other: The other object to compare to.
         :return: True if the objects are equal, False otherwise.
         """
-        return any(dose in other.__dose for dose in self.__dose) and self.__chemicals_name == other.__chemicals_name
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         """ Inequality operator.
