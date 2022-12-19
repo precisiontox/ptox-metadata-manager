@@ -3,6 +3,7 @@
 @author: D. Batista (Terazus)
 """
 from requests import post
+from flask import Response
 
 from ptmd.clients.pretox.const import DEFAULT_URL, HEADERS
 
@@ -15,8 +16,8 @@ def pull_chemicals_from_ptox_db(endpoint: str = DEFAULT_URL) -> list[dict]:
     """
     request: str = "{ chemical(filters:{ limit: 1000 }) { common_name formula name_hash_id ptx_code }}"
     chemicals = []
-    response = post(endpoint, headers=HEADERS, json={"query": request}, verify=False)
-    data = response.json()
+    response: Response = post(endpoint, headers=HEADERS, json={"query": request}, verify=False)
+    data: dict = response.json()
     if response.status_code >= 400:
         raise ConnectionError(f"Error fetching chemicals from the precision toxicology API at "
                               f"{endpoint}: {data['errors']}")
@@ -36,8 +37,8 @@ def pull_organisms_from_ptox_db(endpoint: str = DEFAULT_URL) -> list[dict]:
     :return: a list of organisms from the ptox database.
     """
     request: str = "{ organism(filters:{ limit: 1000 }) { ptox_biosystem_name scientific_name ptox_biosystem_code}}"
-    response = post(endpoint, headers=HEADERS, json={"query": request}, verify=False)
-    data = response.json()
+    response: Response = post(endpoint, headers=HEADERS, json={"query": request}, verify=False)
+    data: dict = response.json()
     if response.status_code >= 400:
         raise ConnectionError(f"Error fetching organisms from the precision toxicology API at "
                               f"{endpoint}: {data['errors']}")
