@@ -61,7 +61,8 @@ def build_sample_dataframe(
                     ], index=dataframe.columns)
                     dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
                 for replicate in range(1, harvester.replicate4control + 1):
-                    hash_id: str = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, chemical_code,
+                    control_code = '999' if harvester.vehicle == 'DMSO' else '997'
+                    hash_id: str = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, control_code,
                                                     timepoint_code, replicate)
                     series: Series = Series([
                         '', '', '', '', '', '', '', '',
