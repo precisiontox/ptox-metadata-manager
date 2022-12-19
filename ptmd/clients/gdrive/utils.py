@@ -2,7 +2,7 @@
 
 @author: D. Batista (Terazus)
 """
-from pydrive2.drive import GoogleDrive
+from pydrive2.drive import GoogleDrive, GoogleDriveFileList
 
 from .const import MIME_TYPE_FOLDER
 
@@ -13,13 +13,13 @@ def content_exist(google_drive: GoogleDrive,
                   parent: str or int = 'root') -> dict or None:
     """ Finds if the directory already exists in the drive and in the given directory.
 
-    @param google_drive: The GoogleDrive object.
-    @param parent: The directory to search in.
-    @param type_: Either "file" or "folder".
-    @param folder_name: The name of the directory to search for.
+    :param google_drive: The GoogleDrive object.
+    :param parent: The directory to search in.
+    :param type_: Either "file" or "folder".
+    :param folder_name: The name of the directory to search for.
     :return: True if the directory exists, False otherwise.
     """
-    query = f"title = '{folder_name}'"
+    query: str = f"title = '{folder_name}'"
     if type_ == "folder":
         query += f" and mimeType = '{MIME_TYPE_FOLDER}'"
     if parent == 'root':
@@ -27,7 +27,7 @@ def content_exist(google_drive: GoogleDrive,
     else:
         query += f" and '{parent}' in parents"
     query += " and trashed=false"
-    folders = google_drive.ListFile({"q": query}).GetList()
+    folders: GoogleDriveFileList = google_drive.ListFile({"q": query}).GetList()
     if len(folders) < 1:
         return None
     return folders[0]

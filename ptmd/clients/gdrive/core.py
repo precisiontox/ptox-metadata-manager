@@ -15,7 +15,7 @@ from .utils import content_exist
 class GoogleDriveConnector:
     """ This is the class that handle connection and interaction with the Google Drive. """
     instance_ = None
-    google_drive = None
+    google_drive: GoogleDrive or None
 
     def __new__(cls, credential_file: str = CREDENTIALS_FILE_PATH):
         """ Method to create a new instance of the GoogleDriveConnector class.
@@ -26,7 +26,7 @@ class GoogleDriveConnector:
             cls.instance_ = super(GoogleDriveConnector, cls).__new__(cls)
             cls.__credential_file = credential_file
             cls.__google_auth: GoogleAuth = GoogleAuth()
-            cls.google_drive: GoogleDrive or None = None
+            cls.google_drive = None
             cls.instance_.connect()
             LOGGER.info('Connected to Google Drive')
         else:
@@ -62,10 +62,11 @@ class GoogleDriveConnector:
             self.__google_auth.SaveCredentialsFile(self.__credential_file)
             self.google_drive = GoogleDrive(self.__google_auth)
 
-    def create_directories(self):
+    def create_directories(self) -> dict[str, str]:
         """ This function will create the nested directories/folders within the Google Drive. """
-        root_folder = content_exist(google_drive=self.google_drive, folder_name=ROOT_FOLDER_METADATA['title'])
-        folders_ids = {
+        root_folder: dict[str: str] = content_exist(google_drive=self.google_drive,
+                                                    folder_name=ROOT_FOLDER_METADATA['title'])
+        folders_ids: dict[str: str | str: dict[str: str]] = {
             "root_directory": root_folder['id'] if root_folder else None,
             "partners": {key: None for key in ALLOWED_PARTNERS}
         }
