@@ -47,6 +47,9 @@ class FileMock(dict):
     def SetContentFile(self, *args, **kwargs):
         pass
 
+    def InsertPermission(self, *args, **kwargs):
+        pass
+
 
 class MockGoogleDrive:
     def CreateFile(self, *args, **kwargs):

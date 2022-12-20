@@ -10,7 +10,7 @@ ReplicateBlankRange: namedtuple = namedtuple('ReplicateBlankRange', ['min', 'max
 TimepointsRange: namedtuple = namedtuple('TimepointsRange', ['min', 'max'])
 
 ROOT_PATH: str = path.abspath(path.dirname(__file__))
-INPUT_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'harvester_input_schema.json')
+INPUT_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'inputs2dataframes.json')
 EXPOSURE_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'exposure_schema.json')
 
 with open(INPUT_SCHEMA_PATH, 'r') as f:

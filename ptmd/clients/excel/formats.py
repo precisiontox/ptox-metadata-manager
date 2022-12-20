@@ -44,6 +44,7 @@ def get_empty_cells_format(writer: ExcelWriter) -> Format:
     formatter = set_common_formats(formatter)
     formatter.set_font_size(12)
     formatter.set_border(1)
+    formatter.set_locked(False)
     return formatter
 
 
@@ -58,4 +59,5 @@ def get_extra_cells_format(writer: ExcelWriter) -> Format:
     formatter.set_font_size(14)
     formatter.set_border(1)
     formatter.set_bg_color('#CCCCCC')
+    formatter.set_locked(True)
     return formatter

@@ -1,6 +1,12 @@
 from unittest import TestCase
 from unittest.mock import patch
 
+from sqlalchemy.orm import Session
+
+from ptmd.const import CONFIG
+from ptmd.utils import get_session, init
+
+
 from ptmd.utils import initialize
 
 
@@ -58,3 +64,22 @@ class TestUtils(TestCase):
         setattr(MockedSession, 'query', return_query)
         mocked_session = MockedSession()
         self.assertEqual(initialize(users=[], session=mocked_session), ({'user1': '123'}, {'UOX': '1234'}))
+
+
+class TestAPIUtilities(TestCase):
+
+    @patch('ptmd.utils.initialize')
+    @patch('ptmd.utils.get_session', return_value=Session())
+    def test_init(self, mock_get_session, mock_init):
+        init()
+        mock_init.assert_called_once()
+        mock_init.assert_called_with(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}],
+                                     session=mock_get_session.return_value)
+
+    @patch('ptmd.database.Base.metadata.create_all', return_value=None)
+    @patch('ptmd.database.utils.create_engine', return_value="abc")
+    def test_get_session(self, mock_create_engine, mock_create_all):
+        session = get_session()
+        self.assertIsInstance(session, Session)
+        mock_create_engine.assert_called_once()
+        mock_create_engine.assert_called_with(CONFIG['SQLALCHEMY_DATABASE_URL'])

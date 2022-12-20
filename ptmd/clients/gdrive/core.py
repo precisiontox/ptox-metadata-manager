@@ -66,7 +66,7 @@ class GoogleDriveConnector:
         """ This function will create the nested directories/folders within the Google Drive. """
         root_folder: dict[str, str] = content_exist(google_drive=self.google_drive,
                                                     folder_name=ROOT_FOLDER_METADATA['title'])
-        folders_ids: dict[str, dict[str, str or None]] or dict[str, str] = {
+        folders_ids: dict[str, dict[str, str or None]] or dict[str, str or None] = {
             "root_directory": root_folder['id'] if root_folder else None,
             "partners": {key: None for key in ALLOWED_PARTNERS}
         }
@@ -87,7 +87,7 @@ class GoogleDriveConnector:
             folders_ids['partners'][partner] = folder['id'] if folder else None
         return folders_ids
 
-    def upload_file(self, directory_id: str or int, file_path: str, title: str = 'SAMPLE_TEST') -> dict:
+    def upload_file(self, directory_id: str or int, file_path: str, title: str = 'SAMPLE_TEST') -> dict[str, str]:
         """ This function will upload the file to the Google Drive.
 
         :param directory_id: The partner organisation Google Drive folder identifier.
@@ -103,5 +103,6 @@ class GoogleDriveConnector:
         file.SetContentFile(file_path)
         file.Upload()
         file.content.close()
+        file.InsertPermission({'type': 'anyone', 'role': 'writer'})
         return content_exist(google_drive=self.google_drive, folder_name=file_metadata['title'],
                              parent=directory_id, type_='file')

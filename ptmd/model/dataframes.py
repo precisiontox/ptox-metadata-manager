@@ -5,11 +5,11 @@
 from pandas import DataFrame, Series, concat as pd_concat
 
 from ptmd.const import GENERAL_SHEET_COLUMNS, SAMPLE_SHEET_COLUMNS, DOSE_MAPPING, TIME_POINT_MAPPING
-from .interfaces import HarvesterInput
+from .interfaces import InputsToDataframes
 
 
 def build_general_dataframe(
-        harvester: HarvesterInput
+        harvester: InputsToDataframes
 ) -> DataFrame:
     """ Builds a DataFrame with the general information of the harvester.
 
@@ -33,7 +33,7 @@ def build_general_dataframe(
 
 
 def build_sample_dataframe(
-        harvester: HarvesterInput,
+        harvester: InputsToDataframes,
         chemicals_mapping: dict[str, str],
         organism_code: str
 ) -> DataFrame:

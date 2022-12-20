@@ -18,12 +18,12 @@ from ptmd.const import (
 from ptmd.database import get_allowed_organisms, get_organism_code, get_chemical_code_mapping
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
-from .interfaces import HarvesterInput as HarvesterInputInterface
+from .interfaces import InputsToDataframes as InputsToDataframesInterface
 from .dataframes import build_general_dataframe, build_sample_dataframe
 from ptmd.clients.excel import save_to_excel
 
 
-class HarvesterInput(HarvesterInputInterface):
+class Inputs2Dataframes(InputsToDataframesInterface):
     """ A class to represent the input for the harvester and generate the pandas DataFrame and Excel files.
 
     :param partner: precision tox code of the partner
@@ -125,7 +125,7 @@ class HarvesterInput(HarvesterInputInterface):
         """
         self.__exposure_conditions = []
         if not isinstance(value, list) or not all(isinstance(x, (dict, ExposureCondition)) for x in value):
-            raise TypeError("HarvesterInput.exposure must be a list of ExposureCondition or dict but "
+            raise TypeError("exposure must be a list of ExposureCondition or dict but "
                             "got %s with value %s" % (type(value).__name__, value))
         for exposure_condition in value:
             self.add_exposure_condition(exposure_condition)
@@ -372,8 +372,7 @@ class HarvesterInput(HarvesterInputInterface):
         :return: The pandas DataFrame.
         """
         sample_dataframe: DataFrame = build_sample_dataframe(
-            harvester=self,
-            organism_code=get_organism_code(self.organism),
+            harvester=self, organism_code=get_organism_code(self.organism),
             chemicals_mapping=get_chemical_code_mapping(self.__get_array_of_unique_chemicals())
         )
         return sample_dataframe, build_general_dataframe(harvester=self)
@@ -384,8 +383,7 @@ class HarvesterInput(HarvesterInputInterface):
         :param path: The path to the file.
         :return: The path to the file the sample sheet was saved to.
         """
-        dataframes = self.to_dataframe()
-        self.file_path = save_to_excel(dataframes=dataframes, path=path)
+        self.file_path = save_to_excel(dataframes=self.to_dataframe(), path=path)
         return path
 
     def delete_file(self) -> None:

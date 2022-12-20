@@ -4,5 +4,5 @@ drive.
 
 @author: D. Batista (Terazus)
 """
-from ptmd.model import HarvesterInput, ExposureCondition
+from ptmd.model import Inputs2Dataframes, ExposureCondition
 from ptmd.clients import GoogleDriveConnector

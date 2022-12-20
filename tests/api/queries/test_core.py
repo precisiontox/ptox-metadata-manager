@@ -40,7 +40,7 @@ class MockGoogleAuth(GoogleAuth):
         pass
 
 
-@patch('ptmd.api.queries.get_session', return_value=session)
+@patch('ptmd.api.queries.core.get_session', return_value=session)
 class TestAPIQueries(TestCase):
     session: Session or None = None
 
@@ -54,7 +54,7 @@ class TestAPIQueries(TestCase):
             self.assertEqual(response.json, {"msg": "Missing username or password"})
             self.assertEqual(response.status_code, 400)
 
-    @patch('ptmd.api.queries.login_user', return_value=({"access_token": "hello !"}, 200))
+    @patch('ptmd.api.queries.core.login_user', return_value=({"access_token": "hello !"}, 200))
     def test_login_success(self, mock_login_user, mock_session):
         pwd = "123"
         with app.test_client() as client:
@@ -79,12 +79,12 @@ class TestAPIQueries(TestCase):
             self.assertEqual(response.status_code, 401)
             self.assertEqual(response.json, {'msg': 'Invalid token'})
 
+    @patch('ptmd.GoogleDriveConnector.upload_file', return_value=({"alternateLink": "456"}))
     @patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
-    @patch('ptmd.api.queries.GoogleDriveConnector.upload_file', return_value=({"alternateLink": "456"}))
     @patch('ptmd.model.exposure_condition.get_allowed_chemicals', return_value=["chemical1", "chemical2"])
-    @patch('ptmd.model.harvester_input.get_allowed_organisms', return_value=['organism1'])
-    @patch('ptmd.model.harvester_input.get_organism_code', return_value=['A'])
-    @patch('ptmd.model.harvester_input.get_chemical_code_mapping', return_value={'chemical1': '001'})
+    @patch('ptmd.model.inputs2dataframes.get_allowed_organisms', return_value=['organism1'])
+    @patch('ptmd.model.inputs2dataframes.get_organism_code', return_value=['A'])
+    @patch('ptmd.model.inputs2dataframes.get_chemical_code_mapping', return_value={'chemical1': '001'})
     def test_create_gdrive_file(self, mock_chemicals_mapping, mock_organism_code,
                                 mock_organism, mock_chem, mock_upload, mock_auth, mock_get_session):
         organisation = {'name': 'UOB', 'gdrive_id': '456'}

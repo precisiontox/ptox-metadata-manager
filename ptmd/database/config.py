@@ -7,7 +7,7 @@ connection to the database and bindings to the JWT managers, the CORS managers a
 """
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, Model
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flasgger import Swagger
@@ -20,5 +20,5 @@ app.config.from_object(__name__)
 app.config['SECRET_KEY'] = SQLALCHEMY_SECRET_KEY
 jwt: JWTManager = JWTManager(app)
 CORS(app)
-Base: object = db.Model
+Base: Model = db.Model
 swagger: Swagger = Swagger(app)

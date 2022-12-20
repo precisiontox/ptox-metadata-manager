@@ -28,6 +28,7 @@ def style_sample_sheet(writer: ExcelWriter) -> None:
     extra_cells_format: Format = get_extra_cells_format(writer)
     empty_cells_format: Format = get_empty_cells_format(writer)
     worksheet: Any = writer.sheets['Exposure conditions']
+    worksheet.protect()
 
     worksheet.set_row(0, 50, cell_format=header_format)
     worksheet.set_column('A:A', 25, cell_format=empty_cells_format)

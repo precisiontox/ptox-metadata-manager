@@ -14,7 +14,7 @@ class ExposureCondition(metaclass=ABCMeta):
     dose: str
 
 
-class HarvesterInput(metaclass=ABCMeta):
+class InputsToDataframes(metaclass=ABCMeta):
     """ The HarvesterInput is an interface for the HarvesterInput class. """
     partner: str
     organism: str
