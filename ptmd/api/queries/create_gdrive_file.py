@@ -31,7 +31,7 @@ class CreateGDriveFile:
         self.__timepoints: int or None = request.json.get("timepoints", None)
         self.__vehicle: str or None = request.json.get("vehicle", None)
 
-    def process_file(self, session: Session) -> dict[str, str]:
+    def generate_file(self, session: Session) -> dict[str, str]:
         """ Method to process the user input and create a file in the Google Drive.
 
         :param session: SQLAlchemy session

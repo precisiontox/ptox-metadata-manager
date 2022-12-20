@@ -54,13 +54,14 @@ def create_gdrive_file() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
+    session: Session = get_session()
     try:
         payload: CreateGDriveFile = CreateGDriveFile()
-        session: Session = get_session()
-        response: dict[str, str] = payload.process_file(session=session)
+        response: dict[str, str] = payload.generate_file(session=session)
         session.close()
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
+        session.close()
         return jsonify({"message": str(e)}), 400
 
 
