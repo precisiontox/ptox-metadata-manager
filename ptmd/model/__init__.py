@@ -3,5 +3,5 @@ ISA objects.
 
 @author: Terazus (D. Batista)
 """
-from .harvester_input import HarvesterInput
+from .inputs2dataframes import Inputs2Dataframes
 from .exposure_condition import ExposureCondition

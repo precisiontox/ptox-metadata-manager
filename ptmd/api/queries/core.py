@@ -1,21 +1,21 @@
-""" All queries related to the dataabase and the Google Drive integration are defined here.
-It contains:
+""" This module contains the functions triggered by the API endpoints.
+It includes:
     - login_user to log in a user
     - get_me to get the current user
     - create_gdrive_file to create a file in the Google Drive using the data provided by the user
+    - get_organisms to get the organisms from the database
+    - get_chemicals to get the chemicals from the database
+    - change_password to change the password of the current user
 
-:author: D. Batista (Terazus)
+@author: D. Batista (Terazus)
 """
-from os import path
-
 from flask import jsonify, request, Response
 from flask_jwt_extended import get_jwt
 from sqlalchemy.orm import Session
 
-from ptmd import HarvesterInput, GoogleDriveConnector
 from ptmd.utils import get_session
-from ptmd.const import ROOT_PATH
-from ptmd.database import login_user, User, Organisation, Organism, Chemical
+from ptmd.database import login_user, User, Organism, Chemical
+from .create_gdrive_file import CreateGDriveFile
 
 
 def login() -> tuple[Response, int]:
@@ -41,8 +41,7 @@ def get_me() -> tuple[Response, int]:
     """
     try:
         session: Session = get_session()
-        user_id: int = get_jwt()['sub']
-        user: User = session.query(User).filter_by(id=user_id).first()
+        user: User = session.query(User).filter_by(id=get_jwt()['sub']).first()
         session.close()
         return jsonify(dict(user)), 200
     except Exception:
@@ -55,31 +54,11 @@ def create_gdrive_file() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    directory_path: str = path.join(ROOT_PATH, 'resources')
-    data: dict = {
-        "partner": request.json.get("partner", None),
-        "organism": request.json.get("organism", None),
-        "exposure_batch": request.json.get("exposure_batch", None),
-        "replicate_blank": request.json.get("replicate_blank", None),
-        "start_date": request.json.get("start_date", None),
-        "end_date": request.json.get("end_date", None),
-        "exposure_conditions": request.json.get("exposure_conditions", None),
-        "replicate4control": request.json.get("replicate4control", None),
-        "replicate4exposure": request.json.get("replicate4exposure", None),
-        "timepoints": request.json.get("timepoints", None),
-        "vehicle": request.json.get("vehicle", None),
-    }
     try:
-        filename: str = f"{data['partner']}_{data['organism']}_{data['exposure_batch']}.xlsx"
-        filepath: str = path.join(directory_path, filename)
-        inputs: HarvesterInput = HarvesterInput(**data)
-        inputs.save_file(filepath)
+        payload: CreateGDriveFile = CreateGDriveFile()
         session: Session = get_session()
-        folder_id: str = session.query(Organisation).filter_by(name=data['partner']).first().gdrive_id
+        response: dict[str, str] = payload.process_file(session=session)
         session.close()
-        gdrive: GoogleDriveConnector = GoogleDriveConnector()
-        response: dict = gdrive.upload_file(directory_id=folder_id, file_path=filepath, title=filename)
-        inputs.delete_file()
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 400
@@ -91,7 +70,9 @@ def get_organisms() -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     session: Session = get_session()
-    organisms: dict[str, list] = {"data": [dict(organism) for organism in session.query(Organism).all()]}
+    organisms: dict[str, list[dict[str, int or str]]] = {
+        "data": [dict(organism) for organism in session.query(Organism).all()]
+    }
     session.close()
     return jsonify(organisms), 200
 
@@ -103,7 +84,7 @@ def get_chemicals() -> tuple[Response, int]:
     """
     session: Session = get_session()
     response: list[Chemical] = session.query(Chemical).filter(Chemical.ptx_code < 998).all()
-    chemicals: dict[str, list] = {"data": [dict(chemical) for chemical in response]}
+    chemicals: dict[str, list[dict[str, int or str]]] = {"data": [dict(chemical) for chemical in response]}
     session.close()
     return jsonify(chemicals), 200
 
