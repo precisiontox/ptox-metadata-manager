@@ -18,12 +18,12 @@ from ptmd.const import (
 from ptmd.database import get_allowed_organisms, get_organism_code, get_chemical_code_mapping
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
 from ptmd.model.exposure_condition import ExposureCondition
-from .interfaces import HarvesterInput as HarvesterInputInterface
+from .interfaces import InputsToDataframes as InputsToDataframesInterface
 from .dataframes import build_general_dataframe, build_sample_dataframe
 from ptmd.clients.excel import save_to_excel
 
 
-class Inputs2Dataframes(HarvesterInputInterface):
+class Inputs2Dataframes(InputsToDataframesInterface):
     """ A class to represent the input for the harvester and generate the pandas DataFrame and Excel files.
 
     :param partner: precision tox code of the partner
