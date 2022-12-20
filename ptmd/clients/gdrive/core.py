@@ -103,5 +103,6 @@ class GoogleDriveConnector:
         file.SetContentFile(file_path)
         file.Upload()
         file.content.close()
+        file.InsertPermission({'type': 'anyone', 'role': 'writer'})
         return content_exist(google_drive=self.google_drive, folder_name=file_metadata['title'],
                              parent=directory_id, type_='file')

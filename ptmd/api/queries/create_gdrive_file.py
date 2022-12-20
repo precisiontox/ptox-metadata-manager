@@ -53,6 +53,6 @@ class CreateGDriveFile:
         dataframes_generator.save_file(file_path)
         folder_id: str = session.query(Organisation).filter_by(name=dataframes_generator.partner).first().gdrive_id
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
-        response: dict[str, str] = gdrive.upload_file(directory_id=folder_id, file_path=file_path, title=file_path)
+        response: dict[str, str] = gdrive.upload_file(directory_id=folder_id, file_path=file_path, title=filename)
         dataframes_generator.delete_file()
         return response
