@@ -2,7 +2,7 @@
 
 @author: D. Batista (Terazus)
 """
-from ptmd.database.config import Base, db
+from ptmd.config import Base, db
 
 
 class Organism(Base):

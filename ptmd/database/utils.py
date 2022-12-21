@@ -2,12 +2,19 @@
 
 @author: D. Batista (Terazus)
 """
+from pathlib import Path
+import sys
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from ptmd.const import CONFIG
-from .config import Base
+
+# Loading the database config from a config file
+# located two levels up in the directory tree.
+directory = Path(__file__)
+sys.path.append(directory.parent.parent.parent)
+from ptmd.config import Base
 
 
 def get_session() -> Session:

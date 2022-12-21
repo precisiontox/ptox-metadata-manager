@@ -5,6 +5,15 @@ It also provides the Base and app variables that are required to establish a con
 :author: D. Batista (Terazus)
 """
 
+from pathlib import Path
+import sys
+
+# Loading the database config from a config file
+# located two levels up in the directory tree.
+directory = Path(__file__)
+sys.path.append(directory.parent.parent.parent)
+from ptmd.config import Base, app
+
 from .models import User, Organisation, Chemical, Organism
 from .queries import (
     login_user,
@@ -18,5 +27,4 @@ from .queries import (
     get_organism_code,
     get_chemical_code_mapping
 )
-from .config import Base, app
 from .utils import get_session
