@@ -2,16 +2,13 @@
 
 @author: D. Batista (Terazus)
 """
-from pathlib import Path
-import sys
+
+print("this is naughty")
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from ptmd.const import CONFIG
-
-# Loading the database config from a config file
-# located two levels up in the directory tree.
 from ptmd.config import Base
 
 
