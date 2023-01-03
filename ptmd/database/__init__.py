@@ -5,6 +5,8 @@ It also provides the Base and app variables that are required to establish a con
 :author: D. Batista (Terazus)
 """
 
+from ptmd.config import Base, app
+
 from .models import User, Organisation, Chemical, Organism
 from .queries import (
     login_user,
@@ -18,5 +20,4 @@ from .queries import (
     get_organism_code,
     get_chemical_code_mapping
 )
-from .config import Base, app
 from .utils import get_session

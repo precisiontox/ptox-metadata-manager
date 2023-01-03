@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from ptmd.const import CONFIG
-from .config import Base
+from ptmd.config import Base
 
 
 def get_session() -> Session:

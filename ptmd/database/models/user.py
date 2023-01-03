@@ -5,7 +5,7 @@
 from passlib.hash import bcrypt
 from sqlalchemy.orm import session as sqlsession
 
-from ptmd.database.config import Base, db
+from ptmd.config import Base, db
 from .organisation import Organisation
 
 
