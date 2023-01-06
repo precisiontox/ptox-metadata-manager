@@ -49,7 +49,6 @@ class TestCreateDatabase(TestCase):
 
     def test_create_organisations(self):
         organisations = create_organisations(organisations=self.input_orgs, session=self.session)
-        print(organisations)
         organisations = {org: dict(organisations[org]) for org in organisations}
         self.assertEqual(organisations['KIT']['gdrive_id'], "123")
         self.assertEqual(organisations['UOB']['gdrive_id'], "456")
