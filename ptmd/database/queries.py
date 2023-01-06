@@ -116,8 +116,9 @@ def create_organisations(organisations: dict, session: sqlsession) -> dict[str, 
     """
     LOGGER.info('Creating organisations')
     for org in organisations:
-        session.add(Organisation(name=org, gdrive_id=organisations[org]))
-    session.add(Organisation(name='UOX'))
+        session.add(Organisation(name=org,
+                                 gdrive_id=organisations[org]['g_drive'],
+                                 longname=organisations[org]['long_name']))
     session.commit()
     organisation = {'UOX': session.query(Organisation).filter_by(name='UOX').first()}
     for org in organisations:
