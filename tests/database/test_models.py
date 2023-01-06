@@ -39,7 +39,7 @@ class TestModel(TestCase):
         self.assertFalse(changed)
 
     def test_organisation(self):
-        expected_organisation = {'name': 'UOX', 'organisation_id': 1, 'gdrive_id': 'test'}
+        expected_organisation = {'name': 'UOX', 'organisation_id': 1, 'gdrive_id': 'test', 'longname': None}
         organisation = Organisation(name=expected_organisation['name'], gdrive_id=expected_organisation['gdrive_id'])
         self.session.add(organisation)
         self.session.commit()

@@ -120,7 +120,7 @@ def create_organisations(organisations: dict, session: sqlsession) -> dict[str, 
                                  gdrive_id=organisations[org]['g_drive'],
                                  longname=organisations[org]['long_name']))
     session.commit()
-    organisation = {'UOX': session.query(Organisation).filter_by(name='UOX').first()}
+    organisation = {}
     for org in organisations:
         organisation[org] = session.query(Organisation).filter_by(name=org).first()
     return organisation
