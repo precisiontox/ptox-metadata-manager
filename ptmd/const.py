@@ -37,7 +37,7 @@ DOSE_MAPPING: dict = {
     "0": "Z",
     "BMD10": "L",
     "BMD25": "M",
-    "10mg/l": "H",
+    "10mg/L": "H",
 }
 TIME_POINT_MAPPING: dict = {
     "TP0": "S",
