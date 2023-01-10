@@ -12,11 +12,14 @@ TimepointsRange: namedtuple = namedtuple('TimepointsRange', ['min', 'max'])
 ROOT_PATH: str = path.abspath(path.dirname(__file__))
 INPUT_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'inputs2dataframes.json')
 EXPOSURE_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'exposure_schema.json')
+PARTNERS_LONGNAME_PATH: str = path.join(ROOT_PATH, 'resources', 'data', 'partners.json')
 
 with open(INPUT_SCHEMA_PATH, 'r') as f:
     INPUT_SCHEMA: dict = loads(f.read())
 with open(EXPOSURE_SCHEMA_PATH, 'r') as f:
     EXPOSURE_SCHEMA: dict = loads(f.read())
+with open(PARTNERS_LONGNAME_PATH, 'r') as f:
+    PARTNERS_LONGNAME: dict = loads(f.read())
 
 ALLOWED_PARTNERS: list[str] = INPUT_SCHEMA['properties']['partner']['enum']
 ALLOWED_EXPOSURE_BATCH: str = INPUT_SCHEMA['properties']['exposure_batch']['pattern']
@@ -34,7 +37,7 @@ DOSE_MAPPING: dict = {
     "0": "Z",
     "BMD10": "L",
     "BMD25": "M",
-    "10mg/l": "H",
+    "10mg/L": "H",
 }
 TIME_POINT_MAPPING: dict = {
     "TP0": "S",

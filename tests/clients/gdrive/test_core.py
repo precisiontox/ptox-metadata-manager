@@ -82,7 +82,7 @@ class TestGDriveConnector(TestCase):
     def test_create_directories_skip(self, content_exist_mock, google_drive_mock, google_auth_mock):
         gdrive_connector = GoogleDriveConnector()
         gdrive_connector.create_directories()
-        self.assertEqual(10, content_exist_mock.call_count)
+        self.assertEqual(11, content_exist_mock.call_count)
 
     @patch('ptmd.clients.gdrive.core.content_exist', return_value=None)
     def test_create_directories(self, google_drive_mock, content_exist_mock, google_auth_mock):
@@ -90,7 +90,8 @@ class TestGDriveConnector(TestCase):
         folders_ids = gdrive_connector.create_directories()
         self.assertIsNone(folders_ids['root_directory'])
         for partner in folders_ids['partners']:
-            self.assertIsNone(folders_ids['partners'][partner])
+            self.assertIsNone(folders_ids['partners'][partner]['g_drive'])
+            self.assertIsNotNone(folders_ids['partners'][partner]['long_name'])
 
         gdrive_connector2 = GoogleDriveConnector()
         self.assertEqual(gdrive_connector, gdrive_connector2)

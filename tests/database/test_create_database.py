@@ -15,7 +15,10 @@ class TestCreateDatabase(TestCase):
         Base.metadata.create_all(self.engine)
         session: sqlsession = sessionmaker(bind=self.engine)
         self.session = session()
-        self.input_orgs = {'KIT': "123", 'UOB': "456"}
+        self.input_orgs = {
+            'KIT': {"g_drive": "123", "long_name": "test12"},
+            'UOB': {"g_drive": "456", "long_name": "test34"}
+        }
 
     @classmethod
     def setUpClass(cls):
@@ -47,7 +50,6 @@ class TestCreateDatabase(TestCase):
     def test_create_organisations(self):
         organisations = create_organisations(organisations=self.input_orgs, session=self.session)
         organisations = {org: dict(organisations[org]) for org in organisations}
-        self.assertIsNone(organisations['UOX']['gdrive_id'])
         self.assertEqual(organisations['KIT']['gdrive_id'], "123")
         self.assertEqual(organisations['UOB']['gdrive_id'], "456")
         self.session.close()
@@ -58,7 +60,10 @@ class TestCreateDatabase(TestCase):
         user = create_users(users=input_users, session=self.session)[0]
         self.assertEqual(
             dict(user),
-            {'id': 1, 'username': 'test', 'organisation': {'organisation_id': 1, 'name': 'KIT', 'gdrive_id': '123'}}
+            {
+                'id': 1, 'username': 'test',
+                'organisation': {'organisation_id': 1, 'name': 'KIT', 'gdrive_id': '123', 'longname': 'test12'}
+            }
         )
         self.session.close()
 

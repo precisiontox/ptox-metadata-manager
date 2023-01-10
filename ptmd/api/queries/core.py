@@ -14,7 +14,7 @@ from flask_jwt_extended import get_jwt
 from sqlalchemy.orm import Session
 
 from ptmd.utils import get_session
-from ptmd.database import login_user, User, Organism, Chemical
+from ptmd.database import login_user, User, Organism, Chemical, Organisation
 from .create_gdrive_file import CreateGDriveFile
 
 
@@ -113,3 +113,15 @@ def change_password() -> tuple[Response, int]:
     if not changed:
         return jsonify({"msg": "Wrong password"}), 400
     return jsonify({"msg": "Password changed successfully"}), 200
+
+
+def get_organisations() -> tuple[Response, int]:
+    """ Function to get the organisations from the database.
+
+    :return: tuple containing a JSON response and a status code
+    """
+    session: Session = get_session()
+    response: list[Organisation] = session.query(Organisation).all()
+    organisations: dict[str, list[dict[str, int or str]]] = {"data": [dict(organisation) for organisation in response]}
+    session.close()
+    return jsonify(organisations), 200

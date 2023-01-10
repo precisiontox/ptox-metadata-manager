@@ -7,7 +7,7 @@
       "partner": {
         "type": "string",
         "enum": [
-          "KIT", "IUB", "UFZ", "WF", "NIH", "CLU", "LEITAT", "UOB"
+          "KIT", "IUB", "UFZ", "WF", "NIH", "CLU", "LEITAT", "UOB", "UOX"
         ],
         "description": "The partner name generating the samples."
       },

@@ -60,15 +60,18 @@ def build_sample_dataframe(
                         replicate, chemical, exposure_condition.dose, 'TP%s' % tp, hash_id
                     ], index=dataframe.columns)
                     dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
-                for replicate in range(1, harvester.replicate4control + 1):
-                    control_code = '999' if harvester.vehicle == 'DMSO' else '997'
-                    hash_id: str = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, control_code,
-                                                    timepoint_code, replicate)
-                    series: Series = Series([
-                        '', '', '', '', '', '', '', '',
-                        replicate, "CONTROL (%s)" % harvester.vehicle, 0, 'TP%s' % tp, hash_id
-                    ], index=dataframe.columns)
-                    dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
+    for replicate in range(1, harvester.replicate4control + 1):
+        for tp in range(1, harvester.timepoints + 1):
+            timepoint: str = f'TP{tp}'
+            timepoint_code: str = TIME_POINT_MAPPING[timepoint]
+            control_code = '999' if harvester.vehicle == 'DMSO' else '997'
+            hash_id: str = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, control_code,
+                                            timepoint_code, replicate)
+            series: Series = Series([
+                '', '', '', '', '', '', '', '',
+                replicate, "CONTROL (%s)" % harvester.vehicle, 0, 'TP%s' % tp, hash_id
+            ], index=dataframe.columns)
+            dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
     return add_blanks_to_sample_dataframe(dataframe, harvester.replicate_blank, organism_code, harvester.exposure_batch)
 
 

@@ -1,0 +1,35 @@
+The route to get data about organisations
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+definitions:
+  Organisations Response:
+    type: object
+    properties:
+      organisation_id:
+        type: string
+        description: internal identifier for the organisation
+      name:
+        type: string
+        description: short name of the organisation
+      gdrive_id:
+        type: string
+        description: google drive id of the organisation
+      longname:
+        string: string
+        description: long name of the organisation
+responses:
+  200:
+    description: The user data with that JWT token
+    schema:
+      $ref: '#/definitions/Organisations Response'
+    examples:
+      application/json:
+        organisation_id: 1
+        name: UOX
+        gdrive_id: 1234566790
+        longname: university of oxford

@@ -15,13 +15,15 @@ class Organisation(Base):
     organisation_id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False, unique=True)
     gdrive_id: str = db.Column(db.String(100), nullable=True, unique=True)
+    longname: str = db.Column(db.String(100), nullable=True)
 
     def __iter__(self):
         """ Iterator for the object. Used to serialize the object as a dictionary.  """
         organisation: dict = {
             'organisation_id': self.organisation_id,
             'name': self.name,
-            'gdrive_id': self.gdrive_id if self.gdrive_id else None
+            'gdrive_id': self.gdrive_id if self.gdrive_id else None,
+            'longname': self.longname if self.longname else None
         }
         for key, value in organisation.items():
             yield key, value

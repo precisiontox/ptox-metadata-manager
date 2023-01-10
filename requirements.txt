@@ -3,7 +3,7 @@ python-dateutil~=2.8.2
 openpyxl~=3.0.10
 python-dotenv~=0.21.0
 pydrive2~=1.15.0
-sqlAlchemy~=1.4.45
+sqlAlchemy==1.4.46
 flask-jwt-extended~=4.4.4
 Flask~=2.2.2
 Flask-SQLAlchemy~=3.0.2
@@ -12,4 +12,5 @@ Flask-Session~=0.4.0
 passlib~=1.7.4
 bcrypt~=4.0.1
 requests~=2.28.1
-xlsxwriter~=3.0.3
+xlsxwriter==3.0.6
+flasgger~=0.9.5

@@ -6,7 +6,7 @@ and upload the files to the drive.
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
-from ptmd.const import ALLOWED_PARTNERS
+from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME
 from ptmd.logger import LOGGER
 from .const import ROOT_FOLDER_METADATA, CREDENTIALS_FILE_PATH
 from .utils import content_exist
@@ -62,7 +62,7 @@ class GoogleDriveConnector:
             self.__google_auth.SaveCredentialsFile(self.__credential_file)
             self.google_drive = GoogleDrive(self.__google_auth)
 
-    def create_directories(self) -> dict[str, str]:
+    def create_directories(self) -> dict[str, str or dict[str, str]]:
         """ This function will create the nested directories/folders within the Google Drive. """
         root_folder: dict[str, str] = content_exist(google_drive=self.google_drive,
                                                     folder_name=ROOT_FOLDER_METADATA['title'])
@@ -85,6 +85,13 @@ class GoogleDriveConnector:
                                    folder_name=partner,
                                    parent=folders_ids['root_directory'])
             folders_ids['partners'][partner] = folder['id'] if folder else None
+        for partner_acronym in folders_ids['partners']:
+            g_drive = folders_ids['partners'][partner_acronym]
+            long_name = PARTNERS_LONGNAME[partner_acronym]
+            folders_ids['partners'][partner_acronym] = {
+                "g_drive": g_drive,
+                "long_name": long_name
+            }
         return folders_ids
 
     def upload_file(self, directory_id: str or int, file_path: str, title: str = 'SAMPLE_TEST') -> dict[str, str]:

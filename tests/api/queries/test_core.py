@@ -140,6 +140,19 @@ class TestAPIQueries(TestCase):
             self.assertEqual(response.status_code, 200)
         pass
 
+    def test_get_organisations(self, mock_get_session):
+        create_user()
+        organisation = {'name': 'UOB', 'gdrive_id': '456', 'longname': 'University of Birmingham'}
+        session.add(Organisation(**organisation))
+        session.commit()
+        session.close()
+        with app.test_client() as client:
+            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            jwt = logged_in.json['access_token']
+            response = client.get('/api/organisations', headers={'Authorization': f'Bearer {jwt}'})
+            data = response.json
+            self.assertEqual(data['data'], [{**organisation, 'organisation_id': 1}])
+
     def test_get_chemicals(self, mock_get_session):
         create_user()
         chemical = {'common_name': 'chemical1', 'name_hash_id': '123', 'formula': 'C1H1', "ptx_code": 1}
