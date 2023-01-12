@@ -31,20 +31,29 @@ pip install -r requirements.txt # for production
 pip install -r requirements-dev.txt # for development
 ```
 
-Now, rename .env.example to .env and fill in the values for your environment.
+Before running the application you need to obtain a Google Drive ID and secret: head to your Google Cloud console and 
+enable the Google Drive API. Then, go to `API & Services > Credentials` and create a new OAuth client ID using the 
+`Desktop Application` option. Once done, you will be presented with a client ID and a client secret you will want to
+copy.
+Inside the `ptmd/resources/` directory, rename `.env.example` to `.env` and fill in the values for your environment.
 ```text
-SQLALCHEMY_DATABASE_URL=sqlite:///my_database.db
-SQLALCHEMY_SECRET_KEY=SECRET_KEY
-GDRIVE_CREDENTIALS_FILE=resources/credentials.txt
+SQLALCHEMY_DATABASE_URL=sqlite:///:memory:
+SQLALCHEMY_SECRET_KEY=A_SUPER_SECRET_KEY_TO_ENCODE_PASSWORDS
+PTOX_API_ENDPOINT=https://example.com/graphql
+GOOGLE_DRIVE_CLIENT_ID=Your_google_api_id
+GOOGLE_DRIVE_CLIENT_SECRET=Your_google_api_secret
+GOOGLE_DRIVE_CREDENTIALS_FILEPATH=Absolute_path_to_google_drive_credentials_file
+GOOGLE_DRIVE_SETTINGS_FILEPATH=Absolute_path_to_google_drive_settings_file
 ```
 - `SQLALCHEMY_DATABASE_URL`: this is the URL to your database. You can use sqlite, postgres, mysql, etc.
 - `SQLALCHEMY_SECRET_KEY`: this is the secret key used to encrypt hashes and other sensitive data.
-- `GDRIVE_CREDENTIALS_FILE`: this is the path where the Google Drive credentials file will be created at the first
-time your boot the application (or load it from if it already exists). Leave the default value if you don't know better.
+- `PTOX_API_ENDPOINT`: the URL to the graphQL api endpoint to get chemicals and organisms.
+- `GOOGLE_DRIVE_CLIENT_ID`: the Google Drive client ID obtainable in your Google Cloud Console (see above).
+- `GOOGLE_DRIVE_CLIENT_SECRET`: the Google Drive client secret obtaining in your Google Cloud Console (see above).
+- `GOOGLE_DRIVE_CREDENTIALS_FILEPATH`: the path where to store the credentials file created during first boot.
+- `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first boot.
 
-Now go to your GCP console, create a new project, and enable the Google Drive API. Then, go to API & Services > Credentials 
-and create a new OAuth client ID. Download the credentials file as a json and copy it at the root of your project. Then run the 
-following command and accept the application in your browser. This is done once only during first boot.
+You can now run the following command and accept the application in your browser. This is done once only during first boot.
 It will download the Google API credentials file and generate the database once you are done.
 Finally, it will boot the flask API.
 ```shell
