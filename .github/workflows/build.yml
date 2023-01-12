@@ -26,7 +26,7 @@ jobs:
       - name: Lint with flake8
         run: flake8
       - name: Make .env file
-        run: mv .env.example .env
+        run: mv ./ptmd/resources/.env.example ./ptmd/resources/.env
       - name: Test with python unittest
         run: |
           coverage run -m unittest discover -s tests/
