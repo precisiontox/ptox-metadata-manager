@@ -35,7 +35,7 @@ class User(Base):
         if organisation and not isinstance(organisation, Organisation) and not isinstance(organisation, str):
             raise TypeError('organisation must be an Organisation object or a string')
         if isinstance(organisation, Organisation):
-            self.organisation: Organisation = organisation
+            self.organisation: int = organisation
         elif organisation:
             if not session:
                 raise ValueError('session must be provided if organisation is a string')

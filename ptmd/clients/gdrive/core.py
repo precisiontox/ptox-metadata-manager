@@ -6,9 +6,9 @@ and upload the files to the drive.
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
-from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME
+from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME, SETTINGS_FILE_PATH
 from ptmd.logger import LOGGER
-from .const import ROOT_FOLDER_METADATA, CREDENTIALS_FILE_PATH
+from .const import ROOT_FOLDER_METADATA
 from .utils import content_exist
 
 
@@ -17,15 +17,11 @@ class GoogleDriveConnector:
     instance_ = None
     google_drive: GoogleDrive or None
 
-    def __new__(cls, credential_file: str = CREDENTIALS_FILE_PATH):
-        """ Method to create a new instance of the GoogleDriveConnector class.
-
-        :param credential_file: The path to the credential file.
-        """
+    def __new__(cls):
+        """ Method to create a new instance of the GoogleDriveConnector class. """
         if not cls.instance_:
             cls.instance_ = super(GoogleDriveConnector, cls).__new__(cls)
-            cls.__credential_file = credential_file
-            cls.__google_auth: GoogleAuth = GoogleAuth()
+            cls.__google_auth: GoogleAuth = GoogleAuth(settings_file=SETTINGS_FILE_PATH)
             cls.google_drive = None
             cls.instance_.connect()
             LOGGER.info('Connected to Google Drive')
@@ -45,21 +41,19 @@ class GoogleDriveConnector:
         """
         if self.google_drive:
             return self.google_drive
-        self.__google_auth.LoadCredentialsFile(credentials_file=self.__credential_file)
         if not self.__google_auth.credentials:
             self.__google_auth.LocalWebserverAuth()
         elif self.__google_auth.access_token_expired:
             self.__google_auth.Refresh()
         else:
             self.__google_auth.Authorize()
-        self.__google_auth.SaveCredentialsFile(self.__credential_file)
         self.google_drive = GoogleDrive(self.__google_auth)
 
     def refresh_connection(self):
         """ This function will refresh the connection to the Google Drive when the token has expired. """
         if self.__google_auth.access_token_expired:
             self.__google_auth.Refresh()
-            self.__google_auth.SaveCredentialsFile(self.__credential_file)
+            self.__google_auth.SaveCredentialsFile()
             self.google_drive = GoogleDrive(self.__google_auth)
 
     def create_directories(self) -> dict[str, str or dict[str, str]]:

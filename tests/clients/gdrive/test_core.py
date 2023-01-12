@@ -17,7 +17,7 @@ class MockGoogleAuth(GoogleAuth):
     def LocalWebserverAuth(*args, **kwargs):
         pass
 
-    def SaveCredentialsFile(self, *args, **kwargs):
+    def SaveCredentialsFile(*args, **kwargs):
         pass
 
     def Refresh(*args, **kwargs):

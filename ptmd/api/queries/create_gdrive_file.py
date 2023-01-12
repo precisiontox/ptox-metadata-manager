@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from ptmd import Inputs2Dataframes, GoogleDriveConnector
 from ptmd.const import ROOT_PATH
-from ptmd.database import Organisation
+from ptmd.database import Organisation, File
 
 OUTPUT_DIRECTORY_PATH: str = path.join(ROOT_PATH, 'resources')
 
@@ -31,10 +31,11 @@ class CreateGDriveFile:
         self.__timepoints: int or None = request.json.get("timepoints", None)
         self.__vehicle: str or None = request.json.get("vehicle", None)
 
-    def generate_file(self, session: Session) -> dict[str, str]:
+    def generate_file(self, session: Session, user: int) -> dict[str, str]:
         """ Method to process the user input and create a file in the Google Drive.
 
         :param session: SQLAlchemy session
+        :param user: user ID
         :return: dictionary containing the response from the Google Drive API
         """
         filename: str = f"{self.__partner}_{self.__organism}_{self.__exposure_batch}.xlsx"
@@ -55,4 +56,13 @@ class CreateGDriveFile:
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
         response: dict[str, str] = gdrive.upload_file(directory_id=folder_id, file_path=file_path, title=filename)
         dataframes_generator.delete_file()
+        db_file: File = File(gdrive_id=response['id'],
+                             name=response['title'],
+                             organisation_name=self.__partner,
+                             user_id=user,
+                             batch=self.__exposure_batch,
+                             session=session,
+                             organism_name=self.__organism)
+        session.add(db_file)
+        session.commit()
         return response

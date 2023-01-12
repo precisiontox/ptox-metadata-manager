@@ -62,7 +62,9 @@ class TestCreateDatabase(TestCase):
             dict(user),
             {
                 'id': 1, 'username': 'test',
-                'organisation': {'organisation_id': 1, 'name': 'KIT', 'gdrive_id': '123', 'longname': 'test12'}
+                'organisation': {
+                    'organisation_id': 1, 'name': 'KIT', 'gdrive_id': '123', 'longname': 'test12', 'files': []
+                }
             }
         )
         self.session.close()

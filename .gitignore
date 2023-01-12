@@ -4,13 +4,13 @@ __pycache__
 .coverage
 docs/build/
 commit.py
-.env
+ptmd/resources/.env
 venv*/
 
 ptmd/clients/gdrive/credentials.txt
 ptmd/clients/gdrive/client_secrets.json
 /examples/
-ptmd.db
-credentials.txt
-client_secrets.json
-todo_list
+ptmd/resources/ptmd.db
+ptmd/resources/credential.json
+gdrive.yaml
+credentials.json

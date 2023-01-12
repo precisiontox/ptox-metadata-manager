@@ -7,7 +7,7 @@ from ptmd.const import CONFIG
 from ptmd.utils import get_session, init
 
 
-from ptmd.utils import initialize
+from ptmd.utils import initialize, create_config_file
 
 
 class MockedQuery:
@@ -83,3 +83,13 @@ class TestAPIUtilities(TestCase):
         self.assertIsInstance(session, Session)
         mock_create_engine.assert_called_once()
         mock_create_engine.assert_called_with(CONFIG['SQLALCHEMY_DATABASE_URL'])
+
+
+@patch('ptmd.utils.exists', return_value=False)
+@patch('ptmd.utils.dump', return_value=True)
+class TestCreateConfigFile(TestCase):
+
+    def test_create_config_file(self, mock_dump, mock_exists):
+        create_config_file()
+        mock_exists.assert_called_once()
+        mock_dump.assert_called_once()

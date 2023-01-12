@@ -41,9 +41,9 @@ def get_me() -> tuple[Response, int]:
     """
     try:
         session: Session = get_session()
-        user: User = session.query(User).filter_by(id=get_jwt()['sub']).first()
+        user: dict = dict(session.query(User).filter_by(id=get_jwt()['sub']).first())
         session.close()
-        return jsonify(dict(user)), 200
+        return jsonify(user), 200
     except Exception:
         return jsonify({"msg": "Invalid token"}), 401
 
@@ -56,8 +56,9 @@ def create_gdrive_file() -> tuple[Response, int]:
     """
     session: Session = get_session()
     try:
+        user_id = get_jwt()['sub']
         payload: CreateGDriveFile = CreateGDriveFile()
-        response: dict[str, str] = payload.generate_file(session=session)
+        response: dict[str, str] = payload.generate_file(session=session, user=user_id)
         session.close()
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:

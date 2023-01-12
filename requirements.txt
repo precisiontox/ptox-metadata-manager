@@ -14,3 +14,4 @@ bcrypt~=4.0.1
 requests~=2.28.1
 xlsxwriter==3.0.6
 flasgger~=0.9.5
+pyyaml~=6.0.0

@@ -27,7 +27,7 @@ class MockGoogleAuth(GoogleAuth):
     def LocalWebserverAuth(*args, **kwargs):
         pass
 
-    def SaveCredentialsFile(self, *args, **kwargs):
+    def SaveCredentialsFile(*args, **kwargs):
         pass
 
     def Refresh(*args, **kwargs):
@@ -79,7 +79,7 @@ class TestAPIQueries(TestCase):
             self.assertEqual(response.status_code, 401)
             self.assertEqual(response.json, {'msg': 'Invalid token'})
 
-    @patch('ptmd.GoogleDriveConnector.upload_file', return_value=({"alternateLink": "456"}))
+    @patch('ptmd.GoogleDriveConnector.upload_file', return_value=({"id": "45", "title": "test", "alternateLink": "a"}))
     @patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
     @patch('ptmd.model.exposure_condition.get_allowed_chemicals', return_value=["chemical1", "chemical2"])
     @patch('ptmd.model.inputs2dataframes.get_allowed_organisms', return_value=['organism1'])
@@ -95,6 +95,8 @@ class TestAPIQueries(TestCase):
         user = {'organisation': organisation, 'username': '123', 'password': '123'}
         new_user = User(**user)
         session.add(new_user)
+        organism: Organism = Organism(ptox_biosystem_name="organism1", ptox_biosystem_code="A", scientific_name="human")
+        session.add(organism)
         session.commit()
 
         with app.test_client() as client:
@@ -121,7 +123,7 @@ class TestAPIQueries(TestCase):
 
             data["exposure_conditions"][0]["dose"] = "BMD10"
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
-            self.assertEqual(response.json, {'data': {'file_url': '456'}})
+            self.assertEqual(response.json, {'data': {'file_url': 'a'}})
 
     def test_get_organisms(self, mock_get_session):
         create_user()
@@ -142,7 +144,7 @@ class TestAPIQueries(TestCase):
 
     def test_get_organisations(self, mock_get_session):
         create_user()
-        organisation = {'name': 'UOB', 'gdrive_id': '456', 'longname': 'University of Birmingham'}
+        organisation = {'name': 'UOB', 'gdrive_id': '456', 'longname': 'University of Birmingham', 'files': []}
         session.add(Organisation(**organisation))
         session.commit()
         session.close()
