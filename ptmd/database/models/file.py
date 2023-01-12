@@ -13,6 +13,14 @@ from .organism import Organism
 
 class File(Base):
     """ File database model.
+
+    :param gdrive_id: Google Drive file identifier.
+    :param name: File name.
+    :param organisation_name: Organisation name.
+    :param user_id: User identifier.
+    :param organism_name: Organism name.
+    :param batch: Batch name.
+    :param session: SQLAlchemy session.
     """
     __tablename__ = 'file'
     file_id: int = db.Column(db.Integer, primary_key=True)
@@ -38,6 +46,7 @@ class File(Base):
             batch: str,
             session: sqlsession = None
     ) -> None:
+        """ The File Model constructor """
         self.gdrive_id: str = gdrive_id
         self.name: str = name
         self.author_id: int = user_id
@@ -47,6 +56,7 @@ class File(Base):
         self.organism: Organism = organism
 
     def __iter__(self):
+        """ Iterator for the object. Used to serialize the object as a dictionary. """
         output = {
             'file_id': self.file_id,
             'gdrive_id': self.gdrive_id,
