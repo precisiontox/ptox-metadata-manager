@@ -140,7 +140,6 @@ class TestAPIQueries(TestCase):
                                  "ptox_biosystem_code": "A"}
             self.assertEqual(data['data'], [expected_organism])
             self.assertEqual(response.status_code, 200)
-        pass
 
     def test_get_organisations(self, mock_get_session):
         create_user()
