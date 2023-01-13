@@ -35,16 +35,15 @@ Before running the application you need to obtain a Google Drive ID and secret: 
 enable the Google Drive API. Then, go to `API & Services > Credentials` and create a new OAuth client ID using the 
 `Desktop Application` option. Once done, you will be presented with a client ID and a client secret you will want to
 copy.
-Inside the `ptmd/resources/` directory, rename `.env.example` to `.env` and fill in the values for your environment 
-(N.B. the suffix of the settings file must be '.yaml' not '.yml').
+Inside the `ptmd/resources/` directory, rename `.env.example` to `.env` and fill in the values for your environment.
 ```text
 SQLALCHEMY_DATABASE_URL=sqlite:///:memory:
 SQLALCHEMY_SECRET_KEY=A_SUPER_SECRET_KEY_TO_ENCODE_PASSWORDS
 PTOX_API_ENDPOINT=https://example.com/graphql
 GOOGLE_DRIVE_CLIENT_ID=Your_google_api_id
 GOOGLE_DRIVE_CLIENT_SECRET=Your_google_api_secret
-GOOGLE_DRIVE_CREDENTIALS_FILEPATH=Absolute_path_to_google_drive_credentials_directory/credentials.json
-GOOGLE_DRIVE_SETTINGS_FILEPATH=Absolute_path_to_google_drive_settings_directory/settings.yaml
+GOOGLE_DRIVE_CREDENTIALS_FILEPATH=Absolute_path_to_google_drive_credentials_file
+GOOGLE_DRIVE_SETTINGS_FILEPATH=Absolute_path_to_google_drive_settings_file
 ```
 - `SQLALCHEMY_DATABASE_URL`: this is the URL to your database. You can use sqlite, postgres, mysql, etc., e.g.
   sqlite:///ptmd.db, and will need to change this before running the application.
@@ -52,8 +51,10 @@ GOOGLE_DRIVE_SETTINGS_FILEPATH=Absolute_path_to_google_drive_settings_directory/
 - `PTOX_API_ENDPOINT`: the URL to the graphQL api endpoint to get chemicals and organisms.
 - `GOOGLE_DRIVE_CLIENT_ID`: the Google Drive client ID obtainable in your Google Cloud Console (see above).
 - `GOOGLE_DRIVE_CLIENT_SECRET`: the Google Drive client secret obtaining in your Google Cloud Console (see above).
-- `GOOGLE_DRIVE_CREDENTIALS_FILEPATH`: the path where to store the credentials file created during first boot.
-- `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first boot.
+- `GOOGLE_DRIVE_CREDENTIALS_FILEPATH`: the path where to store the credentials file created during first boot 
+  (e.g. credentials.json).
+- `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first boot 
+  e.g. settings.yaml - a .yml suffix must not be used).
 
 You can now run the following command and accept the application in your browser. This is done once only during first boot.
 It will download the Google API credentials file and generate the database once you are done.
