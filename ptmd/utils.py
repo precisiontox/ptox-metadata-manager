@@ -58,6 +58,7 @@ def create_config_file():
         LOGGER.info('Creating settings file')
         with open(SETTINGS_FILE_PATH, 'w') as settings_file:
             dump(settings_data, settings_file, default_flow_style=False)
+    return settings_data
 
 
 def init():

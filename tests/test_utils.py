@@ -1,3 +1,4 @@
+from os import path, remove
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -89,7 +90,14 @@ class TestAPIUtilities(TestCase):
 @patch('ptmd.utils.dump', return_value=True)
 class TestCreateConfigFile(TestCase):
 
+    def setUp(self):
+        self.mock_path = path.join(path.dirname(path.abspath(__file__)), 'data', 'test_config.yaml')
+        self.mock_settings = patch('ptmd.utils.SETTINGS_FILE_PATH', self.mock_path)
+
     def test_create_config_file(self, mock_dump, mock_exists):
-        create_config_file()
-        mock_exists.assert_called_once()
-        mock_dump.assert_called_once()
+        with self.mock_settings:
+            gdrive_settings = create_config_file()
+            mock_exists.assert_called_once()
+            mock_dump.assert_called_once()
+            self.assertIsNotNone(gdrive_settings)
+            remove(self.mock_path)

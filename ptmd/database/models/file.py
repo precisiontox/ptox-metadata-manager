@@ -22,7 +22,7 @@ class File(Base):
     :param batch: Batch name.
     :param session: SQLAlchemy session.
     """
-    __tablename__ = 'file'
+    __tablename__: str = 'file'
     file_id: int = db.Column(db.Integer, primary_key=True)
     gdrive_id: str = db.Column(db.String(255), nullable=False)
     name: str = db.Column(db.String(255), nullable=True)
@@ -50,7 +50,7 @@ class File(Base):
         self.gdrive_id: str = gdrive_id
         self.name: str = name
         self.author_id: int = user_id
-        self.batch = batch
+        self.batch: str = batch
         organism: Organism = session.query(Organism).filter_by(ptox_biosystem_name=organism_name).first()
         self.organisation: Organisation = session.query(Organisation).filter_by(name=organisation_name).first()
         self.organism: Organism = organism
