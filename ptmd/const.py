@@ -78,4 +78,5 @@ GENERAL_SHEET_COLUMNS: list[str] = [
 ]
 
 # Loading .env file
-CONFIG: dict = dotenv_values(path.join(ROOT_PATH, '..', '.env'))
+CONFIG: dict = dotenv_values(path.join(ROOT_PATH, 'resources', '.env'))
+SETTINGS_FILE_PATH: str = CONFIG['GOOGLE_DRIVE_SETTINGS_FILEPATH']

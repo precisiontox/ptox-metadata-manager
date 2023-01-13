@@ -4,7 +4,7 @@ from unittest.mock import patch
 from sqlalchemy import create_engine, engine as sqlengine
 from sqlalchemy.orm import sessionmaker, session as sqlsession
 
-from ptmd.database import Base, User, Organisation, login_user, app
+from ptmd.database import Base, User, Organisation, File, login_user, app
 
 
 class TestModel(TestCase):
@@ -39,7 +39,9 @@ class TestModel(TestCase):
         self.assertFalse(changed)
 
     def test_organisation(self):
-        expected_organisation = {'name': 'UOX', 'organisation_id': 1, 'gdrive_id': 'test', 'longname': None}
+        expected_organisation = {
+            'name': 'UOX', 'organisation_id': 1, 'gdrive_id': 'test', 'longname': None, 'files': []
+        }
         organisation = Organisation(name=expected_organisation['name'], gdrive_id=expected_organisation['gdrive_id'])
         self.session.add(organisation)
         self.session.commit()
@@ -54,7 +56,7 @@ class TestModel(TestCase):
 
     @patch('ptmd.database.queries.create_access_token', return_value='OK')
     def test_user_with_organisation(self, mock_create_access_token):
-        user_input: dict[str, str or int or Organisation] = {'username': 'rw', 'organisation': 123, 'password': 'test'}
+        user_input: dict = {'username': 'rw', 'organisation': 123, 'password': 'test'}
         with self.assertRaises(TypeError) as context:
             user = User(**user_input, session=self.session)
             self.session.add(user)
@@ -85,3 +87,22 @@ class TestModel(TestCase):
         self.assertEqual("session must be provided if organisation is a string", str(context.exception))
         user = User(**user_input, session=self.session)
         self.assertIsNone(user.organisation)
+
+    def test_files(self):
+        file = File(**{
+            'gdrive_id': '123',
+            'name': 'test',
+            'batch': 'AA',
+            'organisation_name': None,
+            'user_id': None,
+            'organism_name': None,
+        }, session=self.session)
+        self.assertEqual(dict(file), {
+            'file_id': None,
+            'gdrive_id': '123',
+            'name': 'test',
+            'batch': 'AA',
+            'organisation': None,
+            'author': None,
+            'organism': None,
+        })

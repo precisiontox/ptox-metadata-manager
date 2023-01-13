@@ -23,7 +23,8 @@ class Organisation(Base):
             'organisation_id': self.organisation_id,
             'name': self.name,
             'gdrive_id': self.gdrive_id if self.gdrive_id else None,
-            'longname': self.longname if self.longname else None
+            'longname': self.longname if self.longname else None,
+            'files': [dict(file) for file in self.files]
         }
         for key, value in organisation.items():
             yield key, value

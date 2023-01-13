@@ -3,10 +3,15 @@ the database and the Google Drive directories.
 
 @author: D. Batista (Terazus)
 """
+from os.path import exists
+
 from sqlalchemy.orm import session as sqlsession
+from yaml import dump
 
 from ptmd.clients import GoogleDriveConnector, pull_chemicals_from_ptox_db, pull_organisms_from_ptox_db
 from ptmd.database import boot, User, Organisation, get_session
+from ptmd.const import SETTINGS_FILE_PATH, CONFIG
+from ptmd.logger import LOGGER
 
 
 def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str, User], dict[str, Organisation]]:
@@ -35,8 +40,31 @@ def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str, User],
             {org.name: org.gdrive_id for org in organisations})
 
 
+def create_config_file():
+    """ A function to create the Google Drive setting file in case it doesn't exist """
+    settings_data = {
+        'client_config_backend': 'settings',
+        'client_config': {
+            'client_id': CONFIG['GOOGLE_DRIVE_CLIENT_ID'],
+            'client_secret': CONFIG['GOOGLE_DRIVE_CLIENT_SECRET'],
+        },
+        'save_credentials': True,
+        'save_credentials_backend': 'file',
+        'save_credentials_file': CONFIG['GOOGLE_DRIVE_CREDENTIALS_FILEPATH'],
+        'get_refresh_token': True,
+        'oauth_scope': ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.install']
+    }
+    if not exists(SETTINGS_FILE_PATH):
+        LOGGER.info('Creating settings file')
+        with open(SETTINGS_FILE_PATH, 'w') as settings_file:
+            dump(settings_data, settings_file, default_flow_style=False)
+    return settings_data
+
+
 def init():
     """ Initialize the API """
+    LOGGER.info('Initializing the application')
+    create_config_file()
     session = get_session()
     initialize(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}], session=session)
     session.close()

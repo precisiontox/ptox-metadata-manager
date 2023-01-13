@@ -4,3 +4,4 @@ from .organisation import Organisation
 from .user import User
 from .chemical import Chemical
 from .organism import Organism
+from .file import File
