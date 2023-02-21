@@ -45,13 +45,16 @@ GOOGLE_DRIVE_CLIENT_SECRET=Your_google_api_secret
 GOOGLE_DRIVE_CREDENTIALS_FILEPATH=Absolute_path_to_google_drive_credentials_file
 GOOGLE_DRIVE_SETTINGS_FILEPATH=Absolute_path_to_google_drive_settings_file
 ```
-- `SQLALCHEMY_DATABASE_URL`: this is the URL to your database. You can use sqlite, postgres, mysql, etc.
+- `SQLALCHEMY_DATABASE_URL`: this is the URL to your database. You can use sqlite, postgres, mysql, etc., e.g.
+  sqlite:///ptmd.db, and will need to change this before running the application.
 - `SQLALCHEMY_SECRET_KEY`: this is the secret key used to encrypt hashes and other sensitive data.
 - `PTOX_API_ENDPOINT`: the URL to the graphQL api endpoint to get chemicals and organisms.
 - `GOOGLE_DRIVE_CLIENT_ID`: the Google Drive client ID obtainable in your Google Cloud Console (see above).
 - `GOOGLE_DRIVE_CLIENT_SECRET`: the Google Drive client secret obtaining in your Google Cloud Console (see above).
-- `GOOGLE_DRIVE_CREDENTIALS_FILEPATH`: the path where to store the credentials file created during first boot.
-- `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first boot.
+- `GOOGLE_DRIVE_CREDENTIALS_FILEPATH`: the path where to store the credentials file created during first boot 
+  (e.g. credentials.json).
+- `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first boot 
+  e.g. settings.yaml - a .yml suffix must not be used).
 
 You can now run the following command and accept the application in your browser. This is done once only during first boot.
 It will download the Google API credentials file and generate the database once you are done.
