@@ -148,7 +148,11 @@ class Inputs2Dataframes(InputsToDataframesInterface):
             self.__exposure_conditions.append(ExposureCondition(**exposure))
             return None
 
-    def __validate_exposure_conditions(self, names):
+    def __validate_exposure_conditions(self, names: list[str]) -> None:
+        """ Validate the exposure conditions to prevent duplicate chemicals.
+
+        :param names: The chemical names.
+        """
         for chemical in names:
             if chemical in self.__chemicals_cache:
                 raise ValueError("The chemical %s is already in the exposure conditions." % chemical)
