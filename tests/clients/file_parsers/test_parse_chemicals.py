@@ -64,4 +64,3 @@ class TestCompound(TestCase):
         with self.assertRaises(ValueError) as context:
             Compound(**data)
         self.assertEqual(str(context.exception), 'formula cannot be nan for compound Acetic acid')
-
