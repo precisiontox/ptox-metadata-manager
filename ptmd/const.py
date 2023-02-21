@@ -17,6 +17,7 @@ INPUT_SCHEMA_PATH: str = path.join(SCHEMAS_PATH, 'inputs2dataframes.json')
 EXPOSURE_SCHEMA_PATH: str = path.join(SCHEMAS_PATH, 'exposure_schema.json')
 PARTNERS_LONGNAME_PATH: str = path.join(DATA_PATH, 'data', 'partners.json')
 CHEMICALS_FILEPATH: str = path.join(DATA_PATH, 'data', 'chemicals.xlsx')
+ORGANISMS_FILEPATH: str = path.join(DATA_PATH, 'data', 'organisms.json')
 
 # Load the schemas controlling the input data
 with open(INPUT_SCHEMA_PATH, 'r') as f:

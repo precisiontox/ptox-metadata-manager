@@ -46,14 +46,13 @@ class MockUser:
 
 @patch('ptmd.utils.GoogleDriveConnector', return_value=MockGoogleDriveConnector)
 @patch('ptmd.utils.boot', return_value=({}, {}, {}, {}))
-@patch('ptmd.utils.pull_organisms_from_ptox_db', return_value=[])
 class TestUtils(TestCase):
 
-    def test_init_no_user(self, mock_organisms, mock_boot, mock_gdc):
+    def test_init_no_user(self, mock_boot, mock_gdc):
         mocked_session = MockedSession()
         self.assertEqual(initialize(users=[], session=mocked_session), ({}, {}))
 
-    def test_init_with_users(self, mock_organisms, mock_boot, mock_gdc):
+    def test_init_with_users(self, mock_boot, mock_gdc):
         def return_users(*args, **kwargs):
             return [MockUser()]
 
