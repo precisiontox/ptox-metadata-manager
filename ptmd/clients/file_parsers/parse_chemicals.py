@@ -1,3 +1,7 @@
+""" A module to parse chemicals from XLSX file.
+
+@Author: D. Batista (Terazus)
+"""
 from math import isnan
 
 from pandas import read_excel, DataFrame
@@ -7,8 +11,16 @@ from ptmd.logger import LOGGER
 
 
 class Compound:
+    """ A class to represent a chemical compound.
+
+    :param ptx_code: the ptx code of the compound.
+    :param name: the common name of the compound.
+    :param formula: the chemical formula of the compound.
+    :param cas: the CAS number of the compound.
+    """
 
     def __init__(self, ptx_code: float or str, name: str, formula: str, cas: str) -> None:
+        """ Constructor method. """
         self.common_name: str = name
         self.ptx_code: int = ptx_code
         self.cas: str = cas
@@ -16,18 +28,34 @@ class Compound:
 
     @property
     def common_name(self) -> str:
+        """ Getter for thhe common name of the compound.
+
+        :return: the common name of the compound.
+        """
         return self.__common_name
 
     @common_name.setter
     def common_name(self, value: str) -> None:
+        """ Setter for the common name of the compound.
+
+        :param value: the common name of the compound.
+        """
         self.__common_name = self.clean_string(value)
 
     @property
     def ptx_code(self) -> int:
+        """ Getter for the ptx code of the compound.
+
+        :return: the ptx code of the compound.
+        """
         return self.__ptx_code
 
     @ptx_code.setter
     def ptx_code(self, value: str or float) -> None:
+        """ Setter for the ptx code of the compound.
+
+        @param value: the ptx code of the compound.
+        """
         if type(value).__name__ == 'float' and isnan(value):
             raise ValueError('ptx_code cannot be nan for compound %s' % self.__common_name)
         if value == '-':
@@ -36,27 +64,48 @@ class Compound:
         self.__ptx_code = value
 
     @property
-    def cas(self):
+    def cas(self) -> str:
+        """ Getter for the CAS number of the compound.
+
+        :return: the CAS number of the compound.
+        """
         return self.__cas
 
     @cas.setter
-    def cas(self, value):
+    def cas(self, value: str or float) -> None:
+        """ Setter for the CAS number of the compound.
+
+        @param value: the CAS number of the compound.
+        """
         if type(value).__name__ == 'float' and isnan(value):
             raise ValueError('CAS cannot be nan for compound %s' % self.__common_name)
         self.__cas = self.clean_string(value)
 
     @property
-    def formula(self):
+    def formula(self) -> str:
+        """ Getter for the chemical formula of the compound.
+
+        :return: the chemical formula of the compound.
+        """
         return self.__formula
 
     @formula.setter
-    def formula(self, value):
+    def formula(self, value: str or float):
+        """ Setter for the chemical formula of the compound.
+
+        @param value: the chemical formula of the compound.
+        """
         if type(value).__name__ == 'float' and isnan(value):
             raise ValueError('formula cannot be nan for compound %s' % self.__common_name)
         self.__formula = self.clean_string(value)
 
     @staticmethod
     def clean_string(value: str) -> str:
+        """ Cleans a string from unwanted characters and strip whitespaces before and after the string.
+
+        :param value: the string to be cleaned.
+        :return: the cleaned string.
+        """
         val: str = value.replace('\n', '')
         if 'New:' in val:
             val = val.split('New:')[-1]
@@ -66,7 +115,8 @@ class Compound:
             val = val.split('·')[0]
         return val.strip()
 
-    def __iter__(self):
+    def __iter__(self) -> None:
+        """ Iterator method used to convert the object into a dictionary. """
         data = {
             'common_name': self.__common_name,
             'ptx_code': self.__ptx_code,
@@ -78,6 +128,10 @@ class Compound:
 
 
 def parse_chemicals() -> list[dict]:
+    """ Pulls the chemicals from the XLSX files and validate them with the Compound class.
+
+    :return: a list of chemicals from the ptox database.
+    """
     chemicals: list[Compound] = []
     chemicals_dataframe: DataFrame = read_excel(CHEMICALS_FILEPATH, engine='openpyxl')
 

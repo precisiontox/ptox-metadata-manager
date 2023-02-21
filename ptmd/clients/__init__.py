@@ -6,5 +6,4 @@ necessary directories/folders and files.
 """
 
 from .gdrive import GoogleDriveConnector
-from .pretox import pull_chemicals_from_ptox_db, pull_organisms_from_ptox_db
 from .file_parsers import parse_chemicals, parse_organisms
