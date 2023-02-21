@@ -9,11 +9,16 @@ from dotenv import dotenv_values
 ReplicateBlankRange: namedtuple = namedtuple('ReplicateBlankRange', ['min', 'max'])
 TimepointsRange: namedtuple = namedtuple('TimepointsRange', ['min', 'max'])
 
+# Set files and folders path of important resources
 ROOT_PATH: str = path.abspath(path.dirname(__file__))
-INPUT_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'inputs2dataframes.json')
-EXPOSURE_SCHEMA_PATH: str = path.join(ROOT_PATH, 'resources', 'schemas', 'exposure_schema.json')
-PARTNERS_LONGNAME_PATH: str = path.join(ROOT_PATH, 'resources', 'data', 'partners.json')
+DATA_PATH: str = path.join(ROOT_PATH, 'resources')
+SCHEMAS_PATH: str = path.join(DATA_PATH, 'schemas')
+INPUT_SCHEMA_PATH: str = path.join(SCHEMAS_PATH, 'inputs2dataframes.json')
+EXPOSURE_SCHEMA_PATH: str = path.join(SCHEMAS_PATH, 'exposure_schema.json')
+PARTNERS_LONGNAME_PATH: str = path.join(DATA_PATH, 'data', 'partners.json')
+CHEMICALS_FILEPATH: str = path.join(DATA_PATH, 'data', 'chemicals.xlsx')
 
+# Load the schemas controlling the input data
 with open(INPUT_SCHEMA_PATH, 'r') as f:
     INPUT_SCHEMA: dict = loads(f.read())
 with open(EXPOSURE_SCHEMA_PATH, 'r') as f:
@@ -21,6 +26,7 @@ with open(EXPOSURE_SCHEMA_PATH, 'r') as f:
 with open(PARTNERS_LONGNAME_PATH, 'r') as f:
     PARTNERS_LONGNAME: dict = loads(f.read())
 
+# Get the requirements of the input data extracted from the schemas
 ALLOWED_PARTNERS: list[str] = INPUT_SCHEMA['properties']['partner']['enum']
 ALLOWED_EXPOSURE_BATCH: str = INPUT_SCHEMA['properties']['exposure_batch']['pattern']
 EXPOSURE_BATCH_MAX_LENGTH: int = INPUT_SCHEMA['properties']['exposure_batch']['maxLength']
@@ -33,6 +39,7 @@ ALLOWED_VEHICLES: list[str] = INPUT_SCHEMA['properties']['vehicle']['enum']
 TIMEPOINTS_RANGE: namedtuple = TimepointsRange(INPUT_SCHEMA['properties']['timepoints']['minimum'],
                                                INPUT_SCHEMA['properties']['timepoints']['maximum'])
 
+# Get some general mapping
 DOSE_MAPPING: dict = {
     "0": "Z",
     "BMD10": "L",
@@ -47,7 +54,6 @@ TIME_POINT_MAPPING: dict = {
     "TP4": "D",
     "TP5": "E",
 }
-
 SAMPLE_SHEET_COLUMNS: list[str] = [
     "Shipment identifier",
     "Label tube / identifier",
@@ -63,7 +69,6 @@ SAMPLE_SHEET_COLUMNS: list[str] = [
     "time point",
     "PrecisionTox short identifier"
 ]
-
 GENERAL_SHEET_COLUMNS: list[str] = [
     "partner",
     "organism",
