@@ -13,6 +13,14 @@ def parse_organisms(filepath: str = ORGANISMS_FILEPATH) -> list[dict]:
     :param filepath: path to the organisms file.
     :return: a list of organisms obtained from the file.
     """
+    organisms: list = []
     with open(filepath, 'r') as f:
-        organisms = load(f)
-    return [organism for organism in organisms['organism'] if organism['ptox_biosystem_code'] != '-']
+        raw_organisms = load(f)['organisms']
+    for organism in raw_organisms:
+        if organism['ptox_biosystem_name'] != '-' and organism['ptox_biosystem_code'] != '-':
+            organisms.append({
+                'scientific_name': organism['scientific_name'],
+                'ptox_biosystem_name': organism['ptox_biosystem_name'],
+                'ptox_biosystem_code': organism['ptox_biosystem_code']
+            })
+    return organisms

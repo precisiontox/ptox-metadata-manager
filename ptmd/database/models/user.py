@@ -23,7 +23,7 @@ class User(Base):
     password: str = db.Column(db.String(300), nullable=False)
 
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=True)
-    organisation: db.relationship = db.relationship('Organisation', backref=db.backref('users'), lazy='subquery')
+    organisation = db.relationship('Organisation', backref=db.backref('users'), lazy='subquery')
 
     def __init__(self, username: str, password: str,
                  organisation: Organisation or None = None,

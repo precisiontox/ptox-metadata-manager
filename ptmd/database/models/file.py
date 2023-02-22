@@ -30,11 +30,11 @@ class File(Base):
 
     # Relationships
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=False)
-    organisation: Organisation = db.relationship(Organisation, backref=db.backref('files'), lazy='subquery')
+    organisation = db.relationship(Organisation, backref=db.backref('files'), lazy='subquery')
     author_id: int = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    author: User = db.relationship(User, backref=db.backref('files'), lazy='subquery')
+    author = db.relationship(User, backref=db.backref('files'), lazy='subquery')
     organism_id: int = db.Column(db.Integer, db.ForeignKey('organism.organism_id'), nullable=False)
-    organism: Organism = db.relationship(Organism, backref=db.backref('files'), lazy='subquery')
+    organism = db.relationship(Organism, backref=db.backref('files'), lazy='subquery')
 
     def __init__(
             self,
