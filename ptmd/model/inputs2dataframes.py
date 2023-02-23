@@ -2,6 +2,8 @@
 
 @author: Terazus (D. Batista)
 """
+from __future__ import annotations
+
 from os import remove
 from re import match
 from typing import List
@@ -47,12 +49,12 @@ class Inputs2Dataframes(InputsToDataframesInterface):
                  replicate4exposure: int,
                  replicate4control: int,
                  replicate_blank: int,
-                 start_date: str or datetime,
-                 end_date: str or datetime,
+                 start_date: str | datetime,
+                 end_date: str | datetime,
                  timepoints: int,
                  vehicle: str,
                  timepoint_zero: bool = False,
-                 exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
+                 exposure_conditions: List[dict] | List[ExposureCondition] = None) -> None:
         """ The harvester constructor """
         self.__chemicals_cache: list[str] = []
 
@@ -63,13 +65,13 @@ class Inputs2Dataframes(InputsToDataframesInterface):
         self.replicate4exposure: int = replicate4exposure
         self.replicate4control: int = replicate4control
         self.replicate_blank: int = replicate_blank
-        self.start_date: str or datetime = start_date
-        self.end_date: str or datetime = end_date
+        self.start_date: str | datetime = start_date
+        self.end_date: str | datetime = end_date
         self.timepoints: int = timepoints
         self.vehicle: str = vehicle
         self.timepoint_zero: bool = timepoint_zero
         self.exposure_conditions: list[ExposureCondition] = exposure_conditions if exposure_conditions else []
-        self.file_path: str or None = None
+        self.file_path: str | None = None
 
     @property
     def partner(self) -> str:
@@ -132,7 +134,7 @@ class Inputs2Dataframes(InputsToDataframesInterface):
         for exposure_condition in value:
             self.add_exposure_condition(exposure_condition)
 
-    def add_exposure_condition(self, exposure: dict or ExposureCondition) -> None:
+    def add_exposure_condition(self, exposure: dict | ExposureCondition) -> None:
         """ Add an exposure condition.
 
         :param exposure: The exposure condition.

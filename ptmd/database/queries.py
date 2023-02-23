@@ -85,7 +85,7 @@ def get_allowed_organisms() -> list[str]:
     return allowed_organism
 
 
-def get_organism_code(organism_name: str) -> str or None:
+def get_organism_code(organism_name: str) -> str | None:
     """ Get the organism code from the organism name."""
     session: sqlsession = get_session()
     organism = session.query(Organism).filter_by(ptox_biosystem_name=organism_name).first()

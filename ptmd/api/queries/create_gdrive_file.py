@@ -2,6 +2,8 @@
 
 @author: D. Batista (Terazus)
 """
+from __future__ import annotations
+
 from os import path
 
 from flask import request
@@ -19,17 +21,17 @@ class CreateGDriveFile:
 
     def __init__(self):
         """ Constructor of the class. Contains the user input. """
-        self.__partner: str or None = request.json.get("partner", None)
-        self.__organism: str or None = request.json.get("organism", None)
-        self.__exposure_batch: str or None = request.json.get("exposure_batch", None)
-        self.__replicate_blank: int or None = request.json.get("replicate_blank", None)
-        self.__start_date: str or None = request.json.get("start_date", None)
-        self.__end_date: str or None = request.json.get("end_date", None)
-        self.__exposure_conditions: list[dict[str, list[str] or str]] = request.json.get("exposure_conditions", None)
-        self.__replicate4control: int or None = request.json.get("replicate4control", None)
-        self.__replicate4exposure: int or None = request.json.get("replicate4exposure", None)
-        self.__timepoints: int or None = request.json.get("timepoints", None)
-        self.__vehicle: str or None = request.json.get("vehicle", None)
+        self.__partner: str | None = request.json.get("partner", None)
+        self.__organism: str | None = request.json.get("organism", None)
+        self.__exposure_batch: str | None = request.json.get("exposure_batch", None)
+        self.__replicate_blank: int | None = request.json.get("replicate_blank", None)
+        self.__start_date: str | None = request.json.get("start_date", None)
+        self.__end_date: str | None = request.json.get("end_date", None)
+        self.__exposure_conditions: list[dict[str, list[str] | str]] = request.json.get("exposure_conditions", None)
+        self.__replicate4control: int | None = request.json.get("replicate4control", None)
+        self.__replicate4exposure: int | None = request.json.get("replicate4exposure", None)
+        self.__timepoints: int | None = request.json.get("timepoints", None)
+        self.__vehicle: str | None = request.json.get("vehicle", None)
 
     def generate_file(self, session: Session, user: int) -> dict[str, str]:
         """ Method to process the user input and create a file in the Google Drive.

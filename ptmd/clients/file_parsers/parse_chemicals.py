@@ -2,6 +2,8 @@
 
 @Author: D. Batista (Terazus)
 """
+from __future__ import annotations
+
 from math import isnan
 
 from pandas import read_excel, DataFrame
@@ -19,7 +21,7 @@ class Compound:
     :param cas: the CAS number of the compound.
     """
 
-    def __init__(self, ptx_code: float or str, name: str, formula: str, cas: str) -> None:
+    def __init__(self, ptx_code: float | str | int, name: str, formula: str, cas: str) -> None:
         """ Constructor method. """
         self.common_name: str = name
         self.ptx_code: int = ptx_code
@@ -51,7 +53,7 @@ class Compound:
         return self.__ptx_code
 
     @ptx_code.setter
-    def ptx_code(self, value: str or float) -> None:
+    def ptx_code(self, value: str | float) -> None:
         """ Setter for the ptx code of the compound.
 
         @param value: the ptx code of the compound.
@@ -72,7 +74,7 @@ class Compound:
         return self.__cas
 
     @cas.setter
-    def cas(self, value: str or float) -> None:
+    def cas(self, value: str | float) -> None:
         """ Setter for the CAS number of the compound.
 
         @param value: the CAS number of the compound.
@@ -90,7 +92,7 @@ class Compound:
         return self.__formula
 
     @formula.setter
-    def formula(self, value: str or float):
+    def formula(self, value: str | float):
         """ Setter for the chemical formula of the compound.
 
         @param value: the chemical formula of the compound.
@@ -139,7 +141,7 @@ def parse_chemicals() -> list[dict]:
         name: str = compound.Compound
         formula: str = compound.Formula
         cas: str = compound._5
-        ptx_code: str or float = compound._2
+        ptx_code: str | float = compound._2
         try:
             chemicals.append(Compound(ptx_code=ptx_code, name=name, formula=formula, cas=cas))
         except Exception as error:

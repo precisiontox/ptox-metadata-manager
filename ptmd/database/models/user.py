@@ -26,7 +26,7 @@ class User(Base):
     organisation = db.relationship('Organisation', backref=db.backref('users'), lazy='subquery')
 
     def __init__(self, username: str, password: str,
-                 organisation: Organisation or None = None,
+                 organisation: Organisation | None = None,
                  session: sqlsession = None) -> None:
         """ Constructor for the User class. Let's use encode the password with bcrypt before committing it to the
         database. """
