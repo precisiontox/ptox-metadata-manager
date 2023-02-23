@@ -1,0 +1,37 @@
+The route to create a new user. Requires to be admin.
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: Body
+    in: body
+    required: true
+    schema:
+      type: object
+      $ref: '#/definitions/New User'
+definitions:
+  New User:
+    type: object
+    properties:
+      username:
+        type: string
+        description: Username of the account to create
+      password:
+        type: string
+        description: The password for that account
+      confirm_password:
+        type: string
+        description: The new password confirmation
+      organisation:
+        type: string
+        description: The organisation of the user
+responses:
+  200:
+    description: The user data with that JWT token
+    properties:
+      changed:
+        type: boolean
+        description: True if the password was changed
