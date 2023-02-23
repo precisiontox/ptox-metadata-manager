@@ -2,6 +2,8 @@
 
 @author: D. Batista (Terazus)
 """
+from __future__ import annotations
+
 from passlib.hash import bcrypt
 from sqlalchemy.orm import session as sqlsession
 
