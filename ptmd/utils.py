@@ -8,7 +8,7 @@ from os.path import exists
 from sqlalchemy.orm import session as sqlsession
 from yaml import dump
 
-from ptmd.clients import GoogleDriveConnector, pull_chemicals_from_ptox_db, pull_organisms_from_ptox_db
+from ptmd.clients import GoogleDriveConnector, parse_chemicals, parse_organisms
 from ptmd.database import boot, User, Organisation, get_session
 from ptmd.const import SETTINGS_FILE_PATH, CONFIG
 from ptmd.logger import LOGGER
@@ -25,8 +25,8 @@ def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str, User],
     connector = GoogleDriveConnector()
     users_from_database = session.query(User).all()
     if not users_from_database:
-        chemicals_source = pull_chemicals_from_ptox_db()
-        organisms = pull_organisms_from_ptox_db()
+        chemicals_source = parse_chemicals()
+        organisms = parse_organisms()
         folders = connector.create_directories()
         organisations, users, chemicals, organisms = boot(organisations=folders['partners'],
                                                           chemicals=chemicals_source,

@@ -100,6 +100,34 @@ class TestInputsToDataframesErrors(TestCase):
         self.assertEqual("exposure must be a list of ExposureCondition or dict but got list "
                          "with value ['foo', 'bar']", str(context.exception))
 
+    def test_constructor_errors_with_exposure_conditions_non_unique_chemical_names(self,
+                                                                                   mock_get_allowed_chemicals,
+                                                                                   mock_allowed_organisms):
+        exposure_conditions = [{'chemicals_name': ['chemical1', 'chemical1'], 'dose': "BMD10"}]
+        with self.assertRaises(ValueError) as context:
+            Inputs2Dataframes(partner=PARTNER,
+                              organism=ORGANISM,
+                              exposure_conditions=exposure_conditions,
+                              exposure_batch=EXPOSURE_BATCH,
+                              replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                              replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
+                              start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("The chemical chemical1 is already in the exposure conditions.", str(context.exception))
+
+        exposure_conditions = [
+            {'chemicals_name': ['chemical1'], 'dose': "BMD10"},
+            {'chemicals_name': ['chemical1'], 'dose': "BMD10"}
+        ]
+        with self.assertRaises(ValueError) as context:
+            Inputs2Dataframes(partner=PARTNER,
+                              organism=ORGANISM,
+                              exposure_conditions=exposure_conditions,
+                              exposure_batch=EXPOSURE_BATCH,
+                              replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                              replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
+                              start_date=START_DATE, end_date=END_DATE, timepoints=TIMEPOINTS)
+        self.assertEqual("The chemical chemical1 is already in the exposure conditions.", str(context.exception))
+
     def test_constructor_errors_with_exposure_batch(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
             Inputs2Dataframes(partner=PARTNER, organism=ORGANISM, exposure_batch=1,
@@ -253,12 +281,16 @@ class TestInputsToDataframesErrors(TestCase):
         self.assertIsInstance(harvester.start_date, datetime)
 
     def test_add_exposure_batch(self, mock_get_allowed_chemicals, mock_allowed_organisms):
-        exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
         harvester = make_harvester()
-        harvester.add_exposure_condition(EXPOSURE_CONDITIONS[0])
-        self.assertEqual([*exposure_conditions, *exposure_conditions], harvester.exposure_conditions)
-        harvester.add_exposure_condition(exposure_conditions[0])
-        self.assertEqual([*exposure_conditions, *exposure_conditions, *exposure_conditions],
+        exposure_condition_1 = ExposureCondition(chemicals_name=['chemical2'], dose='BMD10')
+        exposure_conditions = [ExposureCondition(**EXPOSURE_CONDITIONS[0])]
+
+        harvester.add_exposure_condition(exposure_condition_1)
+        self.assertEqual([*exposure_conditions, exposure_condition_1], harvester.exposure_conditions)
+
+        exposure_condition_2 = ExposureCondition(chemicals_name=['chemical3'], dose='BMD10')
+        harvester.add_exposure_condition(exposure_condition_2)
+        self.assertEqual([*exposure_conditions, exposure_condition_1, exposure_condition_2],
                          harvester.exposure_conditions)
         with self.assertRaises(ValueError) as context:
             harvester.add_exposure_condition('foo')

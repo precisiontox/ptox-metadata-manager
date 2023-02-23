@@ -4,7 +4,7 @@ __pycache__
 .coverage
 docs/build/
 commit.py
-ptmd/resources/.env
+ptmd/resources/.env.prod
 venv*/
 
 ptmd/clients/gdrive/credentials.txt
@@ -14,3 +14,6 @@ ptmd/resources/ptmd.db
 ptmd/resources/credential.json
 gdrive.yaml
 credentials.json
+
+.env
+.env.prod

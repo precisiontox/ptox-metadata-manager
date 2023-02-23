@@ -88,5 +88,13 @@ docstr-coverage ptmd/ --fail-under=100
 .\docs\make.bat html
 ```
 
+
+## Verify type hints
+You will need the development dependencies installed to verify the type hints.
+```shell
+mypy .\ptmd --disallow-untyped-calls  --disallow-incomplete-defs --follow-imports=skip  --check-untyped-defs
+```
+
+
 ## Authors:
 -  [B. Dominique](https://github.com/terazus), University of Oxford.

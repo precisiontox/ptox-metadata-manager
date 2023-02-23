@@ -54,6 +54,8 @@ class Inputs2Dataframes(InputsToDataframesInterface):
                  timepoint_zero: bool = False,
                  exposure_conditions: List[dict] or List[ExposureCondition] = None) -> None:
         """ The harvester constructor """
+        self.__chemicals_cache: list[str] = []
+
         self.allowed_organisms: list[str] = get_allowed_organisms()
         self.partner: str = partner
         self.organism: str = organism
@@ -135,13 +137,26 @@ class Inputs2Dataframes(InputsToDataframesInterface):
 
         :param exposure: The exposure condition.
         """
+        if not isinstance(exposure, (dict, ExposureCondition)):
+            raise ValueError('The exposure condition must be a dict or an ExposureCondition object')
+        chemicals = exposure.get('chemicals_name', []) if isinstance(exposure, dict) else exposure.chemicals_name
+        self.__validate_exposure_conditions(chemicals)
         if isinstance(exposure, ExposureCondition):
             self.__exposure_conditions.append(exposure)
             return None
         elif isinstance(exposure, dict):
             self.__exposure_conditions.append(ExposureCondition(**exposure))
             return None
-        raise ValueError('The exposure condition must be a dict or an ExposureCondition object')
+
+    def __validate_exposure_conditions(self, names: list[str]) -> None:
+        """ Validate the exposure conditions to prevent duplicate chemicals.
+
+        :param names: The chemical names.
+        """
+        for chemical in names:
+            if chemical in self.__chemicals_cache:
+                raise ValueError("The chemical %s is already in the exposure conditions." % chemical)
+            self.__chemicals_cache.append(chemical)
 
     @property
     def exposure_batch(self) -> str:
