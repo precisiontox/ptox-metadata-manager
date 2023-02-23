@@ -3,6 +3,7 @@ create_users(). login_user() and get_allowed_chemicals().
 
 :author: D. Batista (Terazus)
 """
+from __future__ import annotations
 
 from datetime import timedelta
 from ptmd.logger import LOGGER
