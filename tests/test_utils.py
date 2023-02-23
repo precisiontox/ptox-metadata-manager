@@ -69,7 +69,8 @@ class TestAPIUtilities(TestCase):
 
     @patch('ptmd.utils.initialize')
     @patch('ptmd.utils.get_session', return_value=Session())
-    def test_init(self, mock_get_session, mock_init):
+    @patch('ptmd.utils.create_config_file', return_value={})
+    def test_init(self, create_config_file_dump, mock_get_session, mock_init):
         init()
         mock_init.assert_called_once()
         mock_init.assert_called_with(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}],

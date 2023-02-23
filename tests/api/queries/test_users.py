@@ -34,21 +34,22 @@ MOCKED_FAILING_USER = None
 
 
 @patch('ptmd.api.queries.users.get_session', return_value=session)
-class MyTestCase(TestCase):
+@patch('ptmd.api.queries.utils.get_session', return_value=session)
+class TestUser(TestCase):
     session: Session or None = None
 
     def setUp(self) -> None:
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
 
-    def test_login_failure(self, mock_get_session):
+    def test_login_failure(self, mock_get_session_1, mock_get_session_2):
         with app.test_client() as client:
             response = client.post('/api/login', data=dumps({}), headers=HEADERS)
             self.assertEqual(response.json, {"msg": "Missing username or password"})
             self.assertEqual(response.status_code, 400)
 
     @patch('ptmd.api.queries.users.login_user', return_value=({"access_token": "hello !"}, 200))
-    def test_login_success(self, mock_login_user, mock_get_session):
+    def test_login_success(self, mock_login_user, mock_get_session_1, mock_get_session_2):
         pwd = "123"
         with app.test_client() as client:
             response = client.post('/api/login', headers=HEADERS,
@@ -56,7 +57,7 @@ class MyTestCase(TestCase):
             self.assertEqual(response.json, mock_login_user.return_value[0])
             self.assertEqual(response.status_code, 200)
 
-    def test_get_me(self, mock_get_session):
+    def test_get_me(self, mock_get_session_1, mock_get_session_2):
         create_user()
         with app.test_client() as client:
             logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
@@ -68,9 +69,9 @@ class MyTestCase(TestCase):
             jwt = create_access_token(identity=2)
             response = client.get('/api/me', headers={'Authorization': f'Bearer {jwt}'})
             self.assertEqual(response.status_code, 401)
-            self.assertEqual(response.json, {'msg': 'Invalid token'})
+            self.assertEqual(response.json, {'msg': 'Error loading the user 2'})
 
-    def test_change_pwd(self, mock_get_session):
+    def test_change_pwd(self, mock_get_session_1, mock_get_session_2):
         create_user()
         with app.test_client() as client:
             logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
@@ -103,7 +104,7 @@ class MyTestCase(TestCase):
             self.assertEqual(response.status_code, 200)
 
     @patch('ptmd.api.queries.utils.get_current_user', return_value=MOCKED_WORKING_USER)
-    def test_create_user_success(self, mock_get_session, mock_get_current_user):
+    def test_create_user_success(self, mock_get_session_1, mock_get_session_2, mock_get_current_user):
         create_user(username='admin')
         with app.test_client() as client:
             response = client.post('/api/login', headers=HEADERS,
@@ -121,7 +122,7 @@ class MyTestCase(TestCase):
             self.assertEqual(created_user.status_code, 200)
 
     @patch('ptmd.api.queries.utils.get_current_user', return_value=None)
-    def test_create_user_unauthorized(self, mock_get_session, mock_get_current_user):
+    def test_create_user_unauthorized(self, mock_get_session_1, mock_get_session_2, mock_get_current_user):
         create_user(username='admin')
         with app.test_client() as client:
             response = client.post('/api/login', headers=HEADERS,
@@ -133,7 +134,7 @@ class MyTestCase(TestCase):
             self.assertEqual(created_user.status_code, 401)
 
     @patch('ptmd.api.queries.utils.get_current_user', return_value=MOCKED_WORKING_USER)
-    def test_create_user_failures(self, mock_get_session, mock_get_current_user):
+    def test_create_user_failures(self, mock_get_session_1, mock_get_session_2, mock_get_current_user):
         create_user(username='admin')
         with app.test_client() as client:
             response = client.post('/api/login', headers=HEADERS,

@@ -95,10 +95,7 @@ def get_me() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    try:
-        session: Session = get_session()
-        user: dict = dict(session.query(User).filter_by(id=get_jwt()['sub']).first())
-        session.close()
-        return jsonify(user), 200
-    except Exception:
-        return jsonify({"msg": "Invalid token"}), 401
+    session: Session = get_session()
+    user: dict = dict(session.query(User).filter_by(id=get_jwt()['sub']).first())
+    session.close()
+    return jsonify(user), 200

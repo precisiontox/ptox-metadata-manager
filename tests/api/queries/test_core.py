@@ -3,6 +3,7 @@ from unittest.mock import patch
 from json import dumps
 
 from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker, Session
 from pydrive2.auth import GoogleAuth
 
@@ -10,7 +11,7 @@ from ptmd.api import app
 from ptmd.database import Base, User, Organisation, Organism, Chemical
 
 
-engine = create_engine("sqlite:///:memory:")
+engine = create_engine("sqlite://", poolclass=StaticPool)
 Base.metadata.create_all(engine)
 session = sessionmaker(bind=engine)()
 HEADERS = {'Content-Type': 'application/json'}
@@ -41,6 +42,7 @@ class MockGoogleAuth(GoogleAuth):
 
 @patch('ptmd.api.queries.core.get_session', return_value=session)
 @patch('ptmd.api.queries.users.get_session', return_value=session)
+@patch('ptmd.api.queries.utils.get_session', return_value=session)
 class TestCoreQueries(TestCase):
     session: Session or None = None
 
@@ -56,7 +58,7 @@ class TestCoreQueries(TestCase):
     @patch('ptmd.model.inputs2dataframes.get_chemical_code_mapping', return_value={'chemical1': '001'})
     def test_create_gdrive_file(self, mock_chemicals_mapping, mock_organism_code,
                                 mock_organism, mock_chem, mock_upload, mock_auth,
-                                mock_get_session_1, mock_get_session_2):
+                                mock_get_session_1, mock_get_session_2, mock_get_session_3):
         organisation = {'name': 'UOB', 'gdrive_id': '456'}
         new_organisation = Organisation(**organisation)
         session.add(new_organisation)
@@ -95,7 +97,7 @@ class TestCoreQueries(TestCase):
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': 'a'}})
 
-    def test_get_organisms(self, mock_get_session_1, mock_get_session_2):
+    def test_get_organisms(self, mock_get_session_1, mock_get_session_2, mock_get_session_3):
         create_user()
         org = {'ptox_biosystem_name': 'organism1', 'scientific_name': 'org1', "ptox_biosystem_code": "A"}
         session.add(Organism(**org))
@@ -111,7 +113,7 @@ class TestCoreQueries(TestCase):
             self.assertEqual(data['data'], [expected_organism])
             self.assertEqual(response.status_code, 200)
 
-    def test_get_organisations(self, mock_get_session_1, mock_get_session_2):
+    def test_get_organisations(self, mock_get_session_1, mock_get_session_2, mock_get_session_3):
         create_user()
         organisation = {'name': 'UOB', 'gdrive_id': '456', 'longname': 'University of Birmingham', 'files': []}
         session.add(Organisation(**organisation))
@@ -124,7 +126,7 @@ class TestCoreQueries(TestCase):
             data = response.json
             self.assertEqual(data['data'], [{**organisation, 'organisation_id': 1}])
 
-    def test_get_chemicals(self, mock_get_session_1, mock_get_session_2):
+    def test_get_chemicals(self, mock_get_session_1, mock_get_session_2, mock_get_session_3):
         create_user()
         chemical = {'common_name': 'chemical1', 'name_hash_id': '123', 'formula': 'C1H1', "ptx_code": 1}
         session.add(Chemical(**chemical))
