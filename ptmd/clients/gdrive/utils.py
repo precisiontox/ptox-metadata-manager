@@ -2,6 +2,8 @@
 
 @author: D. Batista (Terazus)
 """
+from __future__ import annotations
+
 from pydrive2.drive import GoogleDrive, GoogleDriveFileList
 
 from .const import MIME_TYPE_FOLDER
@@ -10,7 +12,7 @@ from .const import MIME_TYPE_FOLDER
 def content_exist(google_drive: GoogleDrive,
                   folder_name: str,
                   type_: str = "folder",
-                  parent: str or int = 'root') -> dict[str, str] or None:
+                  parent: str | int = 'root') -> dict[str, str] | None:
     """ Finds if the directory already exists in the drive and in the given directory.
 
     :param google_drive: The GoogleDrive object.

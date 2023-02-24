@@ -4,4 +4,5 @@
 """
 
 from .create_gdrive_file import CreateGDriveFile
-from .core import get_organisms, get_chemicals, change_password, create_gdrive_file, get_me, login, get_organisations
+from .core import get_organisms, get_chemicals, create_gdrive_file, get_organisations
+from .users import create_user, change_password, get_me, login

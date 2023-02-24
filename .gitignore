@@ -17,3 +17,4 @@ credentials.json
 
 .env
 .env.prod
+envv/*

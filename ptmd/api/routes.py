@@ -12,7 +12,8 @@ from ptmd.const import ROOT_PATH
 from .queries import (
     login as login_user, change_password,
     get_me, get_organisms, get_chemicals, get_organisations,
-    create_gdrive_file
+    create_gdrive_file,
+    create_user
 )
 
 
@@ -72,3 +73,11 @@ def organisations():
 def change_pwd():
     """ Change the password of the current user """
     return change_password()
+
+
+@app.route('/api/user', methods=['POST'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'create_user.yml'))
+@jwt_required()
+def user():
+    """ Create a new user """
+    return create_user()

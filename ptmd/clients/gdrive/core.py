@@ -3,6 +3,8 @@ and upload the files to the drive.
 
 @author: D. Batista (Terazus)
 """
+from __future__ import annotations
+
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
@@ -15,7 +17,7 @@ from .utils import content_exist
 class GoogleDriveConnector:
     """ This is the class that handle connection and interaction with the Google Drive. """
     instance_ = None
-    google_drive: GoogleDrive or None
+    google_drive: GoogleDrive | None
 
     def __new__(cls):
         """ Method to create a new instance of the GoogleDriveConnector class. """
@@ -56,11 +58,11 @@ class GoogleDriveConnector:
             self.__google_auth.SaveCredentialsFile()
             self.google_drive = GoogleDrive(self.__google_auth)
 
-    def create_directories(self) -> dict[str, str or dict[str, str]]:
+    def create_directories(self) -> dict[str, str | dict[str, str]]:
         """ This function will create the nested directories/folders within the Google Drive. """
         root_folder: dict[str, str] = content_exist(google_drive=self.google_drive,
                                                     folder_name=ROOT_FOLDER_METADATA['title'])
-        folders_ids: dict[str, dict[str, str or None]] or dict[str, str or None] = {
+        folders_ids: dict = {
             "root_directory": root_folder['id'] if root_folder else None,
             "partners": {key: None for key in ALLOWED_PARTNERS}
         }
@@ -88,7 +90,7 @@ class GoogleDriveConnector:
             }
         return folders_ids
 
-    def upload_file(self, directory_id: str or int, file_path: str, title: str = 'SAMPLE_TEST') -> dict[str, str]:
+    def upload_file(self, directory_id: str | int, file_path: str, title: str = 'SAMPLE_TEST') -> dict[str, str]:
         """ This function will upload the file to the Google Drive.
 
         :param directory_id: The partner organisation Google Drive folder identifier.

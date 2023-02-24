@@ -3,6 +3,7 @@ create_users(). login_user() and get_allowed_chemicals().
 
 :author: D. Batista (Terazus)
 """
+from __future__ import annotations
 
 from datetime import timedelta
 from ptmd.logger import LOGGER
@@ -54,8 +55,8 @@ def login_user(username: str, password: str, session: sqlsession) -> tuple[Respo
     @param session: the database session
     @return: Response, int: the response message and the response code
     """
-    user = session.query(User).filter_by(username=username).first()
-    user = dict(user) if user and user.validate_password(password) else None
+    raw_user = session.query(User).filter_by(username=username).first()
+    user = dict(raw_user) if raw_user and raw_user.validate_password(password) else None
     if not user:
         return jsonify({"msg": "Bad username or password"}), 401
     access_token = create_access_token(identity=user['id'], expires_delta=timedelta(days=1000000))
@@ -84,7 +85,7 @@ def get_allowed_organisms() -> list[str]:
     return allowed_organism
 
 
-def get_organism_code(organism_name: str) -> str or None:
+def get_organism_code(organism_name: str) -> str | None:
     """ Get the organism code from the organism name."""
     session: sqlsession = get_session()
     organism = session.query(Organism).filter_by(ptox_biosystem_name=organism_name).first()
