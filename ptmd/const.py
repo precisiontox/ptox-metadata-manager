@@ -5,7 +5,6 @@ from collections import namedtuple
 
 from dotenv import dotenv_values
 
-
 ReplicateBlankRange: namedtuple = namedtuple('ReplicateBlankRange', ['min', 'max'])
 TimepointsRange: namedtuple = namedtuple('TimepointsRange', ['min', 'max'])
 
@@ -33,12 +32,14 @@ ALLOWED_EXPOSURE_BATCH: str = INPUT_SCHEMA['properties']['exposure_batch']['patt
 EXPOSURE_BATCH_MAX_LENGTH: int = INPUT_SCHEMA['properties']['exposure_batch']['maxLength']
 REPLICATES_EXPOSURE_MIN: int = INPUT_SCHEMA['properties']['replicates4exposure']['minimum']
 REPLICATES_CONTROL_MIN: int = INPUT_SCHEMA['properties']['replicates4control']['minimum']
-REPLICATES_BLANK_RANGE: namedtuple = ReplicateBlankRange(INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
-                                                         INPUT_SCHEMA['properties']['replicates_blank']['maximum'])
 ALLOWED_DOSE_VALUES: list[str] = EXPOSURE_SCHEMA['properties']['dose']['enum']
 ALLOWED_VEHICLES: list[str] = INPUT_SCHEMA['properties']['vehicle']['enum']
-TIMEPOINTS_RANGE: namedtuple = TimepointsRange(INPUT_SCHEMA['properties']['timepoints']['minimum'],
-                                               INPUT_SCHEMA['properties']['timepoints']['maximum'])
+TIMEPOINTS_RANGE: TimepointsRange = TimepointsRange(INPUT_SCHEMA['properties']['timepoints']['minimum'],
+                                                    INPUT_SCHEMA['properties']['timepoints']['maximum'])
+REPLICATES_BLANK_RANGE: ReplicateBlankRange = ReplicateBlankRange(
+    INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
+    INPUT_SCHEMA['properties']['replicates_blank']['maximum']
+)
 
 # Get some general mapping
 DOSE_MAPPING: dict = {
@@ -63,24 +64,24 @@ SAMPLE_SHEET_COLUMNS: list[str] = [
     "Sample position in box",
     "Mass including tube (mg)",
     "Mass excluding tube (mg)",
-    "Additional Information",
+    "observations_notes",
     "replicate",
-    "chemical name",
-    "dose",
-    "time point",
+    "compound_name",
+    "dose_code",
+    "timepoint_level",
     "PrecisionTox short identifier"
 ]
 GENERAL_SHEET_COLUMNS: list[str] = [
-    "partner",
-    "organism",
+    "partner_id",
+    "biosystem_name",
     "exposure batch",
     "control",
     "replicates",
     "blanks",
-    "start date",
-    "end date",
+    "exposure_batch_startdate",
+    "exposure_batch_enddate",
     "timepoints",
-    "vehicle",
+    "compound_vehicle",
 ]
 
 # Loading .env file

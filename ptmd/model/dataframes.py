@@ -45,29 +45,34 @@ def build_sample_dataframe(
     :return: A DataFrame
     """
     dataframe: DataFrame = DataFrame(columns=SAMPLE_SHEET_COLUMNS)
+    timepoint: str
+    timepoint_code: str
+    hash_id: str
+    series: Series
+
     for exposure_condition in harvester.exposure_conditions:
         dose_code: str = DOSE_MAPPING[exposure_condition.dose]
         for chemical in exposure_condition.chemicals_name:
             chemical_code: str = chemicals_mapping[chemical]
             for tp in range(1, harvester.timepoints + 1):
-                timepoint: str = f'TP{tp}'
-                timepoint_code: str = TIME_POINT_MAPPING[timepoint]
+                timepoint = f'TP{tp}'
+                timepoint_code = TIME_POINT_MAPPING[timepoint]
                 for replicate in range(1, harvester.replicate4exposure + 1):
-                    hash_id: str = '%s%s%s%s%s%s' % (organism_code, harvester.exposure_batch, chemical_code,
-                                                     dose_code, timepoint_code, replicate)
-                    series: Series = Series([
+                    hash_id = '%s%s%s%s%s%s' % (organism_code, harvester.exposure_batch, chemical_code,
+                                                dose_code, timepoint_code, replicate)
+                    series = Series([
                         '', '', '', '', '', '', '', '',
                         replicate, chemical, exposure_condition.dose, 'TP%s' % tp, hash_id
                     ], index=dataframe.columns)
                     dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
     for replicate in range(1, harvester.replicate4control + 1):
         for tp in range(1, harvester.timepoints + 1):
-            timepoint: str = f'TP{tp}'
-            timepoint_code: str = TIME_POINT_MAPPING[timepoint]
+            timepoint = f'TP{tp}'
+            timepoint_code = TIME_POINT_MAPPING[timepoint]
             control_code = '999' if harvester.vehicle == 'DMSO' else '997'
-            hash_id: str = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, control_code,
-                                            timepoint_code, replicate)
-            series: Series = Series([
+            hash_id = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, control_code,
+                                       timepoint_code, replicate)
+            series = Series([
                 '', '', '', '', '', '', '', '',
                 replicate, "CONTROL (%s)" % harvester.vehicle, 0, 'TP%s' % tp, hash_id
             ], index=dataframe.columns)
