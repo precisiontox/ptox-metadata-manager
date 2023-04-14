@@ -24,7 +24,6 @@ class InputsToDataframes(metaclass=ABCMeta):
     start_date: datetime
     end_date: datetime
     exposure_conditions: list[ExposureCondition]
-    timepoints: int
+    timepoints: list[int]
     replicate4exposure: int
-    replicate4control: int
     vehicle: str

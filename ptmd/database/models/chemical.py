@@ -2,6 +2,8 @@
 
 @author: D. Batista (Terazus)
 """
+from typing import Generator
+
 from ptmd.config import Base, db
 
 
@@ -20,7 +22,7 @@ class Chemical(Base):
     formula: str = db.Column(db.String(100), nullable=False)
     ptx_code: int = db.Column(db.Integer, nullable=False, unique=True)
 
-    def __iter__(self) -> None:
+    def __iter__(self) -> Generator:
         """ Iterator for the object. Used to serialize the object as a dictionary. """
         chemical: dict = {
             'chemical_id': self.chemical_id,

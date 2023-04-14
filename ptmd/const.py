@@ -6,7 +6,6 @@ from collections import namedtuple
 from dotenv import dotenv_values
 
 ReplicateBlankRange: namedtuple = namedtuple('ReplicateBlankRange', ['min', 'max'])
-TimepointsRange: namedtuple = namedtuple('TimepointsRange', ['min', 'max'])
 
 # Set files and folders path of important resources
 ROOT_PATH: str = path.abspath(path.dirname(__file__))
@@ -34,8 +33,7 @@ REPLICATES_EXPOSURE_MIN: int = INPUT_SCHEMA['properties']['replicates4exposure']
 REPLICATES_CONTROL_MIN: int = INPUT_SCHEMA['properties']['replicates4control']['minimum']
 ALLOWED_DOSE_VALUES: list[str] = EXPOSURE_SCHEMA['properties']['dose']['enum']
 ALLOWED_VEHICLES: list[str] = INPUT_SCHEMA['properties']['vehicle']['enum']
-TIMEPOINTS_RANGE: TimepointsRange = TimepointsRange(INPUT_SCHEMA['properties']['timepoints']['minimum'],
-                                                    INPUT_SCHEMA['properties']['timepoints']['maximum'])
+TIMEPOINTS_MIN: int = INPUT_SCHEMA['properties']['timepoints']['items']['minimum']
 REPLICATES_BLANK_RANGE: ReplicateBlankRange = ReplicateBlankRange(
     INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
     INPUT_SCHEMA['properties']['replicates_blank']['maximum']
@@ -78,6 +76,7 @@ SAMPLE_SHEET_COLUMNS: list[str] = [
     "compound_name",
     "dose_code",
     "timepoint_level",
+    "timepoint (hours)",
     "PrecisionTox short identifier"
 ]
 GENERAL_SHEET_COLUMNS: list[str] = [

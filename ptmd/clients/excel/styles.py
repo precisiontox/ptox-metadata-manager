@@ -41,8 +41,8 @@ def style_sample_sheet(writer: ExcelWriter) -> None:
 
     worksheet.set_column('O:O', 15, cell_format=extra_cells_format)
     worksheet.set_column('P:P', 25, cell_format=extra_cells_format)
-    worksheet.set_column('Q:R', 15, cell_format=extra_cells_format)
-    worksheet.set_column('S:S', 30, cell_format=extra_cells_format)
+    worksheet.set_column('Q:S', 15, cell_format=extra_cells_format)
+    worksheet.set_column('T:T', 30, cell_format=extra_cells_format)
 
 
 def style_general_sheet(writer: ExcelWriter) -> None:

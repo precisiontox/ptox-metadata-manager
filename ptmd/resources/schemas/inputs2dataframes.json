@@ -56,9 +56,14 @@
         "description": "The vehicle used as the solvent."
       },
       "timepoints": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 5
+          "type": "array",
+          "description": "The timepoints represent a list of timepoints in hours.",
+          "items": {
+              "type": "number",
+              "minimum": 0
+          },
+          "minItems": 0,
+          "maxItems": 5
       },
       "time point zero": {
         "type": "boolean",

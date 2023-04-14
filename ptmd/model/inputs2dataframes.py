@@ -15,7 +15,7 @@ from pandas import DataFrame
 from ptmd.const import (
     ALLOWED_PARTNERS, ALLOWED_EXPOSURE_BATCH, EXPOSURE_BATCH_MAX_LENGTH,
     REPLICATES_EXPOSURE_MIN, REPLICATES_CONTROL_MIN, REPLICATES_BLANK_RANGE,
-    TIMEPOINTS_RANGE, ALLOWED_VEHICLES
+    TIMEPOINTS_MIN, ALLOWED_VEHICLES
 )
 from ptmd.database import get_allowed_organisms, get_organism_code, get_chemical_code_mapping
 from ptmd.model.exceptions import InputTypeError, InputValueError, InputMinError, InputRangeError
@@ -51,7 +51,7 @@ class Inputs2Dataframes(InputsToDataframesInterface):
                  replicate_blank: int,
                  start_date: str | datetime,
                  end_date: str | datetime,
-                 timepoints: int,
+                 timepoints: list[int],
                  vehicle: str,
                  timepoint_zero: bool = False,
                  exposure_conditions: List[dict] | List[ExposureCondition] = None) -> None:
@@ -67,7 +67,7 @@ class Inputs2Dataframes(InputsToDataframesInterface):
         self.replicate_blank: int = replicate_blank
         self.start_date: str | datetime = start_date
         self.end_date: str | datetime = end_date
-        self.timepoints: int = timepoints
+        self.timepoints: list[int] = timepoints
         self.vehicle: str = vehicle
         self.timepoint_zero: bool = timepoint_zero
         self.exposure_conditions: list[ExposureCondition] = exposure_conditions if exposure_conditions else []
@@ -296,7 +296,7 @@ class Inputs2Dataframes(InputsToDataframesInterface):
         raise InputTypeError(datetime, value, 'end_date')
 
     @property
-    def timepoints(self) -> int:
+    def timepoints(self) -> list[int]:
         """ Getter for the timepoints.
 
         :return: The timepoints.
@@ -304,16 +304,19 @@ class Inputs2Dataframes(InputsToDataframesInterface):
         return self.__timepoints
 
     @timepoints.setter
-    def timepoints(self, value: int) -> None:
+    def timepoints(self, values: list[int]) -> None:
         """ Setter for the timepoints.
 
-        :param value: The timepoints.
+        :param values: Array of timepoints in hours.
         """
-        if not isinstance(value, int):
-            raise InputTypeError(int, value, 'timepoints')
-        if value < TIMEPOINTS_RANGE.min or value > TIMEPOINTS_RANGE.max:
-            raise InputRangeError(TIMEPOINTS_RANGE, value, 'timepoints')
-        self.__timepoints = value
+        if not isinstance(values, list):
+            raise InputTypeError(list, values, 'timepoints')
+        for timepoint in values:
+            if not isinstance(timepoint, int):
+                raise InputTypeError(int, timepoint, 'timepoints')
+            if timepoint < TIMEPOINTS_MIN:
+                raise ValueError("Timepoint must be greater than %s but got %s" % (TIMEPOINTS_MIN, timepoint))
+        self.__timepoints = values
 
     @property
     def vehicle(self) -> str:
