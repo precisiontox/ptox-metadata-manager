@@ -15,6 +15,7 @@ def style_sheets(writer: ExcelWriter) -> None:
 
     :param writer: The writer to use.
     """
+    pass
     style_sample_sheet(writer)
     style_general_sheet(writer)
 
@@ -31,15 +32,17 @@ def style_sample_sheet(writer: ExcelWriter) -> None:
     worksheet.protect()
 
     worksheet.set_row(0, 50, cell_format=header_format)
-    worksheet.set_column('A:A', 25, cell_format=empty_cells_format)
-    worksheet.set_column('B:B', 30, cell_format=empty_cells_format)
-    worksheet.set_column('C:D', 15, cell_format=empty_cells_format)
-    worksheet.set_column('D:D', 20, cell_format=empty_cells_format)
-    worksheet.set_column('E:H', 30, cell_format=empty_cells_format)
-    worksheet.set_column('I:I', 15, cell_format=extra_cells_format)
-    worksheet.set_column('J:J', 30, cell_format=extra_cells_format)
-    worksheet.set_column('K:L', 15, cell_format=extra_cells_format)
-    worksheet.set_column('M:M', 30, cell_format=extra_cells_format)
+
+    worksheet.set_column('A:N', 20, cell_format=empty_cells_format)
+    worksheet.set_column('D:D', 15, cell_format=empty_cells_format)
+    worksheet.set_column('J:K', 15, cell_format=empty_cells_format)
+    worksheet.set_column('G:H', 25, cell_format=empty_cells_format)
+    worksheet.set_column('N:N', 25, cell_format=empty_cells_format)
+
+    worksheet.set_column('O:O', 15, cell_format=extra_cells_format)
+    worksheet.set_column('P:P', 25, cell_format=extra_cells_format)
+    worksheet.set_column('Q:R', 15, cell_format=extra_cells_format)
+    worksheet.set_column('S:S', 30, cell_format=extra_cells_format)
 
 
 def style_general_sheet(writer: ExcelWriter) -> None:

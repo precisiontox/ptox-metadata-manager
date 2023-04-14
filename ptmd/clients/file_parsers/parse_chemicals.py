@@ -42,7 +42,7 @@ class Compound:
 
         :param value: the common name of the compound.
         """
-        self.__common_name = self.clean_string(value)
+        self.__common_name = value
 
     @property
     def ptx_code(self) -> int:

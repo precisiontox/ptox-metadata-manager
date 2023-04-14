@@ -4,7 +4,7 @@
 """
 from pandas import DataFrame, Series, concat as pd_concat
 
-from ptmd.const import GENERAL_SHEET_COLUMNS, SAMPLE_SHEET_COLUMNS, DOSE_MAPPING, TIME_POINT_MAPPING
+from ptmd.const import GENERAL_SHEET_COLUMNS, SAMPLE_SHEET_COLUMNS, DOSE_MAPPING, TIME_POINT_MAPPING, EMPTY_FIELDS_VALUES
 from .interfaces import InputsToDataframes
 
 
@@ -60,22 +60,19 @@ def build_sample_dataframe(
                 for replicate in range(1, harvester.replicate4exposure + 1):
                     hash_id = '%s%s%s%s%s%s' % (organism_code, harvester.exposure_batch, chemical_code,
                                                 dose_code, timepoint_code, replicate)
-                    series = Series([
-                        '', '', '', '', '', '', '', '',
-                        replicate, chemical, exposure_condition.dose, 'TP%s' % tp, hash_id
-                    ], index=dataframe.columns)
+                    series = Series([*EMPTY_FIELDS_VALUES,
+                                     replicate, chemical, exposure_condition.dose, 'TP%s' % tp, hash_id],
+                                    index=dataframe.columns)
                     dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
     for replicate in range(1, harvester.replicate4control + 1):
         for tp in range(1, harvester.timepoints + 1):
             timepoint = f'TP{tp}'
             timepoint_code = TIME_POINT_MAPPING[timepoint]
             control_code = '999' if harvester.vehicle == 'DMSO' else '997'
-            hash_id = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, control_code,
-                                       timepoint_code, replicate)
-            series = Series([
-                '', '', '', '', '', '', '', '',
-                replicate, "CONTROL (%s)" % harvester.vehicle, 0, 'TP%s' % tp, hash_id
-            ], index=dataframe.columns)
+            hash_id = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, control_code, timepoint_code, replicate)
+            series = Series([*EMPTY_FIELDS_VALUES,
+                             replicate, "CONTROL (%s)" % harvester.vehicle, 0, 'TP%s' % tp, hash_id],
+                            index=dataframe.columns)
             dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
     return add_blanks_to_sample_dataframe(dataframe, harvester.replicate_blank, organism_code, harvester.exposure_batch)
 
@@ -96,7 +93,6 @@ def add_blanks_to_sample_dataframe(
     """
     for blank in range(1, replicate_blank + 1):
         hash_id = '%s%s998ZS%s' % (organism_code, exposure_batch, blank)
-        series = Series(['', '', '', '', '', '', '', '', blank, 'EXTRACTION BLANK', "0", 'TP0', hash_id],
-                        index=sample_df.columns)
+        series = Series([*EMPTY_FIELDS_VALUES, blank, 'EXTRACTION BLANK', "0", 'TP0', hash_id], index=sample_df.columns)
         sample_df = pd_concat([sample_df, series.to_frame().T], ignore_index=False, sort=False, copy=False)
     return sample_df

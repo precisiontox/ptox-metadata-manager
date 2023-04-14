@@ -56,15 +56,24 @@ TIME_POINT_MAPPING: dict = {
     "TP4": "D",
     "TP5": "E",
 }
-SAMPLE_SHEET_COLUMNS: list[str] = [
+SAMPLE_SHEET_EMPTY_COLUMNS: list[str] = [
+    "sampleID_label",
     "Shipment identifier",
     "Label tube / identifier",
-    "Box No.",
-    "FreezerBox identifier",
-    "Sample position in box",
+    "box_id",
+    "exposure_route",
+    "operator",
+    "quantity_dead_during_exposure",
+    "amount_replaced_before_collection",
+    "collection_order",
+    "box_row",
+    "box_column",
     "Mass including tube (mg)",
     "Mass excluding tube (mg)",
-    "observations_notes",
+    "observations_notes"
+]
+SAMPLE_SHEET_COLUMNS: list[str] = [
+    *SAMPLE_SHEET_EMPTY_COLUMNS,
     "replicate",
     "compound_name",
     "dose_code",
@@ -83,6 +92,7 @@ GENERAL_SHEET_COLUMNS: list[str] = [
     "timepoints",
     "compound_vehicle",
 ]
+EMPTY_FIELDS_VALUES: list[str] = [''] * len(SAMPLE_SHEET_EMPTY_COLUMNS)
 
 # Loading .env file
 CONFIG: dict = dotenv_values(path.join(ROOT_PATH, 'resources', '.env'))
