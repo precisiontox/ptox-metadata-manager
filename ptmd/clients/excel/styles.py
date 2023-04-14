@@ -15,7 +15,6 @@ def style_sheets(writer: ExcelWriter) -> None:
 
     :param writer: The writer to use.
     """
-    pass
     style_sample_sheet(writer)
     style_general_sheet(writer)
 
