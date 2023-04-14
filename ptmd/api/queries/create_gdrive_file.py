@@ -30,7 +30,7 @@ class CreateGDriveFile:
         self.__exposure_conditions: list[dict[str, list[str] | str]] = request.json.get("exposure_conditions", None)
         self.__replicate4control: int | None = request.json.get("replicate4control", None)
         self.__replicate4exposure: int | None = request.json.get("replicate4exposure", None)
-        self.__timepoints: int | None = request.json.get("timepoints", None)
+        self.__timepoints: list[int] | None = request.json.get("timepoints", None)
         self.__vehicle: str | None = request.json.get("vehicle", None)
 
     def generate_file(self, session: Session, user: int) -> dict[str, str]:

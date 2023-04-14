@@ -84,7 +84,7 @@ class TestCoreQueries(TestCase):
                 "replicate_blank": 2,
                 "start_date": "2021-01-01",
                 "end_date": "2022-01-01",
-                "timepoints": 3,
+                "timepoints": [3],
                 "vehicle": "water",
             }
             headers = {'Authorization': f'Bearer {jwt}', **HEADERS}

@@ -61,9 +61,11 @@ definitions:
         description: The end date of the experiment
         example: 2020-10-01
       timepoints:
-        type: int
-        description: The number of timepoints in the experiment
-        example: 3
+        type: array
+        description: The timepoints of the experiment in hours. Maximum is 5 timepoints.
+        items:
+            type: integer
+        example: [4, 12, 36]
       vehicle:
         type: string
         description: The vehicle used in the experiment

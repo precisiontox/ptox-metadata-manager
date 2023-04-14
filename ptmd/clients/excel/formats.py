@@ -27,8 +27,8 @@ def get_header_format(writer: ExcelWriter) -> Format:
     formatter = set_common_formats(formatter)
     formatter.set_bg_color('#008080')
     formatter.set_color('white')
-    formatter.set_font_size(16)
-    formatter.set_bold()
+    formatter.set_font_size(12)
+    # formatter.set_bold()
     formatter.set_border(5)
     formatter.set_align('vcenter')
     return formatter
@@ -56,7 +56,7 @@ def get_extra_cells_format(writer: ExcelWriter) -> Format:
     """
     formatter: Format = writer.book.add_format()
     formatter = set_common_formats(formatter)
-    formatter.set_font_size(14)
+    formatter.set_font_size(12)
     formatter.set_border(1)
     formatter.set_bg_color('#CCCCCC')
     formatter.set_locked(True)

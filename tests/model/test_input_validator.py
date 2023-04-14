@@ -13,7 +13,7 @@ from ptmd.const import (
     REPLICATES_BLANK_RANGE,
     SAMPLE_SHEET_COLUMNS,
     GENERAL_SHEET_COLUMNS,
-    TIMEPOINTS_RANGE, ALLOWED_VEHICLES
+    TIMEPOINTS_MIN, ALLOWED_VEHICLES
 )
 
 ALLOWED_ORGANISMS = ["organism1", "organism2", "organism3"]
@@ -30,7 +30,7 @@ START_DATE = '2018-01-01'
 END_DATE = '2019-01-02'
 HERE = path.dirname(path.abspath(__file__))
 EXPOSURE_CONDITIONS = [{'chemicals_name': [CHEMICAL_NAME], 'dose': DOSE_VALUE}]
-TIMEPOINTS = 3
+TIMEPOINTS = [2, 4, 6]
 VEHICLE = ALLOWED_VEHICLES[0]
 
 
@@ -235,14 +235,20 @@ class TestInputsToDataframesErrors(TestCase):
                               replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                               replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
                               start_date=START_DATE, end_date=END_DATE, timepoints='foo')
-        self.assertEqual("timepoints must be a int but got str with value foo", str(context.exception))
+        self.assertEqual("timepoints must be a list but got str with value foo", str(context.exception))
         with self.assertRaises(ValueError) as context:
             Inputs2Dataframes(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
                               replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
                               replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
-                              start_date=START_DATE, end_date=END_DATE, timepoints=100)
-        error = "timepoints must be between %s and %s but got 100" % (TIMEPOINTS_RANGE.min, TIMEPOINTS_RANGE.max)
+                              start_date=START_DATE, end_date=END_DATE, timepoints=[-1])
+        error = "Timepoint must be greater than %s but got %s" % (TIMEPOINTS_MIN, -1)
         self.assertEqual(error, str(context.exception))
+        with self.assertRaises(TypeError) as context:
+            Inputs2Dataframes(partner=PARTNER, organism=ORGANISM, exposure_batch=EXPOSURE_BATCH,
+                              replicate4exposure=REPLICATES_EXPOSURE, replicate4control=REPLICATES_CONTROL,
+                              replicate_blank=REPLICATES_BLANK, vehicle=VEHICLE,
+                              start_date=START_DATE, end_date=END_DATE, timepoints=['foo'])
+        self.assertEqual("timepoints must be a int but got str with value foo", str(context.exception))
 
     def test_constructor_error_vehicle(self, mock_get_allowed_chemicals, mock_allowed_organisms):
         with self.assertRaises(TypeError) as context:
@@ -308,7 +314,7 @@ class TestInputsToDataframesErrors(TestCase):
             'replicate_blank': REPLICATES_BLANK,
             'start_date': START_DATE,
             'end_date': END_DATE,
-            'timepoints': 3,
+            'timepoints': [2, 4, 6],
             "vehicle": VEHICLE
         }
         start_date = parse_date(START_DATE)
