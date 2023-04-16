@@ -50,10 +50,10 @@ class TestValidateFile(TestCase):
 
     @patch('ptmd.api.queries.validate.ExcelValidator', return_value=MockedValidator(1))
     def test_valid(self, mock_validator):
-            with app.test_client() as client:
-                headers = {'Authorization': f'Bearer {self.access_token}', **HEADERS}
-                response = client.get('/api/file/1/validate', headers=headers)
-            self.assertTrue(response.json['message'], "File validated successfully.")
+        with app.test_client() as client:
+            headers = {'Authorization': f'Bearer {self.access_token}', **HEADERS}
+            response = client.get('/api/file/1/validate', headers=headers)
+        self.assertTrue(response.json['message'], "File validated successfully.")
 
     @patch('ptmd.api.queries.validate.ExcelValidator', return_value=MockedValidatorError(1))
     def test_error_400(self, mock_validator):
