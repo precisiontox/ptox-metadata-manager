@@ -65,7 +65,6 @@ class TestValidateFile(TestCase):
         print(response.json)
         access_token = response.json['access_token']
 
-
         with app.test_client() as client:
             response = client.get('/api/file/1/validate',
                                   headers={'Authorization': f'Bearer {access_token}', **HEADERS})
