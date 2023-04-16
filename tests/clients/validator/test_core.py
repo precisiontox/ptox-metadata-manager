@@ -3,8 +3,16 @@ from unittest.mock import patch
 
 from pandas import DataFrame, Series, concat
 
-from ptmd.clients.validator.core import ExcelValidator
+from ptmd.clients.validator import ExcelValidator, ExternalExcelValidator
 from ptmd.const import SAMPLE_SHEET_COLUMNS, GENERAL_SHEET_COLUMNS
+
+
+class MockGoogleDriveAPI:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def CreateFile(self, *args, **kwargs):
+        return {"title": "test.xlxs"}
 
 
 class MockSession:
@@ -42,6 +50,9 @@ class MockSessionError(MockSession):
 
 
 class MockGoogleDriveConnector:
+    def __init__(self, *args, **kwargs):
+        self.google_drive = MockGoogleDriveAPI()
+
     def download_file(self, *args, **kwargs):
         return 'PTX001.xlsx'
 
@@ -81,6 +92,9 @@ class MockExcelFileSuccess:
         elif sheet_name == "Exposure information":
             return mock_exposure_dataframe
 
+    def validate(self, *args, **kwargs):
+        pass
+
 
 class MockExcelFileError:
     def __init__(self, *args, **kwargs):
@@ -91,6 +105,9 @@ class MockExcelFileError:
             return mock_general_dataframe
         elif sheet_name == "Exposure information":
             return mock_exposure_dataframe_error
+
+    def validate(self, *args, **kwargs):
+        pass
 
 
 @patch('ptmd.clients.validator.core.remove', return_value=None)
@@ -103,6 +120,7 @@ class TestExcelValidator(TestCase):
     def test_core_success(self, mock_excel_file, mocked_get_session,
                           mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
         validator = ExcelValidator(1)
+        validator.validate()
         self.assertEqual(validator.report['valid'], True)
 
     @patch('ptmd.clients.validator.core.get_session', return_value=mocked_session)
@@ -110,6 +128,7 @@ class TestExcelValidator(TestCase):
     def test_report_validation_error(self, mock_excel_file, mocked_get_session,
                                      mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
         validator = ExcelValidator(1)
+        validator.validate()
         errors = validator.report['errors']
         self.assertEqual(errors['Record at line 3 (FAC002LA1)'],
                          [{'message': 'This field is required.', 'field_concerned': 'exposure_route'}])
@@ -119,5 +138,17 @@ class TestExcelValidator(TestCase):
     def test_report_file_not_found(self, mocked_get_session,
                                    mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
         with self.assertRaises(ValueError) as context:
-            ExcelValidator(1)
+            validator = ExcelValidator(1)
+            validator.validate()
         self.assertEqual('File with ID 1 does not exist.', str(context.exception))
+
+
+@patch('ptmd.clients.validator.core.GoogleDriveConnector', return_value=MockGoogleDriveConnector())
+@patch('ptmd.clients.validator.core.ExternalExcelValidator.validate_file', return_value=None)
+@patch('ptmd.clients.validator.core.remove', return_value=None)
+class TestExternalValidator(TestCase):
+
+    def test_validator(self, mock_rm, mocked_validate_file, mocked_gdrive_connector):
+        validator = ExternalExcelValidator("A")
+        validator.validate()
+        self.assertEqual(validator.report['valid'], True)
