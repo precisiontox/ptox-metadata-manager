@@ -12,10 +12,16 @@ class MockedValidator:
     def __init__(self, file_id):
         self.report = {'valid': True, 'errors': []}
 
+    def validate(self):
+        pass
+
 
 class MockedValidatorError:
     def __init__(self, file_id):
         self.report = {'valid': False, 'errors': ['error']}
+
+    def validate(self):
+        pass
 
 
 class TestValidateFile(TestCase):
@@ -27,14 +33,18 @@ class TestValidateFile(TestCase):
         self.assertEqual(code, 200)
 
     @patch('ptmd.api.queries.validate.ExcelValidator', return_value=MockedValidatorError(1))
-    def test_error_400(self, mock_validator):
+    @patch('ptmd.api.queries.validate.ExternalExcelValidator', return_value=MockedValidatorError(1))
+    def test_error_406(self, mock_validator, mock_validator_ext):
         report, code = validate_file(1)
         self.assertEqual(report['message'], 'File validation failed.')
-        self.assertEqual(code, 400)
+        self.assertEqual(code, 406)
 
         report, code = validate_file('a')
-        self.assertEqual(report['error'], 'File ID must be an integer.')
-        self.assertEqual(code, 400)
+        self.assertEqual(report['errors'][0], 'error')
+        self.assertEqual(code, 406)
+
+        report, code = validate_file([1])
+        self.assertIn("int() argument must be a string", report['error'])
 
     def test_error_404(self):
         report, code = validate_file(10)

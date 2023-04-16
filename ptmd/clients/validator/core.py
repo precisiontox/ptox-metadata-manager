@@ -27,7 +27,7 @@ class ExcelValidator:
     :param file_id: The file id to validate.
     """
 
-    def __init__(self, file_id: int):
+    def __init__(self, file_id: int | str):
         """ The validator constructor. """
         self.report: dict = {'valid': True, 'errors': {}}
         self.current_record: dict = {'data': {}, 'label': ''}
@@ -35,10 +35,16 @@ class ExcelValidator:
         self.exposure_data: list[dict] = []
         self.identifiers: list[str] = []
         self.__schema: dict = {}
+        self.file_id: int | str = file_id
+        self.session: Session | None = None
+        self.file: dict = {}
+        self.filepath: str = ''
 
-        self.session: Session = get_session()
-        self.file: dict = self.__get_file_from_database(file_id)
-        self.filepath: str = self.__download_file()
+    def validate(self):
+        """ Validates the file. """
+        self.session = get_session()
+        self.file = self.__get_file_from_database(self.file_id)
+        self.filepath = self.download_file()
         self.validate_file()
         self.__update_file_record()
 
@@ -56,7 +62,7 @@ class ExcelValidator:
             raise ValueError(f"File with ID {file_id} does not exist.")
         return dict(file)
 
-    def __download_file(self) -> str:
+    def download_file(self) -> str:
         """ Download the file from Google Drive.
 
         :return: the downloaded file path.
@@ -94,7 +100,9 @@ class ExcelValidator:
                 message: str = error.message
                 if "None is not of type" in message:
                     message = "This field is required."
-                self.add_error(label, message, error.path[0])
+                field: str = error.message.split("'")[1] if not error.path else error.path[0]
+                self.add_error(label, message, field)
+
             validate_identifier(excel_validator=self, record_index=record_index)
 
     def add_error(self, label, message, field):
@@ -120,3 +128,30 @@ class ExcelValidator:
         self.session.query(File).filter(File.file_id == self.file['file_id']).update(
             {'validated': 'success' if self.report['valid'] else 'failed'})
         self.session.commit()
+
+
+class ExternalExcelValidator(ExcelValidator):
+    """ Variation of the ExcelValidator for external files that doesn't use the database.
+
+    :param file_id: The file id to validate.
+    """
+
+    def __init__(self, file_id: str):
+        """ The validator constructor. """
+        super().__init__(file_id)
+
+    def validate(self):
+        """ Validates the file. """
+        self.filepath = self.download_file()
+        self.validate_file()
+        remove(self.filepath)
+
+    def download_file(self) -> str:
+        """ Download the file from Google Drive.
+
+        :return: the downloaded file path.
+        """
+        gdrive: GoogleDriveConnector = GoogleDriveConnector()
+        file = gdrive.google_drive.CreateFile({'id': self.file_id})
+        filepath: str = gdrive.download_file(self.file_id, file['title'])
+        return filepath
