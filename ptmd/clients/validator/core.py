@@ -135,9 +135,11 @@ class ExternalExcelValidator(ExcelValidator):
     """
 
     def __init__(self, file_id: str):
+        """ The validator constructor. """
         super().__init__(file_id)
 
     def validate(self):
+        """ Validates the file. """
         self.filepath = self.download_file()
         self.validate_file()
         remove(self.filepath)
