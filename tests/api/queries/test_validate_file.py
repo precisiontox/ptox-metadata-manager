@@ -40,10 +40,6 @@ class TestValidateFile(TestCase):
         self.assertEqual(report['error'], 'File with ID 10 does not exist.')
         self.assertEqual(code, 404)
 
-    def mock_jwt_required(realm):
-        return
-
-    # test
     @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
     @patch('ptmd.api.routes.validate_file', return_value=({'message': 'File validated successfully.'}, 200))
     def test_route(self, mock_validate, mock_jwt_required):
