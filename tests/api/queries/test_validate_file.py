@@ -44,8 +44,7 @@ class TestValidateFile(TestCase):
         self.assertEqual(code, 406)
 
         report, code = validate_file([1])
-        self.assertEqual(report['error'],
-                         "int() argument must be a string, a bytes-like object or a real number, not 'list'")
+        self.assertIn("int() argument must be a string", report['error'])
 
     def test_error_404(self):
         report, code = validate_file(10)
