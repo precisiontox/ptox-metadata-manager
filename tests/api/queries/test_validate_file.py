@@ -1,11 +1,8 @@
 from unittest import TestCase
 from unittest.mock import patch
-from json import dumps
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from flask_jwt_extended import create_access_token
 
-from ptmd.database import Base, User
 from ptmd.api import app
 from ptmd.api.queries.validate import validate_file
 
@@ -45,27 +42,13 @@ class TestValidateFile(TestCase):
         self.assertEqual(report['error'], 'File with ID 10 does not exist.')
         self.assertEqual(code, 404)
 
+    def mock_jwt_required(realm):
+        return
+
+    # test
+    @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
     @patch('ptmd.api.routes.validate_file', return_value=({'message': 'File validated successfully.'}, 200))
-    def test_route(self, mock_validate):
-        engine = create_engine("sqlite:///:memory:")
-        Base.metadata.create_all(engine)
-        session = sessionmaker(bind=engine)()
-        session = session
-
-        user_data = {'organisation': None, 'username': 'admin', 'password': 'admin'}
-        user = User(**user_data)
-        session.add(user)
-        session.commit()
-
-        with app.test_client() as client:
-            response = client.post('/api/login', data=dumps({
-                'username': 'admin',
-                'password': 'admin'
-            }), headers=HEADERS)
-        print(response.json)
-        access_token = response.json['access_token']
-
-        with app.test_client() as client:
-            response = client.get('/api/file/1/validate',
-                                  headers={'Authorization': f'Bearer {access_token}', **HEADERS})
-        print(response.json)
+    def test_route(self, mock_validate, mock_jwt_required):
+        with app.test_client() as test_client:
+            response = test_client.get('/api/file/1/validate')
+        self.assertEqual(response.json, {'message': 'File validated successfully.'})
