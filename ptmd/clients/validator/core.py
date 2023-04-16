@@ -22,8 +22,13 @@ from .validate_identifier import validate_identifier
 
 
 class ExcelValidator:
+    """ The core of the validator.
+
+    :param file_id: The file id to validate.
+    """
 
     def __init__(self, file_id: int):
+        """ The validator constructor. """
         self.report: dict = {'valid': True, 'errors': {}}
         self.current_record: dict = {'data': {}, 'label': ''}
         self.general_info: dict = {}
