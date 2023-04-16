@@ -27,6 +27,7 @@ class File(Base):
     gdrive_id: str = db.Column(db.String(255), nullable=False)
     name: str = db.Column(db.String(255), nullable=True)
     batch: str = db.Column(db.String(2), nullable=False)
+    validated: str = db.Column(db.String(1), nullable=False, default='No')
 
     # Relationships
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=False)

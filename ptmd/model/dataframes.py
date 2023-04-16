@@ -79,7 +79,7 @@ def build_sample_dataframe(
             timepoint = TIME_POINT_MAPPING[f'TP{tp}']
             timepoint_value = harvester.timepoints[tp - 1]
             control_code = '999' if harvester.vehicle == 'DMSO' else '997'
-            hash_id = '%s%s%s%sZ%s' % (organism_code, harvester.exposure_batch, control_code, timepoint, replicate)
+            hash_id = '%s%s%sZ%s%s' % (organism_code, harvester.exposure_batch, control_code, timepoint, replicate)
             series = Series([*EMPTY_FIELDS_VALUES,
                              replicate, "CONTROL (%s)" % harvester.vehicle, 0, 'TP%s' % tp, timepoint_value, hash_id],
                             index=dataframe.columns)

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/exposure_information_sheet_schema.json",
+  "type": "object",
+  "description": "A schema to represent the exposure information spreadsheet validation rules.",
+  "properties": {
+    "amount_replaced_before_collection": {
+      "type": "number",
+      "description": "The amount replaced before collection.",
+      "minimum": 0
+    },
+    "box_column": {
+      "type": "number",
+      "description": "The box column.",
+      "minimum": 0
+    },
+    "box_id": {
+      "type": "string",
+      "description": "The box identifier."
+    },
+    "box_row": {
+      "type": "string",
+      "description": "The box row.",
+      "pattern": "^[A-Z]$",
+      "maxLength": 1
+    },
+    "collection_order": {
+      "type": "number",
+      "description": "The collection order.",
+      "minimum": 0
+    },
+    "compound_name": {
+      "type": "string",
+      "description": "The compound name."
+    },
+    "dose_code": {
+        "type": "string",
+        "description": "The dose code.",
+        "enum": ["0", "BMD10", "BMD25", "10mg/L"]
+    },
+    "exposure_route": {
+        "type": "string",
+        "description": "The exposure route."
+    },
+    "operator": {
+        "type": "string",
+        "description": "The operator."
+    },
+    "PrecisionTox short identifier": {
+      "type": "string",
+      "description": "The PrecisionTox short identifier.",
+      "length": 9
+    },
+    "quantity_dead_during_exposure": {
+        "type": "number",
+        "description": "The quantity of dead animals during exposure.",
+        "minimum": 0
+    },
+    "replicate": {
+        "type": "number",
+        "description": "The replicate.",
+        "minimum": 1
+    },
+    "timepoint_level": {
+      "type": "string",
+      "description": "The timepoint level.",
+      "pattern": "^TP[0-9]+$"
+    },
+    "timepoint (hours)": {
+      "type": "number",
+      "description": "The timepoint in hours.",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "amount_replaced_before_collection",
+    "box_column",
+    "box_id",
+    "box_row",
+    "collection_order",
+    "compound_name",
+    "dose_code",
+    "exposure_route",
+    "PrecisionTox short identifier",
+    "quantity_dead_during_exposure",
+    "operator",
+    "replicate",
+    "timepoint_level",
+    "timepoint (hours)"
+  ]
+}

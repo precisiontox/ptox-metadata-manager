@@ -13,7 +13,8 @@ from .queries import (
     login as login_user, change_password,
     get_me, get_organisms, get_chemicals, get_organisations,
     create_gdrive_file,
-    create_user
+    create_user,
+    validate_file
 )
 
 
@@ -81,3 +82,11 @@ def change_pwd():
 def user():
     """ Create a new user """
     return create_user()
+
+
+@app.route('/api/file/<file_id>/validate', methods=['GET'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'validate_file.yml'))
+@jwt_required()
+def validate(file_id: int):
+    """ Validate a file """
+    return validate_file(file_id)

@@ -13,6 +13,7 @@ DATA_PATH: str = path.join(ROOT_PATH, 'resources')
 SCHEMAS_PATH: str = path.join(DATA_PATH, 'schemas')
 INPUT_SCHEMA_PATH: str = path.join(SCHEMAS_PATH, 'inputs2dataframes.json')
 EXPOSURE_SCHEMA_PATH: str = path.join(SCHEMAS_PATH, 'exposure_schema.json')
+EXPOSURE_INFORMATION_SCHEMA_FILEPATH: str = path.join(SCHEMAS_PATH, 'exposure_information_sheet_schema.json')
 PARTNERS_LONGNAME_PATH: str = path.join(DATA_PATH, 'data', 'partners.json')
 CHEMICALS_FILEPATH: str = path.join(DATA_PATH, 'data', 'chemicals.xlsx')
 ORGANISMS_FILEPATH: str = path.join(DATA_PATH, 'data', 'organisms.json')
@@ -96,3 +97,5 @@ EMPTY_FIELDS_VALUES: list[str] = [''] * len(SAMPLE_SHEET_EMPTY_COLUMNS)
 # Loading .env file
 CONFIG: dict = dotenv_values(path.join(ROOT_PATH, 'resources', '.env'))
 SETTINGS_FILE_PATH: str = CONFIG['GOOGLE_DRIVE_SETTINGS_FILEPATH']
+
+DOWNLOAD_DIR: str = path.join(DATA_PATH, 'downloads')
