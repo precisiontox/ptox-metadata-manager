@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import Generator
 from os import remove
-from uuid import uuid4
 
 from json import loads
 from jsonschema import Draft202012Validator as JSONValidator
