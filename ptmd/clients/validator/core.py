@@ -129,6 +129,10 @@ class ExcelValidator:
 
 
 class ExternalExcelValidator(ExcelValidator):
+    """ Variation of the ExcelValidator for external files that doesn't use the database.
+
+    :param file_id: The file id to validate.
+    """
 
     def __init__(self, file_id: str):
         super().__init__(file_id)
