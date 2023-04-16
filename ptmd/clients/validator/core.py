@@ -100,7 +100,9 @@ class ExcelValidator:
                 message: str = error.message
                 if "None is not of type" in message:
                     message = "This field is required."
-                self.add_error(label, message, error.path[0])
+                field: str = error.message.split("'")[1] if not error.path else error.path[0]
+                self.add_error(label, message, field)
+
             validate_identifier(excel_validator=self, record_index=record_index)
 
     def add_error(self, label, message, field):
