@@ -25,35 +25,10 @@ class MockedValidatorError:
 
 class TestValidateFile(TestCase):
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        engine = create_engine("sqlite:///:memory:")
-        Base.metadata.create_all(engine)
-        session = sessionmaker(bind=engine)()
-        cls.session = session
-
-        user_data = {'organisation': None, 'username': 'admin', 'password': 'admin'}
-        user = User(**user_data)
-        session.add(user)
-        session.commit()
-
-        with app.test_client() as client:
-            response = client.post('/api/login', data=dumps({
-                'username': 'admin',
-                'password': 'admin'
-            }), headers=HEADERS)
-        cls.access_token = response.json['access_token']
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.session.close()
-
     @patch('ptmd.api.queries.validate.ExcelValidator', return_value=MockedValidator(1))
     def test_valid(self, mock_validator):
-        with app.test_client() as client:
-            headers = {'Authorization': f'Bearer {self.access_token}', **HEADERS}
-            response = client.get('/api/file/1/validate', headers=headers)
-        self.assertTrue(response.json['message'], "File validated successfully.")
+        report, code = validate_file(1)
+        self.assertTrue(report['message'], "File validated successfully.")
 
     @patch('ptmd.api.queries.validate.ExcelValidator', return_value=MockedValidatorError(1))
     def test_error_400(self, mock_validator):
@@ -69,3 +44,29 @@ class TestValidateFile(TestCase):
         report, code = validate_file(10)
         self.assertEqual(report['error'], 'File with ID 10 does not exist.')
         self.assertEqual(code, 404)
+
+    @patch('ptmd.api.routes.validate_file', return_value=({'message': 'File validated successfully.'}, 200))
+    def test_route(self, mock_validate):
+        engine = create_engine("sqlite:///:memory:")
+        Base.metadata.create_all(engine)
+        session = sessionmaker(bind=engine)()
+        session = session
+
+        user_data = {'organisation': None, 'username': 'admin', 'password': 'admin'}
+        user = User(**user_data)
+        session.add(user)
+        session.commit()
+
+        with app.test_client() as client:
+            response = client.post('/api/login', data=dumps({
+                'username': 'admin',
+                'password': 'admin'
+            }), headers=HEADERS)
+        print(response.json)
+        access_token = response.json['access_token']
+
+
+        with app.test_client() as client:
+            response = client.get('/api/file/1/validate',
+                                  headers={'Authorization': f'Bearer {access_token}', **HEADERS})
+        print(response.json)
