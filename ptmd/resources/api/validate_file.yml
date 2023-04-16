@@ -1,0 +1,38 @@
+The validate the given file
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: false
+    type: string
+    description: The JWT token
+  - name: file_id
+    in: path
+    required: true
+    type: string
+    description: The file id
+responses:
+  200:
+    description: The user data with that JWT token
+    properties:
+      changed:
+        type: boolean
+        description: True if the password was changed
+  403:
+    description: The JWT token is invalid
+    properties:
+      message:
+        type: string
+        description: The error message
+  400:
+    description: Invalid validation
+    properties:
+      message:
+        type: dict
+        description: The error message
+  404:
+    description: The file does not exist
+    properties:
+      message:
+        type: string
+        description: The error message

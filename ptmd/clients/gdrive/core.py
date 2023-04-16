@@ -5,10 +5,12 @@ and upload the files to the drive.
 """
 from __future__ import annotations
 
+from os import path
+
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
-from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME, SETTINGS_FILE_PATH
+from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME, SETTINGS_FILE_PATH, DOWNLOAD_DIR
 from ptmd.logger import LOGGER
 from .const import ROOT_FOLDER_METADATA
 from .utils import content_exist
@@ -109,3 +111,14 @@ class GoogleDriveConnector:
         file.InsertPermission({'type': 'anyone', 'role': 'writer'})
         return content_exist(google_drive=self.google_drive, folder_name=file_metadata['title'],
                              parent=directory_id, type_='file')
+
+    def download_file(self, file_id: str | int, filename: str) -> str:
+        """ This function will download the file from the Google Drive.
+
+        :param file_id: The file identifier.
+        :param filename: The name of file to be downloaded.
+        """
+        file = self.google_drive.CreateFile({'id': file_id})
+        file_path = path.join(DOWNLOAD_DIR, filename)
+        file.GetContentFile(file_path)
+        return file_path

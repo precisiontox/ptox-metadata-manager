@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 from unittest.mock import patch
 from json import dumps
@@ -36,7 +38,7 @@ MOCKED_FAILING_USER = None
 @patch('ptmd.api.queries.users.get_session', return_value=session)
 @patch('ptmd.api.queries.utils.get_session', return_value=session)
 class TestUser(TestCase):
-    session: Session or None = None
+    session: Session | None = None
 
     def setUp(self) -> None:
         Base.metadata.drop_all(engine)

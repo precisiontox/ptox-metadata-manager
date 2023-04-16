@@ -50,6 +50,9 @@ class FileMock(dict):
     def InsertPermission(self, *args, **kwargs):
         pass
 
+    def GetContentFile(self, *args, **kwargs):
+        pass
+
 
 class MockGoogleDrive:
     def CreateFile(self, *args, **kwargs):
@@ -108,3 +111,9 @@ class TestGDriveConnector(TestCase):
         file_metadata = gdrive_connector.upload_file(file_path=xlsx_file,
                                                      directory_id=123)
         self.assertEqual(content_exist_mock.return_value, file_metadata)
+
+    def test_download_file(self, google_drive_mock, google_auth_mock):
+        gdrive_connector = GoogleDriveConnector()
+        file_id = "123"
+        file_metadata = gdrive_connector.download_file(file_id=file_id, filename='test.xlsx')
+        self.assertIn('test.xlsx', file_metadata)
