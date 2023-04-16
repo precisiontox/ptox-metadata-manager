@@ -90,6 +90,7 @@ docstr-coverage ptmd/ --fail-under=100
 ## Verify type hints
 You will need the development dependencies installed to verify the type hints.
 ```shell
+mypy --install-types
 mypy .\ptmd --disallow-untyped-calls  --disallow-incomplete-defs --follow-imports=skip  --check-untyped-defs
 ```
 
