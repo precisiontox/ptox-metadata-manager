@@ -37,7 +37,7 @@ class MockSession:
 
 
 class MockSessionError(MockSession):
-    def first(self):
+    def first(self, *args, **kwargs):
         return None
 
 

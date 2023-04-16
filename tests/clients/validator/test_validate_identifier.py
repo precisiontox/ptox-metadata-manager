@@ -17,7 +17,6 @@ class MockSessionSuccess:
         self.ptx_code = 2
         self.ptox_biosystem_name = 'test'
         self.ptox_biosystem_code = 'F'
-        pass
 
     def query(self, *args, **kwargs):
         return self

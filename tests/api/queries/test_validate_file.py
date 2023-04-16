@@ -24,6 +24,7 @@ class TestValidateFile(TestCase):
     def test_valid(self, mock_validator):
         report, code = validate_file(1)
         self.assertTrue(report['message'], "File validated successfully.")
+        self.assertEqual(code, 200)
 
     @patch('ptmd.api.queries.validate.ExcelValidator', return_value=MockedValidatorError(1))
     def test_error_400(self, mock_validator):
