@@ -1,8 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from flask_jwt_extended import create_access_token
-
 from ptmd.api import app
 from ptmd.api.queries.validate import validate_file
 
