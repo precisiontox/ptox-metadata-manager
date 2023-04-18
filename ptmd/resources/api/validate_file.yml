@@ -24,7 +24,7 @@ responses:
       message:
         type: string
         description: The error message
-  400:
+  406:
     description: Invalid validation
     properties:
       message:

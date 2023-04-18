@@ -1,9 +1,10 @@
 from unittest import TestCase
 from unittest.mock import patch
+from copy import deepcopy
 
 from pandas import DataFrame, Series, concat
 
-from ptmd.clients.validator import ExcelValidator, ExternalExcelValidator
+from ptmd.clients.validator.core import ExcelValidator, ExternalExcelValidator, VerticalValidator
 from ptmd.const import SAMPLE_SHEET_COLUMNS, GENERAL_SHEET_COLUMNS
 
 
@@ -75,7 +76,7 @@ mock_exposure_dataframe_error = concat([mock_exposure_dataframe, mock_exposure_s
 
 mock_general_dataframe = DataFrame(columns=GENERAL_SHEET_COLUMNS)
 mock_general_series = Series(
-    ["UOB", "Drosophila_melanogaster_female", "AC", "4", "4", "2", "2020-01-01", "2020-10-01", [4, 12, 36], "DMSO"],
+    ["UOB", "Drosophila_melanogaster_female", "AC", 1, 1, 0, "2020-01-01", "2020-10-01", "[4]", "DMSO"],
     index=GENERAL_SHEET_COLUMNS
 )
 mock_general_dataframe = concat([mock_general_dataframe, mock_general_series.to_frame().T],
@@ -108,6 +109,17 @@ class MockExcelFileError:
 
     def validate(self, *args, **kwargs):
         pass
+
+
+class MockValidator:
+    def __init__(self, *args, **kwargs):
+        self.report = {'valid': True, 'errors': {}}
+
+    def add_error(self, label, message, field):
+        self.report['valid'] = False
+        if label not in self.report['errors']:
+            self.report['errors'][label] = []
+        self.report['errors'][label].append({'message': message, 'field_concerned': field})
 
 
 @patch('ptmd.clients.validator.core.remove', return_value=None)
@@ -152,3 +164,109 @@ class TestExternalValidator(TestCase):
         validator = ExternalExcelValidator("A")
         validator.validate()
         self.assertEqual(validator.report['valid'], True)
+
+
+class TestVerticalValidator(TestCase):
+    def setUp(self) -> None:
+        self.organism: str = "Ethoprophos"
+        self.general_information = {
+            'timepoints': [4],
+            'replicates': 1,
+            'blanks': 0,
+            'control': 1,
+            'compound_vehicle': 'DMSO'
+        }
+        self.default_node = {
+            'data': {
+                "compound_name": self.organism,
+                "replicate": 1,
+                "timepoint (hours)": 4
+            },
+            'label': 'CP1'
+        }
+
+    def test_validate_success(self):
+        validator = MockValidator()
+        graph = VerticalValidator(self.general_information, validator)
+        graph.add_node(self.default_node)
+        graph.validate()
+        self.assertTrue(validator.report['valid'])
+
+    def test_validate_errors_blanks(self):
+        validator = MockValidator()
+        self.general_information['blanks'] = 2
+        blank_node: dict = deepcopy(self.default_node)
+        blank_node['data']['timepoint (hours)'] = 8
+        blank_node['data']['compound_name'] = "EXTRACTION BLANK"
+
+        graph = VerticalValidator(self.general_information, validator)
+        graph.add_node(self.default_node)
+        graph.add_node(blank_node)
+        graph.validate()
+
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors']['CP1'][0]['message'],
+                         "Extraction blank must have a timepoint of 0.")
+        self.assertEqual(validator.report['errors']['Extraction blanks'][0]['message'],
+                         "The number of extraction blanks should be 2 but is 1")
+
+    def test_validate_timepoints_missing(self):
+        validator = MockValidator()
+        self.general_information['timepoints'] = [4, 8]
+        graph = VerticalValidator(self.general_information, validator)
+        graph.add_node(self.default_node)
+        graph.validate()
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors'][self.organism][0]['message'],
+                         "Timepoint 1 is missing 1 replicate(s).")
+
+    def test_validate_timepoints_too_many(self):
+        validator = MockValidator()
+        extra_node: dict = {**self.default_node}
+        extra_node['data']['timepoint (hours)'] = 8
+        self.general_information['timepoints'] = [4]
+        graph = VerticalValidator(self.general_information, validator)
+        graph.add_node(self.default_node)
+        graph.add_node(extra_node)
+        graph.validate()
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors'][self.organism][0]['message'],
+                         "Timepoint 1 has greater number of replicates 2 than expected (1).")
+
+    def test_validate_replicate_missing(self):
+        validator = MockValidator()
+        self.general_information['replicates'] = 2
+        graph = VerticalValidator(self.general_information, validator)
+        graph.add_node(self.default_node)
+        graph.validate()
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors'][self.organism][0]['message'],
+                         "Replicate 1 is missing 1 timespoints(s).")
+
+    def test_validate_replicate_too_many(self):
+        validator = MockValidator()
+        extra_node: dict = {**self.default_node}
+        self.general_information['replicates'] = 1
+        extra_node['data']['replicate'] = 6
+        graph = VerticalValidator(self.general_information, validator)
+        graph.add_node(self.default_node)
+        graph.add_node(extra_node)
+        graph.validate()
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors']['CP1'][0]['message'],
+                         "Replicate 6 is greater than the number of replicates 1.")
+        self.assertEqual(validator.report['errors'][self.organism][0]['message'],
+                         "Replicate 1 has too many timepoints.")
+
+    def test_validate_controls_dose_not_zero(self):
+        validator = MockValidator()
+        self.general_information['control'] = 1
+        control_node: dict = deepcopy(self.default_node)
+        control_node['data']['compound_name'] = "CONTROL (DMSO)"
+        control_node['data']['dose_code'] = 1
+
+        graph = VerticalValidator(self.general_information, validator)
+        graph.add_node(control_node)
+        graph.validate()
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors']['CP1'][0]['message'], "Controls must have a dose of 0.")

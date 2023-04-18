@@ -34,6 +34,7 @@ class ExcelValidator:
         self.general_info: dict = {}
         self.exposure_data: list[dict] = []
         self.identifiers: list[str] = []
+        self.vertical_validation_data: dict = {}
         self.__schema: dict = {}
         self.file_id: int | str = file_id
         self.session: Session | None = None
@@ -79,6 +80,8 @@ class ExcelValidator:
         general_df: DataFrame = file_handler.parse("General Information")
         self.exposure_data = exposure_df.replace({nan: None}).to_dict(orient='records')
         self.general_info = general_df.replace({nan: None}).to_dict(orient='records')[0]
+        timepoints: str = self.general_info['timepoints'].strip('[]').split(', ')
+        self.general_info['timepoints'] = list(map(lambda x: int(x), timepoints))
         with open(EXPOSURE_INFORMATION_SCHEMA_FILEPATH, 'r') as f:
             self.__schema = loads(f.read())
 
@@ -88,22 +91,23 @@ class ExcelValidator:
         self.__load_data()
         validator: JSONValidator = JSONValidator(self.__schema)
         self.report['valid'] = True
+        graph = VerticalValidator(self.general_info, self)
 
         for record_index, record in enumerate(self.exposure_data):
             ptx_id: str = record[PTX_ID_LABEL]
             label: str = f"Record at line {record_index + 2} ({ptx_id})"
             errors: Generator = validator.iter_errors(record)
             self.current_record = {'data': record, 'label': label}
-
             for error in errors:
-                self.report['valid'] = False
-                message: str = error.message
-                if "None is not of type" in message:
-                    message = "This field is required."
+                message: str = "This field is required." if "None is not of type" in error.message else error.message
                 field: str = error.message.split("'")[1] if not error.path else error.path[0]
                 self.add_error(label, message, field)
 
+            graph.add_node(self.current_record)
+
             validate_identifier(excel_validator=self, record_index=record_index)
+
+        graph.validate()
 
     def add_error(self, label, message, field):
         """ Adds an error to the report.
@@ -113,6 +117,7 @@ class ExcelValidator:
         :param field: The field concerned by the error.
         :return: None
         """
+        self.report['valid'] = False
         if label not in self.report['errors']:
             self.report['errors'][label] = []
         self.report['errors'][label].append({'message': message, 'field_concerned': field})
@@ -142,6 +147,7 @@ class ExternalExcelValidator(ExcelValidator):
 
     def validate(self):
         """ Validates the file. """
+        self.session = get_session()
         self.filepath = self.download_file()
         self.validate_file()
         remove(self.filepath)
@@ -152,6 +158,108 @@ class ExternalExcelValidator(ExcelValidator):
         :return: the downloaded file path.
         """
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
-        file = gdrive.google_drive.CreateFile({'id': self.file_id})
+        file: dict = gdrive.google_drive.CreateFile({'id': self.file_id})
         filepath: str = gdrive.download_file(self.file_id, file['title'])
         return filepath
+
+
+class VerticalValidator:
+    """ Validate the study design of the exposure information using the general information sheet.
+
+    :param definitions: The general information sheet.
+    :param validator: The ExcelValidator instance.
+    """
+
+    def __init__(self, definitions: dict, validator: ExcelValidator) -> None:
+        """ The validator constructor. """
+        self.controls_keys: list[str] = ['CONTROL (DMSO)', 'CONTROL (WATER)']
+        self.validator: ExcelValidator = validator
+        self.timepoints: list = definitions['timepoints']
+        self.replicates: int = definitions['replicates']
+        self.blanks: int = definitions['blanks']
+        self.controls: int = definitions['control']
+        self.vehicle: str = definitions['compound_vehicle']
+
+        self.compounds: dict = {}
+        self.extraction_blanks: int = 0
+
+    def add_node(self, node: dict) -> None:
+        """ Add the node and validates it.
+
+        :param node: The node to add.
+        :return: None
+        """
+        message: str
+        label: str = node['label']
+        compound_name: str = node['data'].get('compound_name', None)
+        replicate: int = node['data'].get('replicate', None)
+        timepoint: int = node['data'].get('timepoint (hours)', None)
+        dose: int = node['data'].get('dose_code', None)
+
+        if compound_name:
+            if replicate > self.replicates:
+                message = f"Replicate {replicate} is greater than the number of replicates {self.replicates}."
+                self.validator.add_error(label, message, 'replicate')
+
+            if timepoint not in self.timepoints and compound_name != 'EXTRACTION BLANK':
+                message = f"Timepoint {timepoint} is not in the list of timepoints {self.timepoints}."
+                self.validator.add_error(label, message, 'timepoint (hours)')
+
+            if compound_name == 'EXTRACTION BLANK':
+                self.extraction_blanks += 1
+                if timepoint != 0:
+                    message = "Extraction blank must have a timepoint of 0."
+                    self.validator.add_error(label, message, 'timepoint (hours)')
+
+            if compound_name in self.controls_keys:
+                if dose != 0:
+                    message = "Controls must have a dose of 0."
+                    self.validator.add_error(label, message, 'dose_code')
+
+            if compound_name not in self.compounds:
+                self.compounds[compound_name] = {
+                    'replicates': {},
+                    'timepoints': {}
+                }
+
+            if timepoint not in self.compounds[compound_name]['replicates']:
+                self.compounds[compound_name]['replicates'][timepoint] = 0
+            if replicate not in self.compounds[compound_name]['timepoints']:
+                self.compounds[compound_name]['timepoints'][replicate] = 0
+
+            self.compounds[compound_name]['replicates'][timepoint] += 1
+            self.compounds[compound_name]['timepoints'][replicate] += 1
+
+    def validate(self):
+        """ Validates the study design after all nodes have been added
+
+        :return: None
+        """
+        if self.extraction_blanks != self.blanks:
+            message = f"The number of extraction blanks should be {self.blanks} but is {self.extraction_blanks}"
+            self.validator.add_error('Extraction blanks', message, 'compound_name')
+
+        for compound_name, compound_val in self.compounds.items():
+            if compound_name == 'EXTRACTION BLANK':
+                break
+
+            for timepoint in compound_val['replicates']:
+                if timepoint in self.timepoints:
+                    replicate: int = compound_val['replicates'][timepoint]
+                    index: int = self.timepoints.index(timepoint) + 1
+                    if replicate < self.replicates:
+                        message = f"Replicate {index} is missing {self.replicates - replicate } timespoints(s)."
+                        self.validator.add_error(compound_name, message, 'timepoints')
+                    elif replicate > self.replicates:
+                        message = f"Replicate {index} has too many timepoints."
+                        self.validator.add_error(compound_name, message, 'timepoints')
+
+            for replicate in compound_val['timepoints']:
+                timepoint = compound_val['timepoints'][replicate]
+                if timepoint > len(self.timepoints):
+                    message = f"Timepoint {replicate} has greater number of replicates {timepoint} " \
+                              f"than expected ({self.replicates})."
+                    self.validator.add_error(compound_name, message, 'replicates')
+                elif timepoint < len(self.timepoints):
+                    message = f"Timepoint {replicate} is missing {len(self.timepoints) - timepoint} replicate(s)."
+                    self.validator.add_error(compound_name, message, 'replicates')
