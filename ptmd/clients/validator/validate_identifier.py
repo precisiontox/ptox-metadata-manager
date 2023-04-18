@@ -39,7 +39,6 @@ def validate_unique_identifier(validator: Any, record_index: int) -> None:
     """
     ptx_id: str = validator.current_record['data'][PTX_ID_LABEL]
     if ptx_id in validator.identifiers:
-        validator.report['valid'] = False
         msg: str = (f"Record at line {record_index + 2} ({ptx_id}) "
                     f"is duplicated with record at line {validator.identifiers.index(ptx_id) + 3}")
         validator.add_error(validator.current_record['label'], msg, PTX_ID_LABEL)
@@ -58,17 +57,14 @@ def validate_species(validator: Any) -> None:
             Organism.ptox_biosystem_name == organism_name
         ).first()
         if not organism:
-            validator.report['valid'] = False
             validator.add_error(validator.current_record['label'], "Organism not found in database.", "biosystem_name")
         elif species != organism.ptox_biosystem_code:
-            validator.report['valid'] = False
             validator.add_error(
                 validator.current_record['label'],
                 "The identifier organism doesn't match the biosystem_name.",
                 PTX_ID_LABEL
             )
     except Exception as e:
-        validator.report['valid'] = False
         validator.add_error(validator.current_record['label'], f"Error {e}", "unknown")
 
 
@@ -82,21 +78,18 @@ def validate_batch(validator: Any) -> None:
 
     # validate the batch in the general information sheet
     if not match(ALLOWED_EXPOSURE_BATCH, batch_reference):
-        validator.report['valid'] = False
         validator.add_error(validator.current_record['label'],
                             f"The batch '{batch_reference}' is not valid.",
                             BATCH_LABEL)
 
     # validate the batch in the exposure information sheet
     if not match(ALLOWED_EXPOSURE_BATCH, batch):
-        validator.report['valid'] = False
         validator.add_error(validator.current_record['label'],
                             f"The identifier doesn't contain a valid batch '{batch}'.",
                             PTX_ID_LABEL)
 
     # compare the batch in the general information sheet and the exposure information sheet
     elif batch != batch_reference:
-        validator.report['valid'] = False
         validator.add_error(validator.current_record['label'],
                             f"The identifier batch doesn't match the batch '{batch_reference}'.",
                             PTX_ID_LABEL)
@@ -110,7 +103,6 @@ def validate_compound(validator: Any) -> None:
     compound_code: int = int(validator.current_record['data'][PTX_ID_LABEL][3:6])
     compound_reference: str = validator.current_record['data'][COMPOUND_LABEL]
     if compound_code < 1 or compound_code > 999:
-        validator.report['valid'] = False
         validator.add_error(validator.current_record['label'],
                             f"The identifier doesn't contain a valid compound code '{compound_code}'.",
                             PTX_ID_LABEL)
@@ -119,8 +111,7 @@ def validate_compound(validator: Any) -> None:
             validate_replicates_compound(validator, compound_reference, compound_code)
         elif 'CONTROL' in compound_reference:
             validate_controls_compound(validator, compound_reference, compound_code)
-        elif 'EXTRACTION BLANK' in compound_reference and compound_code != '998':
-            validator.report['valid'] = False
+        elif 'EXTRACTION BLANK' in compound_reference and compound_code != 998:
             validator.add_error(validator.current_record['label'],
                                 f"The identifier compound should be 998 but got {compound_code}.",
                                 PTX_ID_LABEL)
@@ -136,18 +127,15 @@ def validate_replicates_compound(validator: Any, compound_name: str, code: int) 
     try:
         compound: Chemical = validator.session.query(Chemical).filter(Chemical.common_name == compound_name).first()
         if not compound:
-            validator.report['valid'] = False
             validator.add_error(validator.current_record['label'],
                                 f"The identifier doesn't contain a valid compound code '{code}'.",
                                 COMPOUND_LABEL)
         elif compound.ptx_code != code:
-            validator.report['valid'] = False
             msg: str = "The identifier %s compound doesn't match the compound %s (%s)" % (
                 code, compound_name, compound.ptx_code
             )
             validator.add_error(validator.current_record['label'], msg, PTX_ID_LABEL)
     except Exception as e:
-        validator.report['valid'] = False
         validator.add_error(validator.current_record['label'], f"Error {e}", 'unknown')
 
 
@@ -158,13 +146,11 @@ def validate_controls_compound(validator: Any, compound_name: str, code: int) ->
     :param compound_name: The reference compound name to check
     :param code: The compound code to check
     """
-    if 'DMSO' in compound_name and compound_name != 999:
-        validator.report['valid'] = False
+    if 'DMSO' in compound_name and code != 999:
         validator.add_error(validator.current_record['label'],
                             f"The identifier compound should be 999 but got {code}.",
                             PTX_ID_LABEL)
-    elif 'WATER' in compound_name and compound_name != 997:
-        validator.report['valid'] = False
+    elif 'WATER' in compound_name and code != 997:
         validator.add_error(validator.current_record['label'],
                             f"The identifier compound should be 997 but got {code}.",
                             PTX_ID_LABEL)
@@ -181,12 +167,10 @@ def validate_dose(validator: Any) -> None:
         try:
             dose_map: str = INV_DOSE_MAPPING[dose]
             if dose_map != dose_reference:
-                validator.report['valid'] = False
                 validator.add_error(validator.current_record['label'],
                                     f"The identifier dose maps to {dose_map} but should maps to '{dose_reference}'.",
                                     PTX_ID_LABEL)
         except KeyError:
-            validator.report['valid'] = False
             validator.add_error(validator.current_record['label'],
                                 f"The identifier contain a invalid dose '{dose}'.",
                                 PTX_ID_LABEL)
@@ -203,12 +187,10 @@ def validate_timepoints(validator: Any) -> None:
         try:
             timepoints_map: str = INV_TIMEPOINT_MAPPING[timepoints]
             if timepoints_map != timepoints_reference:
-                validator.report['valid'] = False
                 message: str = (f"The identifier timepoints maps to {timepoints_map} "
                                 f"but should maps to '{timepoints_reference}'.")
                 validator.add_error(validator.current_record['label'], message, PTX_ID_LABEL)
         except KeyError:
-            validator.report['valid'] = False
             validator.add_error(validator.current_record['label'],
                                 f"The identifier contains an invalid timepoint '{timepoints}'.",
                                 PTX_ID_LABEL)
@@ -222,6 +204,5 @@ def validate_replicate(validator: Any) -> None:
     replicate: int = int(validator.current_record['data'][PTX_ID_LABEL][-1])
     replicate_reference: int = validator.current_record['data']['replicate']
     if replicate != replicate_reference:
-        validator.report['valid'] = False
         message: str = f"The identifier replicate {replicate} doesn't match the replicate {replicate_reference}."
         validator.add_error(validator.current_record['label'], message, PTX_ID_LABEL)

@@ -34,9 +34,9 @@
       "description": "The compound name."
     },
     "dose_code": {
-        "type": "string",
+        "type": ["string", "integer"],
         "description": "The dose code.",
-        "enum": ["0", "BMD10", "BMD25", "10mg/L"]
+        "enum": ["0", "BMD10", "BMD25", "10mg/L", 0]
     },
     "exposure_route": {
         "type": "string",

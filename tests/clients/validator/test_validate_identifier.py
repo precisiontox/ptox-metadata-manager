@@ -62,6 +62,7 @@ class ExcelValidatorMock:
         self.session = MockSessionSuccess()
 
     def add_error(self, label, message, field):
+        self.report['valid'] = False
         if label not in self.report['errors']:
             self.report['errors'][label] = []
         self.report['errors'][label].append({'message': message, 'field_concerned': field})
@@ -152,6 +153,7 @@ class TestValidateIdentifier(TestCase):
         validator = ExcelValidatorMock()
         validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
         validate_compound(validator)
+        print(validator.report)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],
                          "The identifier 3 compound doesn't match the compound Compound 1 (2)")
