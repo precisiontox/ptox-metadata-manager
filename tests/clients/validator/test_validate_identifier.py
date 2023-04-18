@@ -153,7 +153,6 @@ class TestValidateIdentifier(TestCase):
         validator = ExcelValidatorMock()
         validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
         validate_compound(validator)
-        print(validator.report)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],
                          "The identifier 3 compound doesn't match the compound Compound 1 (2)")

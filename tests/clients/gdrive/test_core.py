@@ -51,12 +51,17 @@ class FileMock(dict):
         pass
 
     def GetContentFile(self, *args, **kwargs):
-        pass
+        return {"title": "title test"}
 
 
 class MockGoogleDrive:
     def CreateFile(self, *args, **kwargs):
         return FileMock()
+
+
+class MockGoogleDriveForFilename:
+    def CreateFile(self, *args, **kwargs):
+        return {"title": "title test"}
 
 
 @patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
@@ -117,3 +122,12 @@ class TestGDriveConnector(TestCase):
         file_id = "123"
         file_metadata = gdrive_connector.download_file(file_id=file_id, filename='test.xlsx')
         self.assertIn('test.xlsx', file_metadata)
+
+
+@patch('ptmd.clients.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
+@patch('ptmd.clients.gdrive.core.GoogleDrive', return_value=MockGoogleDriveForFilename())
+class TestGetFileName(TestCase):
+    def test_get_filename(self, google_drive_mock, google_auth_mock):
+        gdrive_connector = GoogleDriveConnector()
+        filename = gdrive_connector.get_filename(file_id="123")
+        self.assertEqual(filename, "title test")

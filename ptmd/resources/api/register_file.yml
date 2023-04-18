@@ -1,0 +1,45 @@
+The register file route let's users register an existing google document to the database. The document is then accessible to the user and the partner.
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: body
+    in: body
+    required: true
+    schema:
+      id: Create File
+      schema:
+        $ref: '#/definitions/Create File'
+definitions:
+  Create File:
+    type: object
+    required:
+      - partner
+      - organism
+      - batch
+      - file_id
+    properties:
+      partner:
+        type: string
+        description: The name of the partner
+        example: UOB
+      organism:
+        type: string
+        description: The name of the organism
+        example: Drosophila_melanogaster_female
+      batch:
+        type: string
+        description: The code of the current exposure batch
+        example: AC
+      file_id:
+        type: string
+        description: The id of the google document to register
+        example: "1"
+
+responses:
+  200:
+    description: The URL to the google spreadsheet
+    example: {"data": {"file_url": https://docs.google.com/spreadsheets/d/1}}

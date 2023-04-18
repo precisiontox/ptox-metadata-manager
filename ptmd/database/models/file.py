@@ -43,7 +43,7 @@ class File(Base):
             name: str,
             organisation_name: str,
             user_id: int,
-            organism_name: int,
+            organism_name: str,
             batch: str,
             session: sqlsession = None
     ) -> None:

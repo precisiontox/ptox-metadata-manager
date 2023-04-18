@@ -122,3 +122,11 @@ class GoogleDriveConnector:
         file_path = path.join(DOWNLOAD_DIR, filename)
         file.GetContentFile(file_path)
         return file_path
+
+    def get_filename(self, file_id: str | int) -> str:
+        """ This function will return the file name.
+
+        :param file_id: The file identifier.
+        """
+        file = self.google_drive.CreateFile({'id': file_id})
+        return file['title']
