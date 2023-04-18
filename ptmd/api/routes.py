@@ -14,7 +14,8 @@ from .queries import (
     get_me, get_organisms, get_chemicals, get_organisations,
     create_gdrive_file,
     create_user,
-    validate_file
+    validate_file,
+    register_gdrive_file
 )
 
 
@@ -90,3 +91,11 @@ def user():
 def validate(file_id: int):
     """ Validate a file """
     return validate_file(file_id)
+
+
+@app.route('/api/file/register', methods=['POST'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'register_file.yml'))
+@jwt_required()
+def register_file():
+    """ Register a file from an external Google Drive """
+    return register_gdrive_file()
