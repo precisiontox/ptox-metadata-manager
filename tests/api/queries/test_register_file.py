@@ -48,8 +48,10 @@ class TestRegisterFile(TestCase):
         self.assertEqual(response.json, {'message': 'File added successfully.'})
 
     @patch('ptmd.api.queries.core.get_session', return_value=session)
+    @patch('ptmd.api.queries.users.get_session', return_value=session)
+    @patch('ptmd.api.queries.utils.get_session', return_value=session)
     @patch('ptmd.api.queries.core.GoogleDriveConnector', return_value=MockGoogleDrive())
-    def test_register_file(self, mock_get_session, mock_gdrive):
+    def test_register_file(self, mock_get_session, mock_session_1, moc_session_2, mock_gdrive):
         with app.test_client() as test_client:
             login = test_client.post('/api/login', headers=HEADERS,
                                      data=json_dumps({'username': 'admin', 'password': 'admin'}))
