@@ -4,18 +4,23 @@
   "type": "object",
   "description": "A JSON Schema representing an exposure condition",
   "properties": {
-    "chemical": {
-      "type": "string",
+    "chemicals": {
+      "type": "array",
       "description": "The chemical name.",
       "_api": "GET /api/chemicals"
     },
     "dose": {
-      "type": "string",
+      "type": ["string", "number"],
       "enum": [
         "BMD10",
         "BMD25",
-        "10mg/L"
+        "10mg/L",
+        0
       ]
     }
-  }
+  },
+  "required": [
+    "chemicals",
+    "dose"
+  ]
 }

@@ -2,15 +2,18 @@
 
 @author: D. Batista (Terazus)
 """
+from typing import Any
+
 from pandas import DataFrame, Series, concat as pd_concat
 
-from ptmd.const import GENERAL_SHEET_COLUMNS, SAMPLE_SHEET_COLUMNS, DOSE_MAPPING, TIME_POINT_MAPPING, EMPTY_FIELDS_VALUES
-from .interfaces import InputsToDataframes
+from ptmd.const import (
+    GENERAL_SHEET_COLUMNS, SAMPLE_SHEET_COLUMNS,
+    DOSE_MAPPING, TIME_POINT_MAPPING,
+    EMPTY_FIELDS_VALUES
+)
 
 
-def build_general_dataframe(
-        harvester: InputsToDataframes
-) -> DataFrame:
+def build_general_dataframe(harvester: Any) -> DataFrame:
     """ Builds a DataFrame with the general information of the harvester.
 
     :param harvester: The harvester to build the DataFrame from.
@@ -21,9 +24,9 @@ def build_general_dataframe(
         harvester.partner,
         harvester.organism,
         harvester.exposure_batch,
-        harvester.replicate4control,
-        harvester.replicate4exposure,
-        harvester.replicate_blank,
+        harvester.replicates4control,
+        harvester.replicates4exposure,
+        harvester.replicates_blank,
         harvester.start_date.strftime('%Y-%m-%d'),
         harvester.end_date.strftime('%Y-%m-%d'),
         harvester.timepoints,
@@ -32,11 +35,7 @@ def build_general_dataframe(
     return series.to_frame().T
 
 
-def build_sample_dataframe(
-        harvester: InputsToDataframes,
-        chemicals_mapping: dict[str, str],
-        organism_code: str
-) -> DataFrame:
+def build_sample_dataframe(harvester: Any, chemicals_mapping: dict[str, str], organism_code: str) -> DataFrame:
     """ Builds a DataFrame with the sample information of the harvester.
 
     :param harvester: The harvester to build the DataFrame from.
@@ -53,20 +52,20 @@ def build_sample_dataframe(
 
     # build the section containing the exposition conditions
     for exposure_condition in harvester.exposure_conditions:
-        dose_code: str = DOSE_MAPPING[exposure_condition.dose]
-        for chemical in exposure_condition.chemicals_name:
+        dose_code: str = DOSE_MAPPING[exposure_condition['dose']]
+        for chemical in exposure_condition['chemicals']:
             chemical_code: str = chemicals_mapping[chemical]
             for tp in range(1, number_of_timepoints + 1):
                 timepoint = TIME_POINT_MAPPING[f'TP{tp}']
                 timepoint_value = harvester.timepoints[tp - 1]
-                for replicate in range(1, harvester.replicate4exposure + 1):
+                for replicate in range(1, harvester.replicates4exposure + 1):
                     hash_id = '%s%s%s%s%s%s' % (organism_code, harvester.exposure_batch, chemical_code,
                                                 dose_code, timepoint, replicate)
                     series = Series([
                         *EMPTY_FIELDS_VALUES,
                         replicate,
                         chemical,
-                        exposure_condition.dose,
+                        exposure_condition['dose'],
                         'TP%s' % tp,
                         timepoint_value,
                         hash_id
@@ -74,7 +73,7 @@ def build_sample_dataframe(
                     dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
 
     # build the section containing the control conditions
-    for replicate in range(1, harvester.replicate4control + 1):
+    for replicate in range(1, harvester.replicates4control + 1):
         for tp in range(1, number_of_timepoints + 1):
             timepoint = TIME_POINT_MAPPING[f'TP{tp}']
             timepoint_value = harvester.timepoints[tp - 1]
@@ -86,7 +85,10 @@ def build_sample_dataframe(
             dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
 
     # add the blanks and return the dataframe
-    return add_blanks_to_sample_dataframe(dataframe, harvester.replicate_blank, organism_code, harvester.exposure_batch)
+    return add_blanks_to_sample_dataframe(dataframe,
+                                          harvester.replicates_blank,
+                                          organism_code,
+                                          harvester.exposure_batch)
 
 
 def add_blanks_to_sample_dataframe(

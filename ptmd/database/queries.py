@@ -10,20 +10,20 @@ from ptmd.logger import LOGGER
 
 from flask_jwt_extended import create_access_token
 from flask import jsonify, Response
-from sqlalchemy.orm import session as sqlsession
+from sqlalchemy.orm import Session
 
 from ptmd.database.utils import get_session
 from .models import User, Organisation, Chemical, Organism
 
 
 def boot(
-        session: sqlsession,
+        session: Session,
         organisations: dict = (),
         users: list[dict] = (),
         chemicals: list[dict] = (),
         organisms: list[dict] = (),
         insert: bool = False
-) -> list[dict[str, Organisation], dict[str, User], dict[str, Chemical], dict[str, Organism]]:
+) -> list[dict]:
     """ Boot the database. This will create all tables and insert the default users.
 
     :param session: the database SQLAlchemy session
@@ -47,7 +47,7 @@ def boot(
     return [created_organisations, created_users, created_chemicals, created_organisms]
 
 
-def login_user(username: str, password: str, session: sqlsession) -> tuple[Response, int]:
+def login_user(username: str, password: str, session: Session) -> tuple[Response, int]:
     """ Login a user and return a JWT token. The username and password are retrieved from the request body.
 
     @param username
@@ -68,7 +68,7 @@ def get_allowed_chemicals() -> list[str]:
 
     :return: a list of chemicals names
     """
-    session: sqlsession = get_session()
+    session: Session = get_session()
     allowed_chemicals = [chemical.common_name for chemical in session.query(Chemical).all()]
     session.close()
     return allowed_chemicals
@@ -79,18 +79,24 @@ def get_allowed_organisms() -> list[str]:
 
     :return: a list of organisms names
     """
-    session: sqlsession = get_session()
+    session: Session = get_session()
     allowed_organism = [organism.ptox_biosystem_name for organism in session.query(Organism).all()]
     session.close()
     return allowed_organism
 
 
-def get_organism_code(organism_name: str) -> str | None:
-    """ Get the organism code from the organism name."""
-    session: sqlsession = get_session()
+def get_organism_code(organism_name: str) -> str:
+    """ Get the organism code from the organism name.
+
+    :param organism_name: str: the organism name
+    :return: str: the organism code
+    """
+    session: Session = get_session()
     organism = session.query(Organism).filter_by(ptox_biosystem_name=organism_name).first()
+    if not organism:
+        raise ValueError(f'Organism {organism_name} not found in the database.')
     session.close()
-    return organism.ptox_biosystem_code if organism else None
+    return organism.ptox_biosystem_code
 
 
 def get_chemical_code_mapping(chemicals: list[str]) -> dict[str, str]:
@@ -99,16 +105,18 @@ def get_chemical_code_mapping(chemicals: list[str]) -> dict[str, str]:
     :param chemicals: list[str]: list of chemicals names
     :return: list of chemicals codes
     """
-    session: sqlsession = get_session()
+    session: Session = get_session()
     chemicals_mapping = {}
-    for chemical in chemicals:
-        chemical = session.query(Chemical).filter_by(common_name=chemical).first()
+    for chemical_name in chemicals:
+        chemical: Chemical = session.query(Chemical).filter_by(common_name=chemical_name).first()
+        if not chemical:
+            raise ValueError(f'Chemical {chemical_name} not found in the database.')
         chemicals_mapping[chemical.common_name] = str(chemical.ptx_code).rjust(3, '0')
     session.close()
     return chemicals_mapping
 
 
-def create_organisations(organisations: dict, session: sqlsession) -> dict[str, Organisation]:
+def create_organisations(organisations: dict, session: Session) -> dict:
     """ Create organisations in the database.
 
     :param organisations: list[str]: list of organisations names
@@ -127,7 +135,7 @@ def create_organisations(organisations: dict, session: sqlsession) -> dict[str, 
     return organisation
 
 
-def create_users(users: list[dict], session: sqlsession) -> dict[int, User]:
+def create_users(users: list[dict], session: Session) -> dict[int, User]:
     """ Create users in the database.
 
     :param users: list[dict]: list of users
@@ -144,7 +152,7 @@ def create_users(users: list[dict], session: sqlsession) -> dict[int, User]:
     return created_users
 
 
-def create_chemicals(chemicals: list[dict], session: sqlsession) -> dict[str, Chemical]:
+def create_chemicals(chemicals: list[dict], session: Session) -> dict[str, Chemical]:
     """ Creates the chemicals in the database.
 
     :param chemicals: list of chemicals coming from the precision toxicology API
@@ -165,7 +173,7 @@ def create_chemicals(chemicals: list[dict], session: sqlsession) -> dict[str, Ch
     return chemicals_in_database
 
 
-def create_organisms(organisms: list[dict], session: sqlsession) -> dict[str, Organism]:
+def create_organisms(organisms: list[dict], session: Session) -> dict[str, Organism]:
     """ Creates the organisms in the database.
 
     :param organisms: list of organisms coming from the precision toxicology API

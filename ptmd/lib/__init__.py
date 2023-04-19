@@ -7,4 +7,4 @@ necessary directories/folders and files.
 
 from .gdrive import GoogleDriveConnector
 from .file_parsers import parse_chemicals, parse_organisms
-from .creator import Inputs2Dataframes, ExposureCondition
+from .creator import DataframeCreator

@@ -23,18 +23,11 @@
       },
       "replicates4exposure": {
         "type": "number",
-        "minimum": 4
+        "minimum": 2
       },
       "replicates4control": {
         "type": "number",
-        "minimum": 4
-      },
-      "exposure": {
-          "type": "array",
-          "description": "The exposure represent a list of chemical names and doses.",
-          "items": {
-              "$ref": "exposure_schema.json#"
-          }
+        "minimum": 2
       },
       "replicates_blank": {
         "type": "number",
@@ -68,6 +61,27 @@
       "time point zero": {
         "type": "boolean",
         "description": "A boolean to indicate if there should be controls for time point zero."
+      },
+      "exposure": {
+          "type": "array",
+          "minItems": 1,
+          "description": "The exposure represent a list of chemical names and doses.",
+          "items": {
+              "$ref": "exposure_schema.json#"
+          }
       }
-  }
+  },
+  "required": [
+      "partner",
+      "organism",
+      "exposure_batch",
+      "replicates4exposure",
+      "replicates4control",
+      "exposure",
+      "replicates_blank",
+      "start_date",
+      "end_date",
+      "vehicle",
+      "timepoints"
+]
 }

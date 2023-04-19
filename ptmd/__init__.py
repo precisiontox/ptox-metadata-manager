@@ -4,7 +4,7 @@ drive.
 
 @author: D. Batista (Terazus)
 """
-from ptmd.lib import GoogleDriveConnector, Inputs2Dataframes, ExposureCondition
+from ptmd.lib import GoogleDriveConnector, DataframeCreator
 
 from ptmd.api import app
 from ptmd.utils import init
