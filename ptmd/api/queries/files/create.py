@@ -10,7 +10,7 @@ from flask import request, Response, jsonify
 from flask_jwt_extended import get_jwt
 from sqlalchemy.orm import Session
 
-from ptmd import Inputs2Dataframes, GoogleDriveConnector
+from ptmd import DataframeCreator, GoogleDriveConnector
 from ptmd.utils import get_session
 from ptmd.const import ROOT_PATH
 from ptmd.database import Organisation, File
@@ -23,17 +23,19 @@ class CreateGDriveFile:
 
     def __init__(self):
         """ Constructor of the class. Contains the user input. """
-        self.__partner: str | None = request.json.get("partner", None)
-        self.__organism: str | None = request.json.get("organism", None)
-        self.__exposure_batch: str | None = request.json.get("exposure_batch", None)
-        self.__replicate_blank: int | None = request.json.get("replicate_blank", None)
-        self.__start_date: str | None = request.json.get("start_date", None)
-        self.__end_date: str | None = request.json.get("end_date", None)
-        self.__exposure_conditions: list[dict[str, list[str] | str]] = request.json.get("exposure_conditions", None)
-        self.__replicate4control: int | None = request.json.get("replicate4control", None)
-        self.__replicate4exposure: int | None = request.json.get("replicate4exposure", None)
-        self.__timepoints: list[int] | None = request.json.get("timepoints", None)
-        self.__vehicle: str | None = request.json.get("vehicle", None)
+        self.data: dict = {
+            "partner": request.json.get("partner", None),
+            "organism": request.json.get("organism", None),
+            "exposure_batch": request.json.get("exposure_batch", None),
+            "replicates_blank": request.json.get("replicate_blank", None),
+            "start_date": request.json.get("start_date", None),
+            "end_date": request.json.get("end_date", None),
+            "exposure": request.json.get("exposure_conditions", None),
+            "replicates4control": request.json.get("replicate4control", None),
+            "replicates4exposure": request.json.get("replicate4exposure", None),
+            "timepoints": request.json.get("timepoints", None),
+            "vehicle": request.json.get("vehicle", None)
+        }
 
     def generate_file(self, session: Session, user: int) -> dict[str, str]:
         """ Method to process the user input and create a file in the Google Drive.
@@ -42,19 +44,9 @@ class CreateGDriveFile:
         :param user: user ID
         :return: dictionary containing the response from the Google Drive API
         """
-        filename: str = f"{self.__partner}_{self.__organism}_{self.__exposure_batch}.xlsx"
+        filename: str = f"{self.data['partner']}_{self.data['organism']}_{self.data['exposure_batch']}.xlsx"
         file_path: str = path.join(OUTPUT_DIRECTORY_PATH, filename)
-        dataframes_generator: Inputs2Dataframes = Inputs2Dataframes(partner=self.__partner,
-                                                                    organism=self.__organism,
-                                                                    exposure_batch=self.__exposure_batch,
-                                                                    replicate_blank=self.__replicate_blank,
-                                                                    start_date=self.__start_date,
-                                                                    end_date=self.__end_date,
-                                                                    exposure_conditions=self.__exposure_conditions,
-                                                                    replicate4control=self.__replicate4control,
-                                                                    replicate4exposure=self.__replicate4exposure,
-                                                                    timepoints=self.__timepoints,
-                                                                    vehicle=self.__vehicle)
+        dataframes_generator: DataframeCreator = DataframeCreator(user_input=self.data)
         dataframes_generator.save_file(file_path)
         folder_id: str = session.query(Organisation).filter_by(name=dataframes_generator.partner).first().gdrive_id
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
@@ -62,11 +54,11 @@ class CreateGDriveFile:
         dataframes_generator.delete_file()
         db_file: File = File(gdrive_id=response['id'],
                              name=response['title'],
-                             organisation_name=self.__partner,
+                             organisation_name=self.data['partner'],
                              user_id=user,
-                             batch=self.__exposure_batch,
+                             batch=self.data['exposure_batch'],
                              session=session,
-                             organism_name=self.__organism)
+                             organism_name=self.data['organism'])
         session.add(db_file)
         session.commit()
         return response

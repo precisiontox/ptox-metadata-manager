@@ -12,9 +12,9 @@ parameters:
     schema:
       id: Create File
       schema:
-        $ref: '#/definitions/Create File'
+        $ref: '#/definitions/Register File'
 definitions:
-  Create File:
+  Register File:
     type: object
     required:
       - partner

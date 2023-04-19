@@ -85,7 +85,7 @@ definitions:
       - chemicals_name
       - dose
     properties:
-        chemicals_name:
+        chemicals:
             type: array
             description: The names of the chemicals
             items:

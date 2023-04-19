@@ -37,14 +37,6 @@ def me():
     return get_me()
 
 
-@app.route('/api/create_file', methods=['POST'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'create_file.yml'))
-@jwt_required()
-def create_file():
-    """ Create and saves the spreadsheet in the Google Drive """
-    return create_gdrive_file()
-
-
 @app.route('/api/organisms', methods=['GET'])
 @swag_from(path.join(SWAGGER_DATA_PATH, 'organisms.yml'))
 @jwt_required()
@@ -83,6 +75,14 @@ def change_pwd():
 def user():
     """ Create a new user """
     return create_user()
+
+
+@app.route('/api/create_file', methods=['POST'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'create_file.yml'))
+@jwt_required()
+def create_file():
+    """ Create and saves the spreadsheet in the Google Drive """
+    return create_gdrive_file()
 
 
 @app.route('/api/file/<file_id>/validate', methods=['GET'])

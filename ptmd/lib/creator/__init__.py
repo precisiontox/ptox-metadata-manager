@@ -3,5 +3,4 @@ ISA objects.
 
 @author: Terazus (D. Batista)
 """
-from .inputs2dataframes import Inputs2Dataframes
-from .exposure_condition import ExposureCondition
+from .core import DataframeCreator

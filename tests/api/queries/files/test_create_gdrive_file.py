@@ -8,6 +8,7 @@ from pydrive2.auth import GoogleAuth
 from json import dumps
 
 from ptmd.api import app
+from ptmd.const import ALLOWED_DOSE_VALUES
 from ptmd.database import Base, User, Organisation, Organism
 
 
@@ -47,10 +48,10 @@ class TestCreateFile(TestCase):
 
     @patch('ptmd.GoogleDriveConnector.upload_file', return_value=({"id": "45", "title": "test", "alternateLink": "a"}))
     @patch('ptmd.lib.gdrive.core.GoogleAuth', return_value=MockGoogleAuth)
-    @patch('ptmd.lib.creator.exposure_condition.get_allowed_chemicals', return_value=["chemical1", "chemical2"])
-    @patch('ptmd.lib.creator.inputs2dataframes.get_allowed_organisms', return_value=['organism1'])
-    @patch('ptmd.lib.creator.inputs2dataframes.get_organism_code', return_value=['A'])
-    @patch('ptmd.lib.creator.inputs2dataframes.get_chemical_code_mapping', return_value={'chemical1': '001'})
+    @patch('ptmd.lib.creator.core.get_chemical_code_mapping', return_value={"chemical1": '001'})
+    @patch('ptmd.lib.creator.core.get_allowed_organisms', return_value=['organism1'])
+    @patch('ptmd.lib.creator.core.get_organism_code', return_value=['A'])
+    @patch('ptmd.lib.creator.core.get_chemical_code_mapping', return_value={'chemical1': '001'})
     def test_create_gdrive_file(self, mock_chemicals_mapping, mock_organism_code,
                                 mock_organism, mock_chem, mock_upload, mock_auth,
                                 mock_get_session_1, mock_get_session_2, mock_get_session_3):
@@ -72,7 +73,7 @@ class TestCreateFile(TestCase):
             data = {
                 "partner": "UOB",
                 "organism": "organism1",
-                "exposure_conditions": [{"chemicals_name": ["chemical1"], "dose": "BDM10"}],
+                "exposure_conditions": [{"chemicals": ["chemical1"], "dose": "BDM10"}],
                 "exposure_batch": "AA",
                 "replicate4control": 4,
                 "replicate4exposure": 4,
@@ -85,7 +86,7 @@ class TestCreateFile(TestCase):
             headers = {'Authorization': f'Bearer {jwt}', **HEADERS}
             response = client.post('/api/create_file', headers=headers, data=dumps(data))
             self.assertEqual(response.json["message"],
-                             "dose must be one of ['BMD10', 'BMD25', '10mg/L'] but got BDM10")
+                             f"'exposure' value 'BDM10' is not one of {ALLOWED_DOSE_VALUES}")
             self.assertEqual(response.status_code, 400)
 
             data["exposure_conditions"][0]["dose"] = "BMD10"
