@@ -72,7 +72,7 @@ class TestFileCreator(TestCase):
         self.assertEqual(df1.shape, (25, 20))
         self.assertEqual(df2.shape, (1, 10))
 
-        output_path = path.join(HERE, '../..', 'data', 'test.xlsx')
+        output_path = path.join(HERE, "..", "..", "test.xlsx")
         file_path = creator.save_file(output_path)
         self.assertIsNotNone(file_path)
         creator.delete_file()
