@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from pydrive2.drive import GoogleDrive
 
-from ptmd.clients.gdrive.utils import content_exist
+from ptmd.lib.gdrive.utils import content_exist
 
 
 class TestGDriveUtils(TestCase):

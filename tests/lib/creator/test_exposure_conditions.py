@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from ptmd.model.exposure_condition import ExposureCondition
+from ptmd.lib.creator.exposure_condition import ExposureCondition
 from ptmd.const import ALLOWED_DOSE_VALUES
 
 ALLOWED_CHEMICAL_NAMES = ["chemical1", "chemical2", "chemical3"]
@@ -9,7 +9,7 @@ CHEMICAL_NAME = ALLOWED_CHEMICAL_NAMES[0]
 DOSE_VALUE = ALLOWED_DOSE_VALUES[0]
 
 
-@patch('ptmd.model.exposure_condition.get_allowed_chemicals', return_value=ALLOWED_CHEMICAL_NAMES)
+@patch('ptmd.lib.creator.exposure_condition.get_allowed_chemicals', return_value=ALLOWED_CHEMICAL_NAMES)
 class TestExposureCondition(TestCase):
 
     def test_constructor_errors_with_chemicals_name(self, mock_allowed_chemicals):

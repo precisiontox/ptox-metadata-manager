@@ -1,4 +1,4 @@
-""" This module contains the File database model.
+""" This module contains the File database creator.
 A file represents an identifier pointing to a specific Google Drive file.
 
 @author: D. Batista (Terazus)
@@ -12,7 +12,7 @@ from .organism import Organism
 
 
 class File(Base):
-    """ File database model.
+    """ File database creator.
 
     :param gdrive_id: Google Drive file identifier.
     :param name: File name.

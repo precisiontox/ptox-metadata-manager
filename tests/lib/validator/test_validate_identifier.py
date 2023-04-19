@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from ptmd.clients.validator.validate_identifier import (
+from ptmd.lib.validator.validate_identifier import (
     validate_identifier,
     validate_species,
     validate_batch,
@@ -9,7 +9,7 @@ from ptmd.clients.validator.validate_identifier import (
     validate_timepoints,
     validate_replicate,
 )
-from ptmd.clients.validator.const import PTX_ID_LABEL, COMPOUND_LABEL, DOSE_LABEL, TIMEPOINT_LABEL
+from ptmd.lib.validator.const import PTX_ID_LABEL, COMPOUND_LABEL, DOSE_LABEL, TIMEPOINT_LABEL
 
 
 class MockSessionSuccess:

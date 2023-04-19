@@ -4,4 +4,4 @@ Google Drive.
 @author: D. Batista (Terazus)
 """
 
-from ptmd.clients.validator.core import ExcelValidator, ExternalExcelValidator
+from ptmd.lib.validator.core import ExcelValidator, ExternalExcelValidator

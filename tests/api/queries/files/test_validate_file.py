@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from ptmd.api import app
-from ptmd.api.queries.validate import validate_file
+from ptmd.api.queries.files.validate import validate_file
 
 
 HEADERS = {'Content-Type': 'application/json'}
@@ -26,14 +26,14 @@ class MockedValidatorError:
 
 class TestValidateFile(TestCase):
 
-    @patch('ptmd.api.queries.validate.ExcelValidator', return_value=MockedValidator(1))
+    @patch('ptmd.api.queries.files.validate.ExcelValidator', return_value=MockedValidator(1))
     def test_valid(self, mock_validator):
         report, code = validate_file(1)
         self.assertTrue(report['message'], "File validated successfully.")
         self.assertEqual(code, 200)
 
-    @patch('ptmd.api.queries.validate.ExcelValidator', return_value=MockedValidatorError(1))
-    @patch('ptmd.api.queries.validate.ExternalExcelValidator', return_value=MockedValidatorError(1))
+    @patch('ptmd.api.queries.files.validate.ExcelValidator', return_value=MockedValidatorError(1))
+    @patch('ptmd.api.queries.files.validate.ExternalExcelValidator', return_value=MockedValidatorError(1))
     def test_error_406(self, mock_validator, mock_validator_ext):
         report, code = validate_file(1)
         self.assertEqual(report['message'], 'File validation failed.')

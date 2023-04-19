@@ -1,4 +1,4 @@
-""" This module contains the organisation model.
+""" This module contains the organisation creator.
 
 @author: D. Batista (Terazus)
 """
@@ -6,9 +6,9 @@ from ptmd.config import Base, db
 
 
 class Organisation(Base):
-    """ Organisation model.
+    """ Organisation creator.
 
-    :param name: The base class for the model.
+    :param name: The base class for the creator.
     :param gdrive_id: The Google Drive ID of the corresponding folder.
     """
     __tablename__: str = 'organisation'

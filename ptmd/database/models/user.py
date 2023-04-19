@@ -1,4 +1,4 @@
-""" This module contains the user model.
+""" This module contains the user creator.
 
 @author: D. Batista (Terazus)
 """
@@ -12,7 +12,7 @@ from .organisation import Organisation
 
 
 class User(Base):
-    """ User model.
+    """ User creator.
 
     :param username: the username
     :param password: the password
