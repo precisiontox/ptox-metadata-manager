@@ -3,7 +3,7 @@
 @author: Terazus (D. Batista)
 """
 from ptmd.const import ALLOWED_DOSE_VALUES
-from ptmd.model.exceptions import InputTypeError, InputValueError
+from ptmd.lib.creator.exceptions import InputTypeError, InputValueError
 from ptmd.database import get_allowed_chemicals
 from .interfaces import ExposureCondition as ExposureConditionInterface
 

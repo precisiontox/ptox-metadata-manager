@@ -1,4 +1,4 @@
-""" This module contains the Chemical database model.
+""" This module contains the Chemical database creator.
 
 @author: D. Batista (Terazus)
 """
@@ -8,9 +8,9 @@ from ptmd.config import Base, db
 
 
 class Chemical(Base):
-    """ The chemical model.
+    """ The chemical creator.
 
-    :param common_name: The base class for the model.
+    :param common_name: The base class for the creator.
     :param name_hash_id: The name hash id.
     :param formula: The chemical formula.
     :param ptx_code: The PTX code.

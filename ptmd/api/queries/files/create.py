@@ -6,10 +6,12 @@ from __future__ import annotations
 
 from os import path
 
-from flask import request
+from flask import request, Response, jsonify
+from flask_jwt_extended import get_jwt
 from sqlalchemy.orm import Session
 
 from ptmd import Inputs2Dataframes, GoogleDriveConnector
+from ptmd.utils import get_session
 from ptmd.const import ROOT_PATH
 from ptmd.database import Organisation, File
 
@@ -68,3 +70,21 @@ class CreateGDriveFile:
         session.add(db_file)
         session.commit()
         return response
+
+
+def create_gdrive_file() -> tuple[Response, int]:
+    """ Function to create a file in the Google Drive using the data provided by the user. Acquire data from a
+    JSON request.
+
+    :return: tuple containing a JSON response and a status code
+    """
+    session: Session = get_session()
+    try:
+        user_id = get_jwt()['sub']
+        payload: CreateGDriveFile = CreateGDriveFile()
+        response: dict[str, str] = payload.generate_file(session=session, user=user_id)
+        session.close()
+        return jsonify({"data": {'file_url': response['alternateLink']}}), 200
+    except Exception as e:
+        session.close()
+        return jsonify({"message": str(e)}), 400

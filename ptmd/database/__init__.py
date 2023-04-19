@@ -1,4 +1,4 @@
-""" The database module provides the SQLAlchemy model (including Users and Organisations) and functions to interact
+""" The database module provides the SQLAlchemy creator (including Users and Organisations) and functions to interact
 with the database such as boot(), create_organisations() and create_users().
 It also provides the Base and app variables that are required to establish a connection to a database.
 

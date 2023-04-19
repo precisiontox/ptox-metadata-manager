@@ -1,4 +1,4 @@
-""" This module contains the organism model.
+""" This module contains the organism creator.
 
 @author: D. Batista (Terazus)
 """
@@ -6,7 +6,7 @@ from ptmd.config import Base, db
 
 
 class Organism(Base):
-    """ Organism model.
+    """ Organism creator.
 
     :param ptox_biosystem_name: pretox biosystem name
     :param scientific_name: scientific name

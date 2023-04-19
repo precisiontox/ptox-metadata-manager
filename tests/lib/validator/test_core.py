@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from pandas import DataFrame, Series, concat
 
-from ptmd.clients.validator.core import ExcelValidator, ExternalExcelValidator, VerticalValidator
+from ptmd.lib.validator.core import ExcelValidator, ExternalExcelValidator, VerticalValidator
 from ptmd.const import SAMPLE_SHEET_COLUMNS, GENERAL_SHEET_COLUMNS
 
 
@@ -122,21 +122,21 @@ class MockValidator:
         self.report['errors'][label].append({'message': message, 'field_concerned': field})
 
 
-@patch('ptmd.clients.validator.core.remove', return_value=None)
-@patch('ptmd.clients.validator.core.GoogleDriveConnector', return_value=MockGoogleDriveConnector())
-@patch('ptmd.clients.validator.core.validate_identifier')
+@patch('ptmd.lib.validator.core.remove', return_value=None)
+@patch('ptmd.lib.validator.core.GoogleDriveConnector', return_value=MockGoogleDriveConnector())
+@patch('ptmd.lib.validator.core.validate_identifier')
 class TestExcelValidator(TestCase):
 
-    @patch('ptmd.clients.validator.core.get_session', return_value=mocked_session)
-    @patch('ptmd.clients.validator.core.ExcelFile', return_value=MockExcelFileSuccess())
+    @patch('ptmd.lib.validator.core.get_session', return_value=mocked_session)
+    @patch('ptmd.lib.validator.core.ExcelFile', return_value=MockExcelFileSuccess())
     def test_core_success(self, mock_excel_file, mocked_get_session,
                           mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
         validator = ExcelValidator(1)
         validator.validate()
         self.assertEqual(validator.report['valid'], True)
 
-    @patch('ptmd.clients.validator.core.get_session', return_value=mocked_session)
-    @patch('ptmd.clients.validator.core.ExcelFile', return_value=MockExcelFileError())
+    @patch('ptmd.lib.validator.core.get_session', return_value=mocked_session)
+    @patch('ptmd.lib.validator.core.ExcelFile', return_value=MockExcelFileError())
     def test_report_validation_error(self, mock_excel_file, mocked_get_session,
                                      mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
         validator = ExcelValidator(1)
@@ -146,7 +146,7 @@ class TestExcelValidator(TestCase):
                          [{'message': 'This field is required.', 'field_concerned': 'exposure_route'}])
         self.assertEqual(validator.report['valid'], False)
 
-    @patch('ptmd.clients.validator.core.get_session', return_value=mocked_session_error)
+    @patch('ptmd.lib.validator.core.get_session', return_value=mocked_session_error)
     def test_report_file_not_found(self, mocked_get_session,
                                    mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
         with self.assertRaises(ValueError) as context:
@@ -155,9 +155,9 @@ class TestExcelValidator(TestCase):
         self.assertEqual('File with ID 1 does not exist.', str(context.exception))
 
 
-@patch('ptmd.clients.validator.core.GoogleDriveConnector', return_value=MockGoogleDriveConnector())
-@patch('ptmd.clients.validator.core.ExternalExcelValidator.validate_file', return_value=None)
-@patch('ptmd.clients.validator.core.remove', return_value=None)
+@patch('ptmd.lib.validator.core.GoogleDriveConnector', return_value=MockGoogleDriveConnector())
+@patch('ptmd.lib.validator.core.ExternalExcelValidator.validate_file', return_value=None)
+@patch('ptmd.lib.validator.core.remove', return_value=None)
 class TestExternalValidator(TestCase):
 
     def test_validator(self, mock_rm, mocked_validate_file, mocked_gdrive_connector):

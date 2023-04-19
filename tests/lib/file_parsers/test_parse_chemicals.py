@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from numpy import NaN
 
-from ptmd.clients.file_parsers.parse_chemicals import Compound, parse_chemicals
+from ptmd.lib.file_parsers.parse_chemicals import Compound, parse_chemicals
 
 
 class TestCompound(TestCase):

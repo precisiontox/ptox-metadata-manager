@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from ptmd.utils import get_session
 from ptmd.const import EXPOSURE_INFORMATION_SCHEMA_FILEPATH
 from ptmd.database import File
-from ptmd.clients.gdrive import GoogleDriveConnector
+from ptmd.lib.gdrive import GoogleDriveConnector
 from .const import PTX_ID_LABEL
 from .validate_identifier import validate_identifier
 

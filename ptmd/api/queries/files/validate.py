@@ -4,7 +4,7 @@
 """
 from __future__ import annotations
 
-from ptmd.clients.validator import ExcelValidator, ExternalExcelValidator
+from ptmd.lib.validator import ExcelValidator, ExternalExcelValidator
 
 
 def validate_file(file_id: int | str):

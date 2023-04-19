@@ -8,7 +8,7 @@ from os.path import exists
 from sqlalchemy.orm import session as sqlsession
 from yaml import dump
 
-from ptmd.clients import GoogleDriveConnector, parse_chemicals, parse_organisms
+from ptmd.lib import GoogleDriveConnector, parse_chemicals, parse_organisms
 from ptmd.database import boot, User, Organisation, get_session
 from ptmd.const import SETTINGS_FILE_PATH, CONFIG
 from ptmd.logger import LOGGER
