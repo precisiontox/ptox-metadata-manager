@@ -68,7 +68,7 @@ class TestCreateFile(TestCase):
         session.commit()
 
         with app.test_client() as client:
-            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            logged_in = client.post('/api/session', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
             data = {
                 "partner": "UOB",
@@ -84,11 +84,11 @@ class TestCreateFile(TestCase):
                 "vehicle": "water",
             }
             headers = {'Authorization': f'Bearer {jwt}', **HEADERS}
-            response = client.post('/api/create_file', headers=headers, data=dumps(data))
+            response = client.post('/api/files', headers=headers, data=dumps(data))
             self.assertEqual(response.json["message"],
                              f"'exposure' value 'BDM10' is not one of {ALLOWED_DOSE_VALUES}")
             self.assertEqual(response.status_code, 400)
 
             data["exposure_conditions"][0]["dose"] = "BMD10"
-            response = client.post('/api/create_file', headers=headers, data=dumps(data))
+            response = client.post('/api/files', headers=headers, data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': 'a'}})

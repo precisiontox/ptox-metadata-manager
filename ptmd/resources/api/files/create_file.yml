@@ -1,4 +1,4 @@
-The create file route is used to create a new file in the database. The file is created with the following parameters:
+The route to create a new excel file from scratch
 ---
 parameters:
   - name: Authorization
@@ -10,11 +10,11 @@ parameters:
     in: body
     required: true
     schema:
-      id: Create File
+      id: Create File Payload
       schema:
-        $ref: '#/definitions/Create File'
+        $ref: '#/definitions/Create File Payload'
 definitions:
-  Create File:
+  Create File Payload:
     type: object
     required:
       - partner
@@ -77,9 +77,9 @@ definitions:
         type: array
         description: The exposure conditions
         items:
-            $ref: '#/definitions/Exposure Conditions'
+            $ref: '#/definitions/Exposure Conditions Payload'
         example: [{"chemicals_name": ["Ethoprophos"], "dose": "BMD10"}]
-  Exposure Conditions:
+  Exposure Conditions Payload:
     type: object
     required:
       - chemicals_name
@@ -96,8 +96,26 @@ definitions:
             type: string
             description: The dose for these chemicals
             enum: ["BMD10", "BMD25", "10mg/L"]
-
+  Create File Response:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          file_url:
+            type: string
+            description: The URL to the google spreadsheet
+            example: https://docs.google.com/spreadsheets/d/1
 responses:
   200:
     description: The URL to the google spreadsheet
-    example: {"data": {"file_url": https://docs.google.com/spreadsheets/d/1}}
+    schema:
+      $ref: '#/definitions/Create File Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'
+  403:
+    description: The user is not authorized to do create this file
+    schema:
+      $ref: '#/definitions/Forbidden Response'

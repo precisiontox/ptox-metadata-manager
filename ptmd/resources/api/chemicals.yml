@@ -1,4 +1,4 @@
-The route to get data about chemicals
+The route to get data about chemicals.
 ---
 parameters:
   - name: Authorization
@@ -10,28 +10,37 @@ definitions:
   Chemicals Response:
     type: object
     properties:
-      common_name:
-        type: string
-        description: common_name of the chemical
-      name_hash_id:
-        type: string
-        description: pretox hash id of the chemical
-      formula:
-        type: string
-        description: formula of the chemical
-      ptx_code:
-        type: string
-        description: ptx_code of the chemical
+      data:
+        type: array
+        items:
+          type: object
+          properties:
+            common_name:
+              type: string
+              description: common_name of the chemical
+              example: Methacrylamide
+            name_hash_id:
+              type: string
+              description: pretox hash id of the chemical
+              example: Methacrylamide
+            formula:
+              type: string
+              description: formula of the chemical
+              example: C4H7NO
+            ptx_code:
+              type: string
+              description: ptx_code of the chemical
+              example: PTX013
 responses:
   200:
-    description: The user data with that JWT token
+    description: The list of available chemicals compounds
     schema:
       $ref: '#/definitions/Chemicals Response'
-    examples:
-      application/json:
-        id: 1
-        username: admin
-        organization:
-          organisation_id: 1
-          name: UOX
-          gdrive_id: None
+  403:
+    description: The JWT token is invalid
+    schema:
+      $ref: '#/definitions/Forbidden Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'

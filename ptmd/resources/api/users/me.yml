@@ -7,20 +7,27 @@ parameters:
     type: string
     description: The JWT token
 definitions:
-  User Response:
+  Get User Response:
     type: object
     properties:
       id:
         type: string
         description: The id of the user
+        example: 1
       username:
         type: string
         description: The username of the user
+        example: admin
       organization:
         type: object
+        example:
+          organisation_id: 1
+          name: UOX
+          longname: University of Oxford
+          gdrive_id: None
         schema:
-          $ref: '#/definitions/Organisation'
-  Organisation:
+          $ref: '#/definitions/User Response Organisation'
+  User Response Organisation:
     type: object
     properties:
       organisation_id:
@@ -32,16 +39,19 @@ definitions:
       gdrive_id:
         type: string
         description: The id of the organization's google drive folder
+      longname:
+          type: string
+          description: The long name of the organization
 responses:
   200:
     description: The user data with that JWT token
     schema:
-      $ref: '#/definitions/User Response'
-    examples:
-      application/json:
-        id: 1
-        username: admin
-        organization:
-          organisation_id: 1
-          name: UOX
-          gdrive_id: None
+      $ref: '#/definitions/Get User Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'
+  403:
+    description: The user is not authorized to do access this resource
+    schema:
+      $ref: '#/definitions/Forbidden Response'

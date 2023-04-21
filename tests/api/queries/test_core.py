@@ -57,7 +57,7 @@ class TestCoreQueries(TestCase):
         session.commit()
         session.close()
         with app.test_client() as client:
-            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            logged_in = client.post('/api/session', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
             response = client.get('/api/organisms', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json
@@ -73,7 +73,7 @@ class TestCoreQueries(TestCase):
         session.commit()
         session.close()
         with app.test_client() as client:
-            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            logged_in = client.post('/api/session', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
             response = client.get('/api/organisations', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json
@@ -86,7 +86,7 @@ class TestCoreQueries(TestCase):
         session.commit()
         session.close()
         with app.test_client() as client:
-            logged_in = client.post('/api/login', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
+            logged_in = client.post('/api/session', data=dumps({'username': '123', 'password': '123'}), headers=HEADERS)
             jwt = logged_in.json['access_token']
             response = client.get('/api/chemicals', headers={'Authorization': f'Bearer {jwt}'})
             data = response.json

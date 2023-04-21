@@ -9,33 +9,56 @@ from flasgger import swag_from
 
 from ptmd.database import app
 from ptmd.const import ROOT_PATH
-from .queries import (
-    login as login_user, change_password,
-    get_me, get_organisms, get_chemicals, get_organisations,
-    create_gdrive_file,
-    create_user,
-    validate_file,
-    register_gdrive_file
+from ptmd.api.queries import (
+    login as login_user, change_password, get_me,
+    get_organisms, get_chemicals, get_organisations,
+    create_gdrive_file, create_user, validate_file,  register_gdrive_file
 )
 
 
-SWAGGER_DATA_PATH = path.join(ROOT_PATH, 'resources', 'api')
+SWAGGER_DATA_PATH: str = path.join(ROOT_PATH, 'resources', 'api')
+FILES_DOC_PATH: str = path.join(SWAGGER_DATA_PATH, 'files')
+USERS_DOC_PATH: str = path.join(SWAGGER_DATA_PATH, 'users')
 
 
-@app.route("/api/login", methods=["POST"])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'login.yml'))
-def login():
-    """ Route to log in a user. Acquire data from a JSON request """
-    return login_user()
+###########################################################
+#                   USERS ROUTES                          #
+###########################################################
+
+@app.route('/api/users', methods=['PUT'])
+@swag_from(path.join(USERS_DOC_PATH, 'change_password.yml'))
+@jwt_required()
+def change_pwd():
+    """ Change the password of the current user """
+    return change_password()
 
 
-@app.route("/api/me", methods=["GET"])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'me.yml'))
+@app.route('/api/users', methods=['POST'])
+@swag_from(path.join(USERS_DOC_PATH, 'create_user.yml'))
+@jwt_required()
+def user():
+    """ Create a new user """
+    return create_user()
+
+
+@app.route("/api/users", methods=["GET"])
+@swag_from(path.join(USERS_DOC_PATH, 'me.yml'))
 @jwt_required()
 def me():
     """ Get the current user"""
     return get_me()
 
+
+@app.route("/api/session", methods=["POST"])
+@swag_from(path.join(USERS_DOC_PATH, 'login.yml'))
+def login():
+    """ Route to log in a user """
+    return login_user()
+
+
+###########################################################
+#                   MISCELLANEOUS                         #
+###########################################################
 
 @app.route('/api/organisms', methods=['GET'])
 @swag_from(path.join(SWAGGER_DATA_PATH, 'organisms.yml'))
@@ -61,40 +84,28 @@ def organisations():
     return get_organisations()
 
 
-@app.route('/api/change_password', methods=['POST'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'change_password.yml'))
-@jwt_required()
-def change_pwd():
-    """ Change the password of the current user """
-    return change_password()
+###########################################################
+#                          FILES                          #
+###########################################################
 
-
-@app.route('/api/user', methods=['POST'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'create_user.yml'))
-@jwt_required()
-def user():
-    """ Create a new user """
-    return create_user()
-
-
-@app.route('/api/create_file', methods=['POST'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'create_file.yml'))
+@app.route('/api/files', methods=['POST'])
+@swag_from(path.join(FILES_DOC_PATH, 'create_file.yml'))
 @jwt_required()
 def create_file():
     """ Create and saves the spreadsheet in the Google Drive """
     return create_gdrive_file()
 
 
-@app.route('/api/file/<file_id>/validate', methods=['GET'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'validate_file.yml'))
+@app.route('/api/files/<file_id>/validate', methods=['GET'])
+@swag_from(path.join(FILES_DOC_PATH, 'validate_file.yml'))
 @jwt_required()
 def validate(file_id: int):
     """ Validate a file """
     return validate_file(file_id)
 
 
-@app.route('/api/file/register', methods=['POST'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'register_file.yml'))
+@app.route('/api/files/register', methods=['POST'])
+@swag_from(path.join(FILES_DOC_PATH, 'register_file.yml'))
 @jwt_required()
 def register_file():
     """ Register a file from an external Google Drive """

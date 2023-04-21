@@ -48,7 +48,7 @@ def register_gdrive_file() -> tuple[Response, int]:
         session.add(file)
         session.commit()
         msg: str = f'file {file_id} was successfully created with internal id {file.file_id}'
-        return jsonify({"data": {"message": msg, "file": file.file_id}}), 200
+        return jsonify({"data": {"message": msg, "file_url": file.file_id}}), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 400
     finally:

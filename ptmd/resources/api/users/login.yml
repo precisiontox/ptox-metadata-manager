@@ -16,6 +16,19 @@ parameters:
             password:
               type: string
               description: The password of the user
+definitions:
+  Login Response:
+    type: object
+    properties:
+      access_token:
+        type: string
+        example: "a jwt token"
 responses:
   200:
     description: A JWT token
+    schema:
+      $ref: '#/definitions/Login Response'
+  401:
+    description: Invalid credentials
+    schema:
+      $ref: '#/definitions/Invalid Password Error Response'

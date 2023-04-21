@@ -7,25 +7,32 @@ parameters:
     type: string
     description: The JWT token
 definitions:
-  Organism Response:
+  Organisms Response:
     type: object
     properties:
-      ptox_biosystem_name:
-        type: string
-        description: precision toxicology biosystem name
-      scientific_name:
-        type: string
-        description: scientific name of the organism
+      data:
+        type: array
+        items:
+          type: object
+          properties:
+            ptox_biosystem_name:
+              type: string
+              description: precision toxicology biosystem name
+              example: human
+            scientific_name:
+              type: string
+              description: scientific name of the organism
+              example: Homo Sapiens
 responses:
   200:
-    description: The user data with that JWT token
+    description: The list of available organisms
     schema:
-      $ref: '#/definitions/Organism Response'
-    examples:
-      application/json:
-        id: 1
-        username: admin
-        organization:
-          organisation_id: 1
-          name: UOX
-          gdrive_id: None
+      $ref: '#/definitions/Organisms Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'
+  403:
+    description: The user is not access this resource
+    schema:
+      $ref: '#/definitions/Forbidden Response'

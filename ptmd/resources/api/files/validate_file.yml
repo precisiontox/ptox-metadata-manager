@@ -1,0 +1,115 @@
+Validate the given xlsx file saved in a readable google drive folder
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: false
+    type: string
+    description: The JWT token
+  - name: file_id
+    in: path
+    required: true
+    type: string
+    description: The file id
+definitions:
+  Validate File Response:
+    type: object
+    properties:
+      message:
+        type: string
+        description: Message indicating if the file was validated or not
+        example: "File validated successfully."
+      file_id:
+        type: string
+        description: The file id
+        example: "xxxx-xxxx-xxxx-xxxx"
+
+  Forbidden Response:
+    type: object
+    properties:
+      message:
+        type: string
+        description: The error message
+        example: "Unauthorized"
+
+  Not Found Response:
+    type: object
+    properties:
+      message:
+        type: string
+        description: The error message
+        example: "File not found: xxxx"
+
+  Validation Failed Response:
+    type: object
+    properties:
+      errors:
+        type: object
+        properties:
+          name_of_the_record:
+            type: array
+            items:
+              type: object
+              properties:
+               field_concerned:
+                 type: string
+                 description: The field concerned
+                 example: "compound_name"
+               message:
+                  type: string
+                  description: The error message
+                  example: "The number of extraction blanks should be 2 but is 3"
+
+  Missing Field Error Response:
+    type: object
+    properties:
+      message:
+        type: string
+        description: The error message
+        example: "Missing required parameter in the JSON body or the post body or the query string"
+
+  Missing Bearer Response:
+    type: object
+    properties:
+      message:
+        type: string
+        description: The error message
+        example: "Missing 'Bearer' type in 'Authorization' header. Expected 'Authorization: Bearer <JWT>'"
+
+  Invalid Password Error Response:
+    type: object
+    properties:
+      msg:
+        type: string
+        description: The error message
+        example: "Bad username or password"
+
+  Unauthorized Error Response:
+    type: object
+    properties:
+      message:
+        type: string
+        description: The error message
+        example: "You are not authorized to create a new user"
+
+responses:
+  200:
+    description: Successful validation
+    schema:
+      $ref: '#/definitions/Validate File Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'
+  403:
+    description: The user is not authorized to do validate this file
+    schema:
+      $ref: '#/definitions/Forbidden Response'
+  404:
+    description: The file does not exist
+    schema:
+      $ref: '#/definitions/Not Found Response'
+  406:
+    description: Failed validation
+    schema:
+      $ref: '#/definitions/Validation Failed Response'
