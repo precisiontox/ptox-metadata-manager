@@ -97,5 +97,6 @@ EMPTY_FIELDS_VALUES: list[str] = [''] * len(SAMPLE_SHEET_EMPTY_COLUMNS)
 # Loading .env file
 CONFIG: dict = dotenv_values(path.join(ROOT_PATH, 'resources', '.env'))
 SETTINGS_FILE_PATH: str = CONFIG['GOOGLE_DRIVE_SETTINGS_FILEPATH']
+SITE_URL: str = CONFIG['SITE_URL']
 
 DOWNLOAD_DIR: str = path.join(DATA_PATH, 'downloads')
