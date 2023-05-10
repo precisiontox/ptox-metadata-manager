@@ -2,12 +2,7 @@ from os import path
 from unittest import TestCase
 from unittest.mock import patch, mock_open
 
-from sqlalchemy.orm import Session
-
-from ptmd.utils import init
-
-
-from ptmd.utils import initialize, create_config_file
+from ptmd.utils import init, initialize, create_config_file
 
 
 class MockedQuery:

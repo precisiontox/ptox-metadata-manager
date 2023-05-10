@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from pandas import DataFrame, Series, concat
 
-from ptmd.lib.validator.core import ExcelValidator, ExternalExcelValidator, VerticalValidator
+from ptmd.lib.validator.core import ExternalExcelValidator, VerticalValidator
 from ptmd.const import SAMPLE_SHEET_COLUMNS, GENERAL_SHEET_COLUMNS
 
 

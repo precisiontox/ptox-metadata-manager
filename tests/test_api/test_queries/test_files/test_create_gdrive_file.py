@@ -6,7 +6,6 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker, Session
 from pydrive2.auth import GoogleAuth
 from json import dumps
-from flask_jwt import _jwt_required
 
 from ptmd.api import app
 from ptmd.const import ALLOWED_DOSE_VALUES

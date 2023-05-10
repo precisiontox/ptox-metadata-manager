@@ -1,6 +1,5 @@
 from unittest import TestCase
 from unittest.mock import patch
-from json import dumps
 
 from ptmd.api import app
 

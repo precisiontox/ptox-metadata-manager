@@ -5,8 +5,6 @@ A file represents an identifier pointing to a specific Google Drive file.
 """
 from __future__ import annotations
 
-from sqlalchemy.orm import Session
-
 from ptmd.config import Base, db
 from ptmd.database.models.organisation import Organisation
 from ptmd.database.models.user import User
