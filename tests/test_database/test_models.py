@@ -1,27 +1,24 @@
 from unittest import TestCase
 from unittest.mock import patch
+from datetime import datetime, timezone
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from ptmd.database import Base
 from ptmd.database import User, Organisation, File, login_user
+from ptmd.database.models.token_blocklist import TokenBlocklist, check_if_token_revoked
 
 
 class TestModel(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.engine = create_engine('sqlite:///:memory:', pool_size=20)
-        session = sessionmaker(bind=cls.engine)
+        engine = create_engine('sqlite:///:memory:', pool_size=20)
+        session = sessionmaker(bind=engine)
         cls.session = session()
-        Base.metadata.drop_all(cls.engine)
-        Base.metadata.create_all(cls.engine)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.session.close()
-        cls.engine.dispose()
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
 
     def test_user(self):
         with patch('ptmd.database.models.user.session', self.session):
@@ -127,3 +124,14 @@ class TestModel(TestCase):
             'author': None,
             'organism': None,
         })
+
+    def test_token_block_list(self):
+        expired_token = TokenBlocklist(jti='123', created_at=datetime.now(timezone.utc))
+        self.session.add(expired_token)
+        self.session.commit()
+        self.assertTrue(expired_token.id == 1)
+
+        with patch('ptmd.database.models.token_blocklist.session') as mocked_session:
+            mocked_session.return_value = self.session
+            self.assertTrue(check_if_token_revoked({}, {'jti': '123'}))
+

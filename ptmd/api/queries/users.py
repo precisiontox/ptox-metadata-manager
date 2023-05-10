@@ -6,6 +6,7 @@
 
 @author: D. Batista (Terazus)
 """
+from datetime import datetime, timezone
 
 from flask import jsonify, request, Response
 from flask_jwt_extended import get_jwt
@@ -13,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .utils import validate_inputs, check_admin_only
 from ptmd.config import session
-from ptmd.database import login_user, User
+from ptmd.database import login_user, User, TokenBlocklist
 
 
 @check_admin_only()
@@ -88,3 +89,11 @@ def get_me() -> tuple[Response, int]:
     """
     user: dict = dict(User.query.filter(User.id == get_jwt()['sub']).first())
     return jsonify(user), 200
+
+
+def logout() -> tuple[Response, int]:
+    """ Logs the user out by expiring the token
+    """
+    session.add(TokenBlocklist(jti=get_jwt()["jti"], created_at=datetime.now(timezone.utc)))
+    session.commit()
+    return jsonify(msg="Logout successfully"), 200

@@ -106,3 +106,11 @@ class TestUserQueries(TestCase):
                                    headers={'Authorization': f'Bearer {123}', **HEADERS},
                                    data=dumps({}))
             self.assertEqual(response.json, {'msg': 'Missing username or password'})
+
+    @patch('ptmd.api.queries.users.TokenBlocklist')
+    @patch('ptmd.api.queries.users.get_jwt', return_value={'jti': 1})
+    @patch('ptmd.api.queries.users.session')
+    def test_logout_user(self, mock_session, mock_jwt, mock_token_blocklist, mock_verify_jwt, mock_verify_in_request):
+        with app.test_client() as client:
+            response = client.delete('/api/session', headers={'Authorization': f'Bearer {123}', **HEADERS})
+            self.assertEqual(response.json, {'msg': 'Logout successfully'})

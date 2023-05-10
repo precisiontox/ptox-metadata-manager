@@ -5,7 +5,7 @@ It also provides the Base and app variables that are required to establish a con
 :author: D. Batista (Terazus)
 """
 
-from .models import User, Organisation, Chemical, Organism, File
+from .models import User, Organisation, Chemical, Organism, File, TokenBlocklist
 from .queries import (
     login_user,
     boot,
