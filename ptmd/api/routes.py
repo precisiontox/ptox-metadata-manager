@@ -7,7 +7,7 @@ from os import path
 from flask_jwt_extended import jwt_required
 from flasgger import swag_from
 
-from ptmd.database import app
+from ptmd.config import app
 from ptmd.const import ROOT_PATH
 from ptmd.api.queries import (
     login as login_user, change_password, get_me,
@@ -24,7 +24,6 @@ USERS_DOC_PATH: str = path.join(SWAGGER_DATA_PATH, 'users')
 ###########################################################
 #                   USERS ROUTES                          #
 ###########################################################
-
 @app.route('/api/users', methods=['PUT'])
 @swag_from(path.join(USERS_DOC_PATH, 'change_password.yml'))
 @jwt_required()
@@ -75,6 +74,10 @@ def chemicals():
     """ Get the list of chemicals """
     return get_chemicals()
 
+
+###########################################################
+#                   ORGANISATIONS                         #
+###########################################################
 
 @app.route('/api/organisations', methods=['GET'])
 @swag_from(path.join(SWAGGER_DATA_PATH, 'organisations.yml'))

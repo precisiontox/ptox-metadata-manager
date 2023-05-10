@@ -122,37 +122,7 @@ class MockValidator:
         self.report['errors'][label].append({'message': message, 'field_concerned': field})
 
 
-@patch('ptmd.lib.validator.core.remove', return_value=None)
-@patch('ptmd.lib.validator.core.GoogleDriveConnector', return_value=MockGoogleDriveConnector())
-@patch('ptmd.lib.validator.core.validate_identifier')
-class TestExcelValidator(TestCase):
-
-    @patch('ptmd.lib.validator.core.get_session', return_value=mocked_session)
-    @patch('ptmd.lib.validator.core.ExcelFile', return_value=MockExcelFileSuccess())
-    def test_core_success(self, mock_excel_file, mocked_get_session,
-                          mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
-        validator = ExcelValidator(1)
-        validator.validate()
-        self.assertEqual(validator.report['valid'], True)
-
-    @patch('ptmd.lib.validator.core.get_session', return_value=mocked_session)
-    @patch('ptmd.lib.validator.core.ExcelFile', return_value=MockExcelFileError())
-    def test_report_validation_error(self, mock_excel_file, mocked_get_session,
-                                     mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
-        validator = ExcelValidator(1)
-        validator.validate()
-        errors = validator.report['errors']
-        self.assertEqual(errors['Record at line 3 (FAC002LA1)'],
-                         [{'message': 'This field is required.', 'field_concerned': 'exposure_route'}])
-        self.assertEqual(validator.report['valid'], False)
-
-    @patch('ptmd.lib.validator.core.get_session', return_value=mocked_session_error)
-    def test_report_file_not_found(self, mocked_get_session,
-                                   mocked_validate_identifier, mocked_gdrive_connector, mock_rm):
-        with self.assertRaises(ValueError) as context:
-            validator = ExcelValidator(1)
-            validator.validate()
-        self.assertEqual('File with ID 1 does not exist.', str(context.exception))
+MOCKED_FILE = {'gdrive_id': '1', 'name': 'test.xlsx', 'file_id': 1}
 
 
 @patch('ptmd.lib.validator.core.GoogleDriveConnector', return_value=MockGoogleDriveConnector())

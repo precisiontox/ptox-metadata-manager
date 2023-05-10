@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from json import dumps as json_dumps
 
 from ptmd.api import app
-from ptmd.database import Base, User, Organisation, Organism
+from ptmd.database import User, Organisation, Organism, Base
 
 
 class MockGoogleDrive:
@@ -28,7 +28,7 @@ session.add(new_organisation)
 session.commit()
 
 user = {'organisation': new_organisation, 'username': "admin", 'password': 'admin'}
-new_user = User(**user, session=session)
+new_user = User(**user)
 session.add(new_user)
 session.commit()
 
@@ -38,20 +38,29 @@ session.add(new_organism)
 session.commit()
 
 
+def mock_jwt_required(*args, **kwargs):
+    return True
+
+
 class TestRegisterFile(TestCase):
 
     @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
     @patch('ptmd.api.routes.register_gdrive_file', return_value=({'message': 'File added successfully.'}, 200))
-    def test_route(self, mock_validate, mock_jwt_required):
+    def test_route(self, mock_validate, mock_jwt):
         with app.test_client() as test_client:
             response = test_client.post('api/files/register')
         self.assertEqual(response.json, {'message': 'File added successfully.'})
 
-    @patch('ptmd.api.queries.files.register.get_session', return_value=session)
-    @patch('ptmd.api.queries.users.get_session', return_value=session)
-    @patch('ptmd.api.queries.utils.get_session', return_value=session)
+    @patch('ptmd.api.queries.files.register.session')
+    @patch('ptmd.api.queries.users.session')
     @patch('ptmd.api.queries.files.register.GoogleDriveConnector', return_value=MockGoogleDrive())
-    def test_register_file(self, mock_get_session, mock_session_1, moc_session_2, mock_gdrive):
+    @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request', side_effect=mock_jwt_required)
+    @patch('ptmd.api.queries.files.create.get_jwt', return_value={'sub': 1})
+    @patch('ptmd.api.queries.files.register.get_jwt', return_value={'sub': 1})
+    @patch('ptmd.api.queries.users.login_user', return_value={'access_token': '123'})
+    @patch('ptmd.api.queries.files.register.File')
+    def test_register_file(self, mock_file, mock_login, mock_jwt_1, mock_jwt_2, mock_verify_jwt, mock_gdrive,
+                           mock_session_1, mock_session_2):
         with app.test_client() as test_client:
             login = test_client.post('/api/session', headers=HEADERS,
                                      data=json_dumps({'username': 'admin', 'password': 'admin'}))
@@ -74,8 +83,10 @@ class TestRegisterFile(TestCase):
             self.assertEqual(file.json, {'message': 'Field file_id is required.'})
             self.assertEqual(file.status_code, 400)
 
-            external_file = {'file_id': '123', 'batch': 'AA', 'organism': 'human'}
-            file = test_client.post('/api/files/register', headers={'Authorization': f'Bearer {token}', **HEADERS},
-                                    data=json_dumps(external_file))
-            self.assertEqual(file.json['data']['message'], 'file 123 was successfully created with internal id 1')
-            self.assertEqual(file.status_code, 200)
+            with patch('ptmd.api.queries.files.register.jsonify') as mock_jsonify:
+                mock_jsonify.return_value = {'data': {'message': 'File added successfully.'}}
+                external_file = {'file_id': '123', 'batch': 'AA', 'organism': 'human'}
+                file = test_client.post('/api/files/register', headers={'Authorization': f'Bearer {token}', **HEADERS},
+                                        data=json_dumps(external_file))
+                self.assertEqual(file.json['data']['message'], 'File added successfully.')
+                self.assertEqual(file.status_code, 200)

@@ -3,12 +3,12 @@
 @author: D. Batista (Terazus)
 """
 from __future__ import annotations
+from typing import Generator
 
 from passlib.hash import bcrypt
-from sqlalchemy.orm import session as sqlsession
 
-from ptmd.config import Base, db
-from .organisation import Organisation
+from ptmd.config import Base, db, session
+from ptmd.database.models import Organisation
 
 
 class User(Base):
@@ -27,24 +27,20 @@ class User(Base):
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=True)
     organisation = db.relationship('Organisation', backref=db.backref('users'), lazy='subquery')
 
-    def __init__(self, username: str, password: str,
-                 organisation: Organisation | None | str = None,
-                 session: sqlsession = None) -> None:
+    def __init__(self, username: str, password: str, organisation: Organisation | None | str = None) -> None:
         """ Constructor for the User class. Let's use encode the password with bcrypt before committing it to the
         database. """
         self.username: str = username
         self.password: str = bcrypt.hash(password)
-        if organisation and not isinstance(organisation, Organisation) and not isinstance(organisation, str):
+        if organisation and not isinstance(organisation, (Organisation, str)):
             raise TypeError('organisation must be an Organisation object or a string')
         if isinstance(organisation, Organisation):
-            self.organisation: int = organisation
+            self.organisation = organisation
         elif organisation:
-            if not session:
-                raise ValueError('session must be provided if organisation is a string')
-            org = session.query(Organisation).filter_by(name=organisation).first()
-            self.organisation: Organisation = org
+            org = Organisation.query.filter(Organisation.name == organisation).first()
+            self.organisation = org
 
-    def __iter__(self) -> dict:
+    def __iter__(self) -> Generator:
         """ Iterator for the object. Used to serialize the object as a dictionary.
 
         :return: The iterator.
@@ -52,7 +48,8 @@ class User(Base):
         user = {
             "id": self.id,
             "username": self.username,
-            "organisation": dict(self.organisation) if self.organisation else None
+            "organisation": self.organisation.organisation_id if self.organisation else None,
+            "files": [dict(file) for file in self.files]
         }
         for key, value in user.items():
             yield key, value
@@ -65,12 +62,11 @@ class User(Base):
         """
         return bcrypt.verify(password, self.password)
 
-    def change_password(self, old_password: str, new_password: str, session: sqlsession) -> bool:
+    def change_password(self, old_password: str, new_password: str) -> bool:
         """ Change the user password.
 
         :param old_password: the old password
         :param new_password: the new password
-        :param session: the database session
         :return: True if the password was changed, False otherwise
         """
         if self.validate_password(old_password):

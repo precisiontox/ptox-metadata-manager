@@ -2,4 +2,4 @@
 
 :author: D. Batista (Terazus)
 """
-from .routes import app
+from ptmd.api.routes import app

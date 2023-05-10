@@ -9,11 +9,10 @@
 
 from flask import jsonify, request, Response
 from flask_jwt_extended import get_jwt
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from .utils import validate_inputs, check_admin_only
-from ptmd.utils import get_session
+from ptmd.config import session
 from ptmd.database import login_user, User
 
 
@@ -37,16 +36,13 @@ def create_user() -> tuple[Response, int]:
     if password != repeat_password:
         return jsonify({"msg": "Passwords do not match"}), 400
 
-    session: Session = get_session()
     try:
-        user: User = User(username=username, password=password, organisation=organisation, session=session)
+        user: User = User(username=username, password=password, organisation=organisation)
         session.add(user)
         session.commit()
         user_dict = dict(user)
-        session.close()
         return jsonify(dict(user_dict)), 200
     except IntegrityError:
-        session.close()
         return jsonify({"msg": "Username already taken"}), 400
 
 
@@ -59,9 +55,7 @@ def login() -> tuple[Response, int]:
     password: str = request.json.get('password', None)
     if not username or not password:
         return jsonify({"msg": "Missing username or password"}), 400
-    session: Session = get_session()
-    logged_in: tuple[Response, int] = login_user(username=username, password=password, session=session)
-    session.close()
+    logged_in: tuple[Response, int] = login_user(username=username, password=password)
     return logged_in
 
 
@@ -80,11 +74,8 @@ def change_password() -> tuple[Response, int]:
     if new_password != repeat_password:
         return jsonify({"msg": "Passwords do not match"}), 400
 
-    session: Session = get_session()
-    user_id: int = get_jwt()['sub']
-    user: User = session.query(User).filter_by(id=user_id).first()
-    changed: bool = user.change_password(session=session, old_password=password, new_password=new_password)
-    session.close()
+    user: User = User.query.filter(User.id == get_jwt()['sub']).first()
+    changed: bool = user.change_password(old_password=password, new_password=new_password)
     if not changed:
         return jsonify({"msg": "Wrong password"}), 400
     return jsonify({"msg": "Password changed successfully"}), 200
@@ -95,7 +86,5 @@ def get_me() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
-    user: dict = dict(session.query(User).filter_by(id=get_jwt()['sub']).first())
-    session.close()
+    user: dict = dict(User.query.filter(User.id == get_jwt()['sub']).first())
     return jsonify(user), 200

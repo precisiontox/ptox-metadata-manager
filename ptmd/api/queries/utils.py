@@ -5,12 +5,12 @@ decorated function.
 """
 from __future__ import annotations
 from functools import wraps
+from typing import Callable
 
 from flask_jwt_extended import get_current_user, verify_jwt_in_request
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
 from ptmd.config import jwt
-from ptmd.utils import get_session
 from ptmd.database import User
 
 
@@ -23,13 +23,10 @@ def user_lookup_callback(_jwt_header: dict, jwt_data: dict) -> User | None:
 
     :return: User object
     """
-    identity = jwt_data["sub"]
-    session = get_session()
-    user = session.query(User).filter_by(id=identity).first()
-    return user if user else None
+    return User.query.filter(User.id == jwt_data["sub"]).first()
 
 
-def check_admin_only() -> callable:
+def check_admin_only() -> Callable:
     """ Decorator to check if the user is admin before executing the decorated function """
     def decorator(f):
         """ Decorator function """

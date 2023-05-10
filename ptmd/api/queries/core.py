@@ -12,9 +12,6 @@ It includes:
 from __future__ import annotations
 from flask import jsonify, Response
 
-from sqlalchemy.orm import Session
-
-from ptmd.utils import get_session
 from ptmd.database import Organism, Chemical, Organisation
 
 
@@ -23,12 +20,7 @@ def get_organisms() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
-    organisms: dict[str, list[dict[str, int | str]]] = {
-        "data": [dict(organism) for organism in session.query(Organism).all()]
-    }
-    session.close()
-    return jsonify(organisms), 200
+    return jsonify({"data": [dict(organism) for organism in Organism.query.all()]}), 200
 
 
 def get_chemicals() -> tuple[Response, int]:
@@ -36,11 +28,7 @@ def get_chemicals() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
-    response: list[Chemical] = session.query(Chemical).filter(Chemical.ptx_code < 998).all()
-    chemicals: dict = {"data": [dict(chemical) for chemical in response]}
-    session.close()
-    return jsonify(chemicals), 200
+    return jsonify({"data": [dict(chemical) for chemical in Chemical.query.filter(Chemical.ptx_code < 998).all()]}), 200
 
 
 def get_organisations() -> tuple[Response, int]:
@@ -48,8 +36,4 @@ def get_organisations() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
-    response: list[Organisation] = session.query(Organisation).all()
-    organisations: dict[str, list] = {"data": [dict(organisation) for organisation in response]}
-    session.close()
-    return jsonify(organisations), 200
+    return jsonify({"data": [dict(organisation) for organisation in Organisation.query.all()]}), 200

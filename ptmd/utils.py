@@ -4,40 +4,40 @@ the database and the Google Drive directories.
 @author: D. Batista (Terazus)
 """
 from os.path import exists
-
-from sqlalchemy.orm import session as sqlsession
 from yaml import dump
 
 from ptmd.lib import GoogleDriveConnector, parse_chemicals, parse_organisms
-from ptmd.database import boot, User, Organisation, get_session
+from ptmd.config import app, engine
+from ptmd.database import boot, User, Organisation
 from ptmd.const import SETTINGS_FILE_PATH, CONFIG
 from ptmd.logger import LOGGER
+from ptmd.database import Base
 
 
-def initialize(users: list[dict], session: sqlsession) -> tuple[dict[str, User], dict[str, Organisation]]:
+def initialize(users: list[dict]) -> tuple:
     """ Initialize the application. This will the directories on Google Drive, get their
     identifiers and create the database with partners and users.
 
     :param users: A list of users to be created. Organisations can be provided as objects or strings
-    :param session: the database SQLAlchemy session
     :return: A tuple containing the organisations and users from the database.
     """
-    connector = GoogleDriveConnector()
-    users_from_database = session.query(User).all()
-    if not users_from_database:
-        chemicals_source = parse_chemicals()
-        organisms = parse_organisms()
-        folders = connector.create_directories()
-        organisations, users, chemicals, organisms = boot(organisations=folders['partners'],
-                                                          chemicals=chemicals_source,
-                                                          users=users,
-                                                          organisms=organisms,
-                                                          insert=True, session=session)
-        return organisations, users
-
-    organisations = session.query(Organisation).all()
-    return ({user.username: user.id for user in users_from_database},
-            {org.name: org.gdrive_id for org in organisations})
+    Base.metadata.create_all(engine)
+    with app.app_context():
+        connector = GoogleDriveConnector()
+        users_from_database = User.query.all()
+        if not users_from_database:
+            chemicals_source = parse_chemicals()
+            organisms = parse_organisms()
+            folders: dict = connector.create_directories()
+            [organisations, users, _, __] = boot(organisations=folders['partners'],
+                                                 chemicals=chemicals_source,
+                                                 users=users,
+                                                 organisms=organisms,
+                                                 insert=True)
+            return organisations, users
+        organisations = Organisation.query.all()
+        return ({user.username: user.id for user in users_from_database},
+                {org.name: org.gdrive_id for org in organisations})
 
 
 def create_config_file():
@@ -65,6 +65,4 @@ def init():
     """ Initialize the API """
     LOGGER.info('Initializing the application')
     create_config_file()
-    session = get_session()
-    initialize(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}], session=session)
-    session.close()
+    initialize(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}])

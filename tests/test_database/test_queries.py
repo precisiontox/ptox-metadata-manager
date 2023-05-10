@@ -9,7 +9,7 @@ from ptmd.database.queries import (
 )
 
 
-class MockChemical:
+class MockModel:
     def __init__(self) -> None:
         self.common_name = 'A NAME'
         self.ptox_biosystem_name = 'ANOTHER NAME'
@@ -20,7 +20,7 @@ class MockChemical:
         return self
 
 
-class MockChemicalError(MockChemical):
+class MockModelError(MockModel):
     def first(self):
         return None
 
@@ -31,63 +31,59 @@ class MockQuery:
 
     @staticmethod
     def all():
-        return [MockChemical()]
+        return [MockModel()]
 
     @staticmethod
     def filter_by(*args, **kwargs):
-        return MockChemical()
+        return MockModel()
+
+    @staticmethod
+    def filter(*args, **kwargs):
+        return MockModel()
 
 
 class MockQueryError(MockQuery):
     @staticmethod
     def filter_by(*args, **kwargs):
-        return MockChemicalError()
-
-
-class MockSession:
-    def __init__(self, *args, **kwargs):
-        pass
+        return MockModelError()
 
     @staticmethod
-    def query(*args, **kwargs):
-        return MockQuery()
-
-    def close(self):
-        pass
-
-
-class MockSessionError(MockSession):
-    @staticmethod
-    def query(*args, **kwargs):
-        return MockQueryError()
+    def filter(*args, **kwargs):
+        return MockModelError()
 
 
 class TestDBQueries(TestCase):
 
-    @patch('ptmd.database.queries.get_session', return_value=MockSession())
-    def test_get_allowed_chemicals(self, mock_get_session):
+    @patch('ptmd.database.queries.Chemical')
+    def test_get_allowed_chemicals(self, mock_chemical):
+        mock_chemical.query = MockQuery()
         self.assertEqual(get_allowed_chemicals(), ['A NAME'])
 
-    @patch('ptmd.database.queries.get_session', return_value=MockSession())
-    def test_get_allowed_organisms(self, mock_get_session):
+    @patch('ptmd.database.queries.Organism')
+    def test_get_allowed_organisms(self, mock_organism):
+        mock_organism.query = MockQuery()
         self.assertEqual(get_allowed_organisms(), ['ANOTHER NAME'])
 
-    @patch('ptmd.database.queries.get_session', return_value=MockSession())
-    def test_get_organism_code(self, mock_get_session):
+    @patch('ptmd.database.queries.Organism')
+    def test_get_organism_code(self, mock_organism):
+        mock_organism.query = MockQuery()
         self.assertEqual(get_organism_code('A'), 'A')
 
-    @patch('ptmd.database.queries.get_session', return_value=MockSession())
-    def test_get_chemical_code_mapping(self, mock_get_session):
+    @patch('ptmd.database.queries.Chemical')
+    def test_get_chemical_code_mapping(self, mock_chemical):
+        mock_chemical.query = MockQuery()
         self.assertEqual(get_chemical_code_mapping(['A']), {'A NAME': '001'})
 
-    @patch('ptmd.database.queries.get_session', return_value=MockSessionError())
-    def test_database_errors_chemicals(self, mock_get_session):
+    @patch('ptmd.database.queries.Chemical')
+    def test_database_errors_chemicals(self, mock_chemical):
+        mock_chemical.query = MockQueryError()
         with self.assertRaises(ValueError) as context:
             get_chemical_code_mapping(['A'])
         self.assertEqual(str(context.exception), 'Chemical A not found in the database.')
 
-    @patch('ptmd.database.queries.get_session', return_value=MockSessionError())
-    def test_database_errors_organisms(self, mock_get_session):
+    @patch('ptmd.database.queries.Organism')
+    def test_database_errors_organisms(self, mock_organism):
+        mock_organism.query = MockQueryError()
         with self.assertRaises(ValueError) as context:
             get_organism_code('BBB')
         self.assertEqual(str(context.exception), 'Organism BBB not found in the database.')

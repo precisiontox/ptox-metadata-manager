@@ -3,12 +3,14 @@ A file represents an identifier pointing to a specific Google Drive file.
 
 @author: D. Batista (Terazus)
 """
-from sqlalchemy.orm import session as sqlsession
+from __future__ import annotations
+
+from sqlalchemy.orm import Session
 
 from ptmd.config import Base, db
-from .organisation import Organisation
-from .user import User
-from .organism import Organism
+from ptmd.database.models.organisation import Organisation
+from ptmd.database.models.user import User
+from ptmd.database.models.organism import Organism
 
 
 class File(Base):
@@ -20,7 +22,6 @@ class File(Base):
     :param user_id: User identifier.
     :param organism_name: Organism name.
     :param batch: Batch name.
-    :param session: SQLAlchemy session.
     """
     __tablename__: str = 'file'
     file_id: int = db.Column(db.Integer, primary_key=True)
@@ -44,17 +45,15 @@ class File(Base):
             organisation_name: str,
             user_id: int,
             organism_name: str,
-            batch: str,
-            session: sqlsession = None
+            batch: str
     ) -> None:
         """ The File Model constructor """
         self.gdrive_id: str = gdrive_id
         self.name: str = name
         self.author_id: int = user_id
         self.batch: str = batch
-        organism: Organism = session.query(Organism).filter_by(ptox_biosystem_name=organism_name).first()
-        self.organisation: Organisation = session.query(Organisation).filter_by(name=organisation_name).first()
-        self.organism: Organism = organism
+        self.organism_id: int = Organism.query.filter_by(ptox_biosystem_name=organism_name).first().organism_id
+        self.organisation_id: int = Organisation.query.filter_by(name=organisation_name).first().organisation_id
 
     def __iter__(self):
         """ Iterator for the object. Used to serialize the object as a dictionary. """
