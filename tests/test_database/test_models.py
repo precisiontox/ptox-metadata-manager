@@ -134,4 +134,3 @@ class TestModel(TestCase):
         with patch('ptmd.database.models.token_blocklist.session') as mocked_session:
             mocked_session.return_value = self.session
             self.assertTrue(check_if_token_revoked({}, {'jti': '123'}))
-
