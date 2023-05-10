@@ -59,6 +59,7 @@ def login():
 @swag_from(path.join(USERS_DOC_PATH, 'logout.yml'))
 @jwt_required()
 def modify_token():
+    """ Route to log out a user """
     return logout()
 
 
