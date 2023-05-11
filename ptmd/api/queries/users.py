@@ -31,10 +31,7 @@ def create_user() -> tuple[Response, int]:
         schema: dict = loads(f.read())
     validator: Validator = Validator(schema)
     for error in validator.iter_errors(user_data):
-        if error.path:
-            return jsonify({"msg": {'field': error.path[0], 'error': error.message}}), 400
-        else:
-            return jsonify({"msg": error.message}), 400
+        return jsonify({"msg": {'field': error.path[0], 'error': error.message}}), 400
 
     if user_data['password'] != user_data['confirm_password']:
         return jsonify({"msg": "Passwords do not match"}), 400
@@ -113,7 +110,6 @@ def validate_account(user_id: int) -> tuple[Response, int]:
 
 
 def enable_account(token: str) -> tuple[Response, int]:
-    message: str = "Account enabled. An email has been to an admin to validate your account."
     token: Token = Token.query.filter(Token.token == token).first()
     if token is None:
         return jsonify(msg="Invalid token"), 400
@@ -121,4 +117,4 @@ def enable_account(token: str) -> tuple[Response, int]:
         return jsonify(msg="Token expired"), 400
     user: User = token.user[0]
     user.enable_account()
-    return jsonify(msg=message), 200
+    return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200

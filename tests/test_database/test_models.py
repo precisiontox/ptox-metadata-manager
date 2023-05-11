@@ -21,6 +21,18 @@ class TestUser(TestCase):
             changed = user.change_password(old_password='test', new_password='test2')
             self.assertFalse(changed)
 
+            with patch('ptmd.database.models.user.send_validation_mail'):
+                user.enable_account()
+                self.assertEqual(user.role, 'enabled')
+
+            with patch('ptmd.database.models.user.send_validated_account_mail'):
+                user.activate_account()
+                self.assertEqual(user.role, 'user')
+
+    def test_user_admin(self):
+        user = User(username='test', password='test', email='your@email.com', role='admin')
+        self.assertEqual(user.role, 'admin')
+
     @patch('ptmd.database.models.file.Organisation')
     @patch('ptmd.database.models.file.Organism')
     def test_files(self, mock_organism, mock_organisation):

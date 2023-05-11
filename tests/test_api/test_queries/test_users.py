@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 from json import dumps
+from datetime import datetime, timedelta
 
 from sqlalchemy.exc import IntegrityError
 
@@ -14,11 +15,26 @@ HEADERS = {'Content-Type': 'application/json'}
 @patch('ptmd.api.queries.utils.get_current_user')
 class TestUserQueries(TestCase):
 
+    def test_login(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        mock_get_current_user().role = 'admin'
+        with app.test_client() as client:
+            response = client.post('/api/session',
+                                   headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                   data=dumps({}))
+            self.assertEqual(response.json, {'msg': 'Missing username or password'})
+            self.assertEqual(response.status_code, 400)
+
+            with patch('ptmd.api.queries.users.login_user', return_value=("hi", 200)) as mocked:
+                client.post('/api/session',
+                            headers={'Authorization': f'Bearer {123}', **HEADERS},
+                            data=dumps({"username": "test", "password": "test"}))
+                mocked.assert_called_with(username='test', password='test')
+
     @patch('ptmd.api.queries.users.session')
     @patch('ptmd.api.queries.users.User')
-    def test_create_user_success(self, mock_user,
-                                 mock_session, mock_get_current_user,
-                                 mock_verify_jwt, mock_verify_in_request):
+    def test_create_user(self, mock_user,
+                         mock_session, mock_get_current_user,
+                         mock_verify_jwt, mock_verify_in_request):
         mock_get_current_user().role = 'admin'
         mock_user.return_value = {'id': None, 'username': '1234', 'organisation': None, 'files': []}
         user_data = {
@@ -34,6 +50,13 @@ class TestUserQueries(TestCase):
                                        data=dumps(user_data))
             self.assertEqual(created_user.json,
                              {'msg': {'error': "None is not of type 'number'", 'field': 'organisation_id'}})
+
+            user_data['organisation_id'] = "abc"
+            created_user = client.post('/api/users',
+                                       headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                       data=dumps(user_data))
+            self.assertEqual(created_user.json,
+                             {'msg': {'error': "'abc' is not of type 'number'", 'field': 'organisation_id'}})
 
             user_data['confirm_password'] = '124'
             user_data['organisation_id'] = 1
@@ -54,11 +77,6 @@ class TestUserQueries(TestCase):
                                        data=dumps(user_data))
             self.assertEqual(created_user.json, {'msg': 'Username already taken'})
 
-
-@patch('ptmd.api.queries.utils.verify_jwt_in_request', return_value=None)
-@patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
-@patch('ptmd.api.queries.utils.get_current_user')
-class TestOtherUserQueries(TestCase):
     @patch('ptmd.api.queries.users.session')
     @patch('ptmd.api.queries.users.get_jwt', return_value={'sub': 1})
     @patch('ptmd.api.queries.users.User')
@@ -90,6 +108,12 @@ class TestOtherUserQueries(TestCase):
                                       headers={'Authorization': f'Bearer {123}', **HEADERS},
                                       data=dumps(user_data))
             self.assertEqual(created_user.json, {'msg': 'Password changed successfully'})
+
+            mock_get_current_user().role = 'banned'
+            created_user = client.put('/api/users',
+                                      headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                      data=dumps(user_data))
+            self.assertEqual(created_user.json, {'msg': 'You are not authorized to access this route'})
 
     @patch('ptmd.api.queries.users.User')
     @patch('ptmd.api.queries.users.get_jwt', return_value={'sub': 1})
@@ -123,3 +147,38 @@ class TestOtherUserQueries(TestCase):
         with app.test_client() as client:
             response = client.delete('/api/session', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json, {'msg': 'Logout successfully'})
+
+    def test_validate_account(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        mock_get_current_user().role = 'admin'
+        with patch('ptmd.api.queries.users.User') as mock_user:
+            # mock_user.query.filter().first().activate_account().return_value = True
+            with app.test_client() as client:
+                response = client.get('/api/activate/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+                self.assertEqual(response.json, {'msg': 'Account validated'})
+
+    def test_enable_account_errors(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        with patch('ptmd.api.queries.users.Token') as mocked_token:
+            mocked_token.query.filter().first.return_value.expires_on = datetime.now() - timedelta(days=1)
+            with app.test_client() as client:
+                response = client.get('/api/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+                self.assertEqual(response.json, {'msg': 'Token expired'})
+                self.assertEqual(response.status_code, 400)
+
+            mocked_token.query.filter().first.return_value = None
+            with app.test_client() as client:
+                response = client.get('/api/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+                self.assertEqual(response.json, {'msg': 'Invalid token'})
+                self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.Token')
+    @patch('ptmd.api.queries.users.enable_account')
+    def test_enable_account_success(self, mock_email,
+                                    mocked_token, mocked_user,
+                                    mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        mocked_token.query.filter().first.return_value.expires_on = datetime.now() + timedelta(days=10)
+        mocked_token.query.filter().first.return_value.token = '123'
+        with app.test_client() as client:
+            response = client.get('/api/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+            self.assertEqual(response.json,
+                             {'msg': "Account enabled. An email has been to an admin to validate your account."})

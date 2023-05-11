@@ -29,7 +29,7 @@ def create_validated_email_content(username: object) -> str:
         return template.render(username=username)
 
 
-def create_validation_mail_content(user: object) -> str:
+def create_validation_mail_content(user: any) -> str:
     """ Create the content of the email to be sent to the user.
 
     @param user: the user account to activate
@@ -37,4 +37,4 @@ def create_validation_mail_content(user: object) -> str:
     """
     with open(path.join(TEMPLATES_PATH, 'activate_account.html'), 'r') as template:
         template = Template(template.read())
-        return template.render(user=user, site_url=SITE_URL)
+        return template.render(user=user, site_url=f'{SITE_URL}/api/activate/{user.id}')

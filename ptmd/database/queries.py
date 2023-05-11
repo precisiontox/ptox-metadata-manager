@@ -46,7 +46,7 @@ def login_user(username: str, password: str) -> tuple[Response, int]:
     @param password
     @return: Response, int: the response message and the response code
     """
-    raw_user = User.query.filter(User.username == username).first()
+    raw_user = User.query.filter(User.username == username ).first()
     user = dict(raw_user) if raw_user and raw_user.validate_password(password) else None
     if not user:
         return jsonify({"msg": "Bad username or password"}), 401

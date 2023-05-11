@@ -84,6 +84,13 @@ class TestValidateIdentifier(TestCase):
         self.assertEqual(validator.report['errors']['test'][0]['message'],
                          "The identifier organism doesn't match the biosystem_name.")
 
+    def test_validate_species_error_unknown(self):
+        validator = ExcelValidatorMock()
+        validator.general_info['biosystem_name'] = 'test2'
+        validate_species(validator)
+        self.assertFalse(validator.report['valid'])
+        self.assertIn("Error Working outside of application context.", validator.report['errors']['test'][0]['message'])
+
     def test_validate_batch_error_wrong_batch_general_info(self):
         validator = ExcelValidatorMock()
         validator.general_info['exposure batch'] = 'ABC'
@@ -127,6 +134,23 @@ class TestValidateIdentifier(TestCase):
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],
                          "The identifier 3 compound doesn't match the compound Compound 1 (2)")
+
+    def test_validate_compound_replicates_error_unknown(self):
+        validator = ExcelValidatorMock()
+        validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
+        validate_compound(validator)
+        self.assertFalse(validator.report['valid'])
+        self.assertIn("Error Working outside of application context.", validator.report['errors']['test'][0]['message'])
+
+    @patch('ptmd.lib.validator.validate_identifier.Chemical')
+    def test_validate_compound_error_no_compound(self, mock_chemical):
+        mock_chemical.query.filter().first.return_value = None
+        validator = ExcelValidatorMock()
+        validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
+        validate_compound(validator)
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors']['test'][0]['message'],
+                         "The identifier doesn't contain a valid compound code '3'.")
 
     @patch('ptmd.lib.validator.validate_identifier.Chemical')
     def test_validate_compound_controls(self, mock_chemical):

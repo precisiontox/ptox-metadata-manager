@@ -32,7 +32,7 @@ pip install -r requirements-dev.txt # for development
 ```
 
 Before running the application you need to obtain a Google Drive ID and secret: head to your Google Cloud console and 
-enable the Google Drive API and the Gmail API. Then, go to `API & Services > Credentials` and create a new OAuth client 
+enable the <b>Google Drive API</b> and the <b>Gmail API</b>. Then, go to `API & Services > Credentials` and create a new OAuth client 
 ID using the `Desktop Application` option. Once done, you will be presented with a client ID and a client secret you
 will want to copy.
 Inside the `ptmd/resources/` directory, rename `.env.example` to `.env` and fill in the values for your environment.
@@ -54,6 +54,8 @@ GOOGLE_DRIVE_SETTINGS_FILEPATH=Absolute_path_to_google_drive_settings_file
 - `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first boot 
   e.g. settings.yaml - a .yml suffix must not be used).
 - `SITE_URL`: the URL of the site. This is used to generate the OAuth callback URL. Defaults to http://localhost:5000.
+- `ADMIN_EMAIL`: the email address of the admin user. This is used to send emails to the admin user when a new user
+  registers.
 
 You can now run the following command and accept the application in your browser. This is done once only during first boot.
 It will download the Google API credentials file and generate the database once you are done.

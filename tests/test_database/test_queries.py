@@ -5,7 +5,8 @@ from ptmd.database.queries import (
     get_allowed_chemicals,
     get_allowed_organisms,
     get_organism_code,
-    get_chemical_code_mapping
+    get_chemical_code_mapping,
+    login_user
 )
 
 
@@ -15,6 +16,13 @@ class MockModel:
         self.ptox_biosystem_name = 'ANOTHER NAME'
         self.ptox_biosystem_code = 'A'
         self.ptx_code = 1
+
+    def validate_password(self, password):
+        return True
+
+    def __iter__(self):
+        for k, v in {"id": 1}.items():
+            yield k, v
 
 
 class TestDBQueries(TestCase):
@@ -48,3 +56,21 @@ class TestDBQueries(TestCase):
         with self.assertRaises(ValueError) as context:
             get_chemical_code_mapping(['A'])
         self.assertEqual(str(context.exception), 'Chemical A not found in the database.')
+
+    @patch('ptmd.database.queries.jsonify')
+    @patch('ptmd.database.queries.User')
+    def test_login_user_error(self, mock_user, mock_jsonify):
+        mock_user.query.filter().first.return_value = None
+        response = login_user('A', 'B')
+        mock_jsonify.assert_called_once_with({'msg': 'Bad username or password'})
+        self.assertEqual(response[1], 401)
+
+    @patch('ptmd.database.queries.create_access_token', return_value='ABC')
+    @patch('ptmd.database.queries.jsonify')
+    @patch('ptmd.database.queries.User')
+    def test_login_user_success(self, mock_user, mock_jsonify, mock_access_token):
+        mock_user.query.filter().first.return_value = MockModel()
+        response = login_user('A', 'B')
+        mock_jsonify.assert_called_once_with(access_token='ABC')
+        self.assertEqual(response[1], 200)
+
