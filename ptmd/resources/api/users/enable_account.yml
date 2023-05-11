@@ -1,0 +1,21 @@
+The route to validate a user account. Admin only
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: token
+    in: path
+    required: true
+    type: string
+    description: The token received by email
+definitions:
+responses:
+  200:
+    description: The user data with that JWT token
+  401:
+    description: The JWT token is missing or the user is not admin
+    schema:
+      $ref: '#/definitions/Unauthorized Error Response'
