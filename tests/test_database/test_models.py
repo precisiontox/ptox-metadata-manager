@@ -12,7 +12,7 @@ class TestUser(TestCase):
         self.assertEqual(dict(user), expected_user)
         self.assertTrue(user.validate_password('test'))
 
-        with patch('ptmd.database.models.user.session') as mock_session:
+        with patch('ptmd.database.models.user.session'):
             changed = user.change_password(old_password='test', new_password='test2')
             self.assertTrue(changed)
             changed = user.change_password(old_password='test', new_password='test2')

@@ -4,7 +4,5 @@
 """
 from os import path
 
-from ptmd.const import ADMIN_EMAIL
-
 
 TEMPLATES_PATH = path.join(path.abspath(path.dirname(__file__)), 'templates')

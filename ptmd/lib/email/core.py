@@ -10,7 +10,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 from .utils import get_config
-from .const import ADMIN_EMAIL
+from ptmd.const import ADMIN_EMAIL
 from .load_templates import (
     create_confirmation_email_content,
     create_validated_email_content,
