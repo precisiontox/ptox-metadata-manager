@@ -29,10 +29,7 @@ def send_confirmation_mail(username: str, email: str, token: str) -> str:
     service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
     message: MIMEMultipart = build_email_core(title='PTMD - Account activation', email=email)
     body: str = create_confirmation_email_content(username, token)
-    message.attach(MIMEText(body, 'html'))
-    create_message = {'raw': urlsafe_b64encode(message.as_bytes()).decode()}
-    service.users().messages().send(userId="me", body=create_message).execute()
-    return body
+    return send_email(message, service, body)
 
 
 def send_validated_account_mail(username: str, email: str) -> str:
@@ -45,10 +42,7 @@ def send_validated_account_mail(username: str, email: str) -> str:
     service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
     message: MIMEMultipart = build_email_core(title='PTMD - Your account is now active', email=email)
     body: str = create_validated_email_content(username)
-    message.attach(MIMEText(body, 'html'))
-    create_message = {'raw': urlsafe_b64encode(message.as_bytes()).decode()}
-    service.users().messages().send(userId="me", body=create_message).execute()
-    return body
+    return send_email(message, service, body)
 
 
 def send_validation_mail(user: object) -> str:
@@ -60,10 +54,7 @@ def send_validation_mail(user: object) -> str:
     service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
     message: MIMEMultipart = build_email_core(title='PTMD - An account needs to be activated', email=ADMIN_EMAIL)
     body: str = create_validation_mail_content(user)
-    message.attach(MIMEText(body, 'html'))
-    create_message = {'raw': urlsafe_b64encode(message.as_bytes()).decode()}
-    service.users().messages().send(userId="me", body=create_message).execute()
-    return body
+    return send_email(message, service, body)
 
 
 def build_email_core(title: str, email: str) -> MIMEMultipart:
@@ -78,3 +69,16 @@ def build_email_core(title: str, email: str) -> MIMEMultipart:
     message['From'] = ''
     message['To'] = email
     return message
+
+
+def send_email(message: MIMEMultipart, service: any, body: str) -> str:
+    """ Send the email to the user.
+
+    @param message: the MIMEMultipart object to be used to send the email
+    @param service: the service to be used to send the email
+    @param body: the body of the email
+    """
+    message.attach(MIMEText(body, 'html'))
+    create_message = {'raw': urlsafe_b64encode(message.as_bytes()).decode()}
+    service.users().messages().send(userId="me", body=create_message).execute()
+    return body
