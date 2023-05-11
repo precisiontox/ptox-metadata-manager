@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 
 from ptmd.lib.email.core import send_confirmation_mail
 from ptmd.const import SITE_URL
