@@ -1,3 +1,7 @@
+""" Thus file contains the Token model.
+
+@Author: D. Batista (Terazus)
+"""
 from datetime import datetime, timedelta
 from secrets import token_hex
 
@@ -18,6 +22,7 @@ class Token(Base):
     expires_on: datetime = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, token_type: str, user: any) -> None:
+        """ Create a new token. """
         self.token = token_hex(16)
         self.token_type = token_type
         self.expires_on = datetime.now() + timedelta(days=1)

@@ -7,7 +7,7 @@
 @author: D. Batista (Terazus)
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from json import loads
 
 from flask import jsonify, request, Response
@@ -97,19 +97,29 @@ def get_me() -> tuple[Response, int]:
 def logout() -> tuple[Response, int]:
     """ Logs the user out by expiring the token
     """
-    session.add(TokenBlocklist(jti=get_jwt()["jti"], created_at=datetime.now(timezone.utc)))
+    session.add(TokenBlocklist(jti=get_jwt()["jti"]))
     session.commit()
     return jsonify(msg="Logout successfully"), 200
 
 
 @check_role(role='admin')
 def validate_account(user_id: int) -> tuple[Response, int]:
+    """ Validates the account of a user. Admin only
+
+    :param user_id: ID of the user to validate
+    :return: tuple containing a JSON response and a status code
+    """
     user: User = User.query.filter(User.id == user_id).first()
     user.activate_account()
     return jsonify(msg="Account validated"), 200
 
 
 def enable_account(token: str) -> tuple[Response, int]:
+    """ Enables the account of a user by a link sent by email
+
+    :param token: token to enable the account
+    :return: tuple containing a JSON response and a status code
+    """
     token: Token = Token.query.filter(Token.token == token).first()
     if token is None:
         return jsonify(msg="Invalid token"), 400

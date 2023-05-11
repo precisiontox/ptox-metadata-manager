@@ -36,6 +36,12 @@ def send_confirmation_mail(username: str, email: str, token: str) -> str:
 
 
 def send_validated_account_mail(username: str, email: str) -> str:
+    """ Send the notification to the user that the account is now active.
+
+    @param username: the name of the user
+    @param email: the email of the user
+    @return: the message sent to the user
+    """
     service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
     message: MIMEMultipart = build_email_core(title='PTMD - Your account is now active', email=email)
     body: str = create_validated_email_content(username)

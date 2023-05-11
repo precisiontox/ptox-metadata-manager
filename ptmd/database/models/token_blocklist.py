@@ -13,6 +13,7 @@ class TokenBlocklist(Base):
     created_at = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, jti: str):
+        """ Create a new token block list entry """
         self.jti = jti
         self.created_at = datetime.now(timezone.utc)
 

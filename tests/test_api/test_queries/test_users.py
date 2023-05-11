@@ -150,8 +150,7 @@ class TestUserQueries(TestCase):
 
     def test_validate_account(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
         mock_get_current_user().role = 'admin'
-        with patch('ptmd.api.queries.users.User') as mock_user:
-            # mock_user.query.filter().first().activate_account().return_value = True
+        with patch('ptmd.api.queries.users.User'):
             with app.test_client() as client:
                 response = client.get('/api/activate/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
                 self.assertEqual(response.json, {'msg': 'Account validated'})

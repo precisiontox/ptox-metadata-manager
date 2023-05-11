@@ -73,4 +73,3 @@ class TestDBQueries(TestCase):
         response = login_user('A', 'B')
         mock_jsonify.assert_called_once_with(access_token='ABC')
         self.assertEqual(response[1], 200)
-
