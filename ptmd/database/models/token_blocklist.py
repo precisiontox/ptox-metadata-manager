@@ -1,5 +1,6 @@
 """ Token block list model used to store expired JWT
 """
+from datetime import datetime, timezone
 
 from ptmd.config import Base, db, jwt, session
 
@@ -10,6 +11,10 @@ class TokenBlocklist(Base):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(36), nullable=False, index=True)
     created_at = db.Column(db.DateTime, nullable=False)
+
+    def __init__(self, jti: str):
+        self.jti = jti
+        self.created_at = datetime.now(timezone.utc)
 
 
 @jwt.token_in_blocklist_loader

@@ -51,9 +51,16 @@ class TestAPIUtilities(TestCase):
     @patch('ptmd.utils.initialize')
     @patch('ptmd.utils.create_config_file', return_value={})
     def test_init(self, create_config_file_dump, mock_init):
+        expected = [{
+            'username': 'admin',
+            'password': 'admin',
+            'organisation_id': 1,
+            'role': 'admin',
+            'email': 'domwow13@gmail.com'
+        }]
         init()
         mock_init.assert_called_once()
-        mock_init.assert_called_with(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}])
+        mock_init.assert_called_with(users=expected)
 
 
 @patch('ptmd.utils.exists', return_value=False)

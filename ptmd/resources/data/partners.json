@@ -1,4 +1,5 @@
 {
+  "UOX": "University of Oxford",
   "KIT": "Karlsruhe Institute of Technology",
   "IUB": "University of Indiana",
   "UFZ": "Umboldt Forshchung Zentrum",
@@ -6,6 +7,5 @@
   "NIH": "National Institutes of Health",
   "CLU": "Clemson University Research Foundation",
   "LEITAT": "Acondicionatment tarrasense Associacion",
-  "UOB": "University of Birmingham",
-  "UOX": "University of Oxford"
+  "UOB": "University of Birmingham"
 }

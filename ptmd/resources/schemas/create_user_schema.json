@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/create_user_schema.json",
+  "type": "object",
+  "description": "A schema to represent the create user validation rules.",
+  "properties": {
+    "username": {
+      "type": "string",
+      "description": "The username of the user to create.",
+      "minLength": 1
+    },
+    "password": {
+      "type": "string",
+      "description": "The password of the user to create.",
+      "minLength": 1
+    },
+    "confirm_password": {
+      "type": "string",
+      "description": "The password of the user to create.",
+      "minLength": 1
+    },
+    "email": {
+      "type": "string",
+      "description": "The email of the user to create.",
+      "format": "email",
+      "minLength": 1,
+      "maxLength": 254,
+      "pattern": "^[^@]+@[^@]+$",
+      "errorPattern": "Invalid email address."
+    },
+    "organisation_id": {
+      "type": "number",
+      "description": "The organisation identifier of the user to create."
+    }
+  },
+  "required": ["username", "password", "confirm_password", "email"]
+}

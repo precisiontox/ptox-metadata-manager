@@ -5,8 +5,10 @@
 from __future__ import annotations
 
 from ptmd.lib.validator import ExcelValidator, ExternalExcelValidator
+from ptmd.api.queries.utils import check_role
 
 
+@check_role(role='user')
 def validate_file(file_id: int | str):
     """ Method to validate the file in the Google Drive.
 

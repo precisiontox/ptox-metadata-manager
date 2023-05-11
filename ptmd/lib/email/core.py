@@ -2,19 +2,20 @@
 
 @author: D. Batista (Terazus)
 """
-
-from os import path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from base64 import urlsafe_b64encode
 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-from jinja2 import Template
 
-from ptmd.const import SITE_URL
 from .utils import get_config
-from .const import TEMPLATES_PATH
+from .const import ADMIN_EMAIL
+from .load_templates import (
+    create_confirmation_email_content,
+    create_validated_email_content,
+    create_validation_mail_content
+)
 
 
 def send_confirmation_mail(username: str, email: str, token: str) -> str:
@@ -25,26 +26,49 @@ def send_confirmation_mail(username: str, email: str, token: str) -> str:
     @param token: the token to be used to activate the account
     @return: the message sent to the user
     """
-    credentials: Credentials = Credentials.from_authorized_user_file(get_config())
-    service: any = build('gmail', 'v1', credentials=credentials)
-    message: MIMEMultipart = MIMEMultipart()
-    message['Subject'] = 'PTMD - Account Activation'
-    message['From'] = ''
-    message['To'] = email
-    body: str = create_mail_content(username, token)
+    service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
+    message: MIMEMultipart = build_email_core(title='PTMD - Account activation', email=email)
+    body: str = create_confirmation_email_content(username, token)
     message.attach(MIMEText(body, 'html'))
     create_message = {'raw': urlsafe_b64encode(message.as_bytes()).decode()}
     service.users().messages().send(userId="me", body=create_message).execute()
     return body
 
 
-def create_mail_content(username: str, token: str) -> str:
-    """ Create the content of the email to be sent to the user.
+def send_validated_account_mail(username: str, email: str) -> str:
+    service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
+    message: MIMEMultipart = build_email_core(title='PTMD - Your account is now active', email=email)
+    body: str = create_validated_email_content(username)
+    message.attach(MIMEText(body, 'html'))
+    create_message = {'raw': urlsafe_b64encode(message.as_bytes()).decode()}
+    service.users().messages().send(userId="me", body=create_message).execute()
+    return body
 
-    @param username: the name of the user
-    @param token: the token to be used to activate the account
-    @return: the content of the email
+
+def send_validation_mail(user: object) -> str:
+    """ Send the notification to the admin that a user account needs activation.
+
+    @param user: the User class to be used to get the user information
+    @return: the message sent to the user
     """
-    with open(path.join(TEMPLATES_PATH, 'enable_account.html'), 'r') as template:
-        template = Template(template.read())
-        return template.render(username=username, url=f'{SITE_URL}/api/enable/{token}')
+    service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
+    message: MIMEMultipart = build_email_core(title='PTMD - An account needs to be activated', email=ADMIN_EMAIL)
+    body: str = create_validation_mail_content(user)
+    message.attach(MIMEText(body, 'html'))
+    create_message = {'raw': urlsafe_b64encode(message.as_bytes()).decode()}
+    service.users().messages().send(userId="me", body=create_message).execute()
+    return body
+
+
+def build_email_core(title: str, email: str) -> MIMEMultipart:
+    """ Build the core of the email and return a MIMEMultipart object.
+
+    @param title: the title of the email
+    @param email: the email of the user
+    @return: the core of the email
+    """
+    message: MIMEMultipart = MIMEMultipart()
+    message['Subject'] = title
+    message['From'] = ''
+    message['To'] = email
+    return message

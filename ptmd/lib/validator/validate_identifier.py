@@ -53,9 +53,7 @@ def validate_species(validator: Any) -> None:
     species: str = validator.current_record['data'][PTX_ID_LABEL][0]
     try:
         organism_name: str = validator.general_info["biosystem_name"]
-        organism: Organism = validator.session.query(Organism).filter(
-            Organism.ptox_biosystem_name == organism_name
-        ).first()
+        organism: Organism = Organism.query.filter(Organism.ptox_biosystem_name == organism_name).first()
         if not organism:
             validator.add_error(validator.current_record['label'], "Organism not found in database.", "biosystem_name")
         elif species != organism.ptox_biosystem_code:
@@ -125,7 +123,7 @@ def validate_replicates_compound(validator: Any, compound_name: str, code: int) 
     :param code: The compound code to check
     """
     try:
-        compound: Chemical = validator.session.query(Chemical).filter(Chemical.common_name == compound_name).first()
+        compound: Chemical = Chemical.query.filter(Chemical.common_name == compound_name).first()
         if not compound:
             validator.add_error(validator.current_record['label'],
                                 f"The identifier doesn't contain a valid compound code '{code}'.",

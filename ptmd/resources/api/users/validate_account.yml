@@ -1,66 +1,16 @@
-The route to create a new user. Requires to be admin.
+The route to validate a user account. Admin only
 ---
 parameters:
-  - name: Body
-    in: body
+  - name: user_id
+    in: path
     required: true
-    schema:
-      type: object
-      $ref: '#/definitions/New User'
-definitions:
-  New User:
-    type: object
-    properties:
-      username:
-        type: string
-        description: Username of the account to create
-        example: admin
-      password:
-        type: string
-        description: The password for that account
-        example: admin
-      confirm_password:
-        type: string
-        description: The new password confirmation
-        example: admin
-      organisation_id:
-        type: number
-        description: The organisation of the user
-        example: 1
-      email:
-        type: string
-        description: The email of the user
-        example: your@email.com
-  New User Response:
-    type: object
-    properties:
-      id:
-        type: string
-        description: The id of the user
-        example: 1
-      username:
-        type: string
-        description: The username of the user
-        example: admin
-      organization:
-        type: object
-        example:
-          organisation_id: 1
-          name: UOX
-          gdrive_id: None
-          longname: University of Oxford
-        schema:
-          $ref: '#/definitions/User Response Organisation'
+    type: string
+    description: The account id to validate
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
 responses:
   200:
     description: The user data with that JWT token
-    schema:
-      $ref: '#/definitions/New User Response'
-  400:
-    description: Wrong password
-    schema:
-      $ref: '#/definitions/Invalid Password Error Response'
-  401:
-    description: The JWT token is missing or the user is not admin
-    schema:
-      $ref: '#/definitions/Unauthorized Error Response'

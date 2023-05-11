@@ -13,6 +13,7 @@ from ptmd import DataframeCreator, GoogleDriveConnector
 from ptmd.config import session
 from ptmd.const import ROOT_PATH
 from ptmd.database import Organisation, File
+from ptmd.api.queries.utils import check_role
 
 OUTPUT_DIRECTORY_PATH: str = path.join(ROOT_PATH, 'resources')
 
@@ -61,6 +62,7 @@ class CreateGDriveFile:
         return response
 
 
+@check_role(role='user')
 def create_gdrive_file() -> tuple[Response, int]:
     """ Function to create a file in the Google Drive using the data provided by the user. Acquire data from a
     JSON request.

@@ -6,43 +6,46 @@
 
 @author: D. Batista (Terazus)
 """
+
 from datetime import datetime, timezone
+from json import loads
 
 from flask import jsonify, request, Response
 from flask_jwt_extended import get_jwt
 from sqlalchemy.exc import IntegrityError
+from jsonschema import Draft202012Validator as Validator
 
-from .utils import validate_inputs, check_admin_only
 from ptmd.config import session
-from ptmd.database import login_user, User, TokenBlocklist
+from ptmd.const import CREATE_USER_SCHEMA_PATH
+from ptmd.database import login_user, User, TokenBlocklist, Token
+from .utils import check_role
 
 
-@check_admin_only()
 def create_user() -> tuple[Response, int]:
     """ Create a new user
 
     :return: tuple containing a JSON response and a status code
     """
-    valid: tuple = validate_inputs(inputs=['username', 'password', 'confirm_password', 'organisation'],
-                                   data=request.json)
-    if not valid[0]:
-        return jsonify({"msg": f"Missing {valid[1]}"}), 400
+    user_data: dict = request.json
+    with open(CREATE_USER_SCHEMA_PATH, 'r') as f:
+        schema: dict = loads(f.read())
+    validator: Validator = Validator(schema)
+    for error in validator.iter_errors(user_data):
+        if error.path:
+            return jsonify({"msg": {'field': error.path[0], 'error': error.message}}), 400
+        else:
+            return jsonify({"msg": error.message}), 400
 
-    user_data = valid[1]
-    username: str = user_data['username']
-    password: str = user_data['password']
-    repeat_password: str = user_data['confirm_password']
-    organisation: str = user_data['organisation']
-
-    if password != repeat_password:
+    if user_data['password'] != user_data['confirm_password']:
         return jsonify({"msg": "Passwords do not match"}), 400
 
     try:
-        user: User = User(username=username, password=password, organisation=organisation)
+        del user_data['confirm_password']
+        user: User = User(**user_data)
         session.add(user)
         session.commit()
         user_dict = dict(user)
-        return jsonify(dict(user_dict)), 200
+        return jsonify(user_dict), 200
     except IntegrityError:
         return jsonify({"msg": "Username already taken"}), 400
 
@@ -60,6 +63,7 @@ def login() -> tuple[Response, int]:
     return logged_in
 
 
+@check_role(role='disabled')
 def change_password() -> tuple[Response, int]:
     """ Function to change the password of the current user. Acquire data from a JSON request.
 
@@ -82,6 +86,7 @@ def change_password() -> tuple[Response, int]:
     return jsonify({"msg": "Password changed successfully"}), 200
 
 
+@check_role(role='disabled')
 def get_me() -> tuple[Response, int]:
     """ Function to get the current user. Acquire data from the JWT
 
@@ -91,9 +96,29 @@ def get_me() -> tuple[Response, int]:
     return jsonify(user), 200
 
 
+@check_role(role='disabled')
 def logout() -> tuple[Response, int]:
     """ Logs the user out by expiring the token
     """
     session.add(TokenBlocklist(jti=get_jwt()["jti"], created_at=datetime.now(timezone.utc)))
     session.commit()
     return jsonify(msg="Logout successfully"), 200
+
+
+@check_role(role='admin')
+def validate_account(user_id: int) -> tuple[Response, int]:
+    user: User = User.query.filter(User.id == user_id).first()
+    user.activate_account()
+    return jsonify(msg="Account validated"), 200
+
+
+def enable_account(token: str) -> tuple[Response, int]:
+    message: str = "Account enabled. An email has been to an admin to validate your account."
+    token: Token = Token.query.filter(Token.token == token).first()
+    if token is None:
+        return jsonify(msg="Invalid token"), 400
+    if token.expires_on < datetime.now(token.expires_on.tzinfo):
+        return jsonify(msg="Token expired"), 400
+    user: User = token.user[0]
+    user.enable_account()
+    return jsonify(msg=message), 200

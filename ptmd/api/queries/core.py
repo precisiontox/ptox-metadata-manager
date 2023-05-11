@@ -13,8 +13,10 @@ from __future__ import annotations
 from flask import jsonify, Response
 
 from ptmd.database import Organism, Chemical, Organisation
+from .utils import check_role
 
 
+@check_role(role='enabled')
 def get_organisms() -> tuple[Response, int]:
     """ Function to get the organisms from the database.
 
@@ -23,6 +25,7 @@ def get_organisms() -> tuple[Response, int]:
     return jsonify({"data": [dict(organism) for organism in Organism.query.all()]}), 200
 
 
+@check_role(role='enabled')
 def get_chemicals() -> tuple[Response, int]:
     """ Function to get the chemicals from the database.
 
@@ -31,6 +34,7 @@ def get_chemicals() -> tuple[Response, int]:
     return jsonify({"data": [dict(chemical) for chemical in Chemical.query.filter(Chemical.ptx_code < 998).all()]}), 200
 
 
+@check_role(role='enabled')
 def get_organisations() -> tuple[Response, int]:
     """ Function to get the organisations from the database.
 

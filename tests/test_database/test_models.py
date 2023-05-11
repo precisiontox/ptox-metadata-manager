@@ -1,6 +1,5 @@
-from unittest import TestCase, skip
+from unittest import TestCase
 from unittest.mock import patch
-from datetime import datetime, timezone
 
 from ptmd.database import User, Organisation, File
 from ptmd.database.models.token_blocklist import TokenBlocklist, check_if_token_revoked

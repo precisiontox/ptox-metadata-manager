@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import patch
 
 from ptmd.lib.validator.validate_identifier import (
     validate_identifier,
@@ -10,31 +11,6 @@ from ptmd.lib.validator.validate_identifier import (
     validate_replicate,
 )
 from ptmd.lib.validator.const import PTX_ID_LABEL, COMPOUND_LABEL, DOSE_LABEL, TIMEPOINT_LABEL
-
-
-class MockSessionSuccess:
-    def __init__(self, *args, **kwargs):
-        self.ptx_code = 2
-        self.ptox_biosystem_name = 'test'
-        self.ptox_biosystem_code = 'F'
-
-    def query(self, *args, **kwargs):
-        return self
-
-    def filter(self, *args, **kwargs):
-        return self
-
-    def first(self, *args, **kwargs):
-        return self
-
-    def close(self):
-        pass
-
-    def update(self, *args, **kwargs):
-        pass
-
-    def commit(self):
-        pass
 
 
 class ExcelValidatorMock:
@@ -59,7 +35,6 @@ class ExcelValidatorMock:
         }
         self.exposure_data: list[dict] = []
         self.identifiers: list[str] = []
-        self.session = MockSessionSuccess()
 
     def add_error(self, label, message, field):
         self.report['valid'] = False
@@ -81,39 +56,33 @@ class TestValidateIdentifier(TestCase):
         }
         self.assertEqual(validator.report['errors']['test'][0], expected_error)
 
-    def test_validate_identifier_success(self):
+    @patch('ptmd.lib.validator.validate_identifier.Organism')
+    @patch('ptmd.lib.validator.validate_identifier.Chemical')
+    def test_validate_identifier_success(self, mock_chemical, mock_organisms):
+        mock_chemical.query.filter().first.return_value.ptx_code = 2
+        mock_organisms.query.filter().first.return_value.ptox_biosystem_code = 'F'
         validator = ExcelValidatorMock()
         validator.identifiers = []
         validate_identifier(validator, 1)
         self.assertTrue(validator.report['valid'])
 
-    def test_validate_species_error_404(self):
-        class MockSessionError(MockSessionSuccess):
-            def first(self, *args, **kwargs):
-                return None
-
+    @patch('ptmd.lib.validator.validate_identifier.Organism')
+    def test_validate_species_error_404(self, mock_organisms):
+        mock_organisms.query.filter().first.return_value = None
         validator = ExcelValidatorMock()
-        validator.session = MockSessionError()
         validate_species(validator)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'], 'Organism not found in database.')
 
-    def test_validate_species_error_unmatch(self):
+    @patch('ptmd.lib.validator.validate_identifier.Organism')
+    def test_validate_species_error_unmatch(self, mock_organisms):
+        mock_organisms.query.filter().first.return_value.ptox_biosystem_code = 'ABCF'
         validator = ExcelValidatorMock()
-        validator.session.ptox_biosystem_code = 'ABC'
         validator.general_info['biosystem_name'] = 'test2'
         validate_species(validator)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],
                          "The identifier organism doesn't match the biosystem_name.")
-
-    def test_validate_species_error_session(self):
-        validator = ExcelValidatorMock()
-        validator.session = None
-        validate_species(validator)
-        self.assertFalse(validator.report['valid'])
-        self.assertEqual(validator.report['errors']['test'][0]['message'],
-                         "Error 'NoneType' object has no attribute 'query'")
 
     def test_validate_batch_error_wrong_batch_general_info(self):
         validator = ExcelValidatorMock()
@@ -149,7 +118,9 @@ class TestValidateIdentifier(TestCase):
         self.assertEqual(validator.report['errors']['test'][0]['message'],
                          "The identifier doesn't contain a valid compound code '-1'.")
 
-    def test_validate_compound_replicates(self):
+    @patch('ptmd.lib.validator.validate_identifier.Chemical')
+    def test_validate_compound_replicates(self, mock_chemical):
+        mock_chemical.query.filter().first.return_value.ptx_code = '2'
         validator = ExcelValidatorMock()
         validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
         validate_compound(validator)
@@ -157,27 +128,9 @@ class TestValidateIdentifier(TestCase):
         self.assertEqual(validator.report['errors']['test'][0]['message'],
                          "The identifier 3 compound doesn't match the compound Compound 1 (2)")
 
-    def test_validate_compound_replicates_no_compound(self):
-        class MockSessionError(MockSessionSuccess):
-            def first(self, *args, **kwargs):
-                return None
-
-        validator = ExcelValidatorMock()
-        validator.session = MockSessionError()
-        validate_compound(validator)
-        self.assertFalse(validator.report['valid'])
-        self.assertEqual(validator.report['errors']['test'][0]['message'],
-                         "The identifier doesn't contain a valid compound code '2'.")
-
-    def test_validate_compound_replicates_no_session(self):
-        validator = ExcelValidatorMock()
-        validator.session = None
-        validate_compound(validator)
-        self.assertFalse(validator.report['valid'])
-        self.assertEqual(validator.report['errors']['test'][0]['message'],
-                         "Error 'NoneType' object has no attribute 'query'")
-
-    def test_validate_compound_controls(self):
+    @patch('ptmd.lib.validator.validate_identifier.Chemical')
+    def test_validate_compound_controls(self, mock_chemical):
+        mock_chemical.query.filter().first.return_value.ptx_code = '2'
         validator = ExcelValidatorMock()
         validator.current_record['data'][COMPOUND_LABEL] = 'CONTROL (DMSO)'
         validate_compound(validator)

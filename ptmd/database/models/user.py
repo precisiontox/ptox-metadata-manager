@@ -8,7 +8,8 @@ from typing import Generator
 from passlib.hash import bcrypt
 
 from ptmd.config import Base, db, session
-from ptmd.database.models import Organisation
+from ptmd.database.models.token import Token
+from ptmd.lib.email import send_validation_mail, send_validated_account_mail
 
 
 class User(Base):
@@ -16,29 +17,40 @@ class User(Base):
 
     :param username: the username
     :param password: the password
-    :param organisation: the organisation the user belongs to (either an Organisation object or a string pointing to the
-    organisation name)
+    :param email: the user email
+    :param organisation_id: the organisation id the user belongs to
     """
     __tablename__: str = "user"
     id: int = db.Column(db.Integer, primary_key=True)
     username: str = db.Column(db.String(80), unique=True, nullable=False)
     password: str = db.Column(db.String(300), nullable=False)
+    role: str = db.Column(db.String(80), nullable=False, default='disabled')
+    email: str = db.Column(db.String(80), nullable=False, unique=True)
 
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=True)
     organisation = db.relationship('Organisation', backref=db.backref('users'), lazy='subquery')
+    activation_token_id: int = db.Column(db.Integer, db.ForeignKey('token.token_id'), nullable=True)
+    activation_token = db.relationship('Token', backref=db.backref('user'))
 
-    def __init__(self, username: str, password: str, organisation: Organisation | None | str = None) -> None:
+    def __init__(
+            self,
+            username: str,
+            password: str,
+            email: str,
+            role: str = 'disabled',
+            organisation_id: int | None = None
+    ) -> None:
         """ Constructor for the User class. Let's use encode the password with bcrypt before committing it to the
         database. """
-        self.username: str = username
-        self.password: str = bcrypt.hash(password)
-        if organisation and not isinstance(organisation, (Organisation, str)):
-            raise TypeError('organisation must be an Organisation object or a string')
-        if isinstance(organisation, Organisation):
-            self.organisation = organisation
-        elif organisation:
-            org = Organisation.query.filter(Organisation.name == organisation).first()
-            self.organisation = org
+        self.username = username
+        self.password = bcrypt.hash(password)
+        self.email = email
+        self.organisation_id = organisation_id
+        if role != 'admin':
+            self.role = role
+            self.activation_token = Token(token_type='activation', user=self)
+        else:
+            self.role = 'admin'
 
     def __iter__(self) -> Generator:
         """ Iterator for the object. Used to serialize the object as a dictionary.
@@ -74,3 +86,18 @@ class User(Base):
             session.commit()
             return True
         return False
+
+    def enable_account(self) -> None:
+        """ Changed the role to 'enabled' when the user confirms the email.
+        """
+        self.role = 'enabled'
+        session.delete(self.activation_token)
+        session.commit()
+        send_validation_mail(self)
+
+    def activate_account(self) -> None:
+        """ Change the role to 'user' when an admin activates an enabled account
+        """
+        self.role = 'user'
+        session.commit()
+        send_validated_account_mail(username=self.username, email=self.email)

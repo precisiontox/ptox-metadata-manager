@@ -10,7 +10,7 @@ from flasgger import swag_from
 from ptmd.config import app
 from ptmd.const import ROOT_PATH
 from ptmd.api.queries import (
-    login as login_user, change_password, get_me, logout,
+    login as login_user, change_password, get_me, logout, enable_account, validate_account,
     get_organisms, get_chemicals, get_organisations,
     create_gdrive_file, create_user, validate_file,  register_gdrive_file
 )
@@ -34,7 +34,6 @@ def change_pwd():
 
 @app.route('/api/users', methods=['POST'])
 @swag_from(path.join(USERS_DOC_PATH, 'create_user.yml'))
-@jwt_required()
 def user():
     """ Create a new user """
     return create_user()
@@ -63,10 +62,29 @@ def modify_token():
     return logout()
 
 
+@app.route("/api/enable/<token>", methods=["GET"])
+@swag_from(path.join(USERS_DOC_PATH, 'enable_account.yml'))
+def enable_account_(token: str):
+    """ Route to enable a user account
+
+    :param token: the token sent by email that will enable the account
+    """
+    return enable_account(token)
+
+
+@app.route("/api/activate/<user_id>", methods=["GET"])
+@swag_from(path.join(USERS_DOC_PATH, 'validate_account.yml'))
+def validate_account_(user_id: int):
+    """ Route to validate a user account. This is an admin only route
+
+    :param user_id: the id of the user to validate
+    """
+    return validate_account(user_id)
+
+
 ###########################################################
 #                   MISCELLANEOUS                         #
 ###########################################################
-
 @app.route('/api/organisms', methods=['GET'])
 @swag_from(path.join(SWAGGER_DATA_PATH, 'organisms.yml'))
 @jwt_required()
@@ -82,10 +100,6 @@ def chemicals():
     """ Get the list of chemicals """
     return get_chemicals()
 
-
-###########################################################
-#                   ORGANISATIONS                         #
-###########################################################
 
 @app.route('/api/organisations', methods=['GET'])
 @swag_from(path.join(SWAGGER_DATA_PATH, 'organisations.yml'))
@@ -111,7 +125,10 @@ def create_file():
 @swag_from(path.join(FILES_DOC_PATH, 'validate_file.yml'))
 @jwt_required()
 def validate(file_id: int):
-    """ Validate a file """
+    """ Validate a file
+
+    :param file_id: the id of the file to validate
+    """
     return validate_file(file_id)
 
 

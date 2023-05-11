@@ -1,11 +1,6 @@
 The route to create a new user. Requires to be admin.
 ---
 parameters:
-  - name: Authorization
-    in: header
-    required: true
-    type: string
-    description: The JWT token
   - name: Body
     in: body
     required: true
@@ -19,15 +14,23 @@ definitions:
       username:
         type: string
         description: Username of the account to create
+        example: admin
       password:
         type: string
         description: The password for that account
+        example: admin
       confirm_password:
         type: string
         description: The new password confirmation
-      organisation:
-        type: string
+        example: admin
+      organisation_id:
+        type: number
         description: The organisation of the user
+        example: 1
+      email:
+        type: string
+        description: The email of the user
+        example: your@email.com
   New User Response:
     type: object
     properties:

@@ -23,11 +23,11 @@ def initialize(users: list[dict]) -> tuple:
     """
     Base.metadata.create_all(engine)
     with app.app_context():
-        connector = GoogleDriveConnector()
-        users_from_database = User.query.all()
+        connector: GoogleDriveConnector = GoogleDriveConnector()
+        users_from_database: list[User] = User.query.all()
         if not users_from_database:
-            chemicals_source = parse_chemicals()
-            organisms = parse_organisms()
+            chemicals_source: list = parse_chemicals()
+            organisms: list = parse_organisms()
             folders: dict = connector.create_directories()
             [organisations, users, _, __] = boot(organisations=folders['partners'],
                                                  chemicals=chemicals_source,
@@ -35,7 +35,7 @@ def initialize(users: list[dict]) -> tuple:
                                                  organisms=organisms,
                                                  insert=True)
             return organisations, users
-        organisations = Organisation.query.all()
+        organisations: list[Organisation] = Organisation.query.all()
         return ({user.username: user.id for user in users_from_database},
                 {org.name: org.gdrive_id for org in organisations})
 
@@ -69,4 +69,6 @@ def init():
     """ Initialize the API """
     LOGGER.info('Initializing the application')
     create_config_file()
-    initialize(users=[{'username': 'admin', 'password': 'admin', 'organisation': 'UOX'}])
+    initialize(users=[
+        {'username': 'admin', 'password': 'admin', 'organisation_id': 1, 'role': 'admin', 'email': 'domwow13@gmail.com'}
+    ])

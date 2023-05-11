@@ -38,7 +38,6 @@ class ExcelValidator:
         self.file_id: int | str = file_id
         self.file: dict = {}
         self.filepath: str = ''
-        self.session = session
 
     def validate(self):
         """ Validates the file. """
@@ -128,9 +127,10 @@ class ExcelValidator:
 
         :return: None
         """
-        self.session.query(File).filter(File.file_id == self.file['file_id']).update(
+        File.query.filter(File.file_id == self.file['file_id']).update(
             {'validated': 'success' if self.report['valid'] else 'failed'})
-        self.session.commit()
+        session.commit()
+        session.close()
 
 
 class ExternalExcelValidator(ExcelValidator):
