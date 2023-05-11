@@ -1,12 +1,15 @@
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 
 from ptmd.database import User, Organisation, File
 from ptmd.database.models.token_blocklist import TokenBlocklist, check_if_token_revoked
 
 
+@patch("builtins.open", mock_open(read_data="{'save_credentials_file': 'test'}"))
 class TestUser(TestCase):
-    def test_user(self):
+
+    @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
+    def test_user(self, mock_send_confirmation_mail):
         expected_user = {'files': [], 'id': None, 'organisation': None, 'username': 'test'}
         user = User(username='test', password='test', email='your@email.com')
         self.assertEqual(dict(user), expected_user)
@@ -56,7 +59,8 @@ class TestUser(TestCase):
         self.assertEqual(dict(organisation), expected_organisation)
 
     @patch('ptmd.database.queries.create_access_token', return_value='OK')
-    def test_user_with_organisation(self, mock_create_access_token):
+    @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
+    def test_user_with_organisation(self, mock_send_mail, mock_create_access_token):
         organisation: Organisation = Organisation(name='123', gdrive_id='1')
         user_input: dict = {
             'username': 'rw1',

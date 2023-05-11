@@ -15,8 +15,12 @@ HEADERS = {'Content-Type': 'application/json'}
 class TestUserQueries(TestCase):
 
     @patch('ptmd.api.queries.users.session')
-    def test_create_user_success(self, mock_session, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+    @patch('ptmd.api.queries.users.User')
+    def test_create_user_success(self, mock_user,
+                                 mock_session, mock_get_current_user,
+                                 mock_verify_jwt, mock_verify_in_request):
         mock_get_current_user().role = 'admin'
+        mock_user.return_value = {'id': None, 'username': '1234', 'organisation': None, 'files': []}
         user_data = {
             "username": "1234",
             "password": "1234",

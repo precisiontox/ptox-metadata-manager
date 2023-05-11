@@ -53,6 +53,7 @@ GOOGLE_DRIVE_SETTINGS_FILEPATH=Absolute_path_to_google_drive_settings_file
   (e.g. credentials.json).
 - `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first boot 
   e.g. settings.yaml - a .yml suffix must not be used).
+- `SITE_URL`: the URL of the site. This is used to generate the OAuth callback URL. Defaults to http://localhost:5000.
 
 You can now run the following command and accept the application in your browser. This is done once only during first boot.
 It will download the Google API credentials file and generate the database once you are done.
