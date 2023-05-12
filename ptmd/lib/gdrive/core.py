@@ -10,7 +10,7 @@ from os import path
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
-from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME, SETTINGS_FILE_PATH, DOWNLOAD_DIR
+from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME, GOOGLE_DRIVE_SETTINGS_FILE_PATH, DOWNLOAD_DIRECTORY_PATH
 from ptmd.logger import LOGGER
 from .const import ROOT_FOLDER_METADATA
 from .utils import content_exist
@@ -25,7 +25,7 @@ class GoogleDriveConnector:
         """ Method to create a new instance of the GoogleDriveConnector class. """
         if not cls.instance_:
             cls.instance_ = super(GoogleDriveConnector, cls).__new__(cls)
-            cls.__google_auth: GoogleAuth = GoogleAuth(settings_file=SETTINGS_FILE_PATH)
+            cls.__google_auth: GoogleAuth = GoogleAuth(settings_file=GOOGLE_DRIVE_SETTINGS_FILE_PATH)
             cls.google_drive = None
             cls.instance_.connect()
             LOGGER.info('Connected to Google Drive')
@@ -119,7 +119,7 @@ class GoogleDriveConnector:
         :param filename: The name of file to be downloaded.
         """
         file = self.google_drive.CreateFile({'id': file_id})
-        file_path = path.join(DOWNLOAD_DIR, filename)
+        file_path = path.join(DOWNLOAD_DIRECTORY_PATH, filename)
         file.GetContentFile(file_path)
         return file_path
 

@@ -5,7 +5,7 @@
 
 from yaml import safe_load
 
-from ptmd.const import SETTINGS_FILE_PATH
+from ptmd.const import GOOGLE_DRIVE_SETTINGS_FILE_PATH
 
 
 def get_config() -> str:
@@ -13,6 +13,6 @@ def get_config() -> str:
 
     @return: the path to the credentials file
     """
-    with open(SETTINGS_FILE_PATH, 'r') as settings_file:
+    with open(GOOGLE_DRIVE_SETTINGS_FILE_PATH, 'r') as settings_file:
         settings = safe_load(settings_file)
     return settings['save_credentials_file']

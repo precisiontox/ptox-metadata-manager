@@ -70,7 +70,7 @@ class TestUser(TestCase):
         organisation = Organisation(name=expected_organisation['name'], gdrive_id=expected_organisation['gdrive_id'])
         self.assertEqual(dict(organisation), expected_organisation)
 
-    @patch('ptmd.database.queries.create_access_token', return_value='OK')
+    @patch('ptmd.database.queries.users.create_access_token', return_value='OK')
     @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
     def test_user_with_organisation(self, mock_send_mail, mock_create_access_token):
         organisation: Organisation = Organisation(name='123', gdrive_id='1')

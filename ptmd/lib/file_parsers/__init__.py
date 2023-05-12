@@ -1,4 +1,4 @@
-""" This module contains file parsers for Organisms and Chemicals necessary to boot the database for the first time
+""" This module contains file parsers for Organisms and Chemicals necessary to seed_db the database for the first time
 
 @author: D. Batista (Terazus)
 """
