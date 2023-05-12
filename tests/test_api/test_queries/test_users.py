@@ -152,20 +152,20 @@ class TestUserQueries(TestCase):
         mock_get_current_user().role = 'admin'
         with patch('ptmd.api.queries.users.User'):
             with app.test_client() as client:
-                response = client.get('/api/activate/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+                response = client.get('/api/users/2/activate', headers={'Authorization': f'Bearer {123}', **HEADERS})
                 self.assertEqual(response.json, {'msg': 'Account validated'})
 
     def test_enable_account_errors(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
         with patch('ptmd.api.queries.users.Token') as mocked_token:
             mocked_token.query.filter().first.return_value.expires_on = datetime.now() - timedelta(days=1)
             with app.test_client() as client:
-                response = client.get('/api/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+                response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
                 self.assertEqual(response.json, {'msg': 'Token expired'})
                 self.assertEqual(response.status_code, 400)
 
             mocked_token.query.filter().first.return_value = None
             with app.test_client() as client:
-                response = client.get('/api/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+                response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
                 self.assertEqual(response.json, {'msg': 'Invalid token'})
                 self.assertEqual(response.status_code, 400)
 
@@ -178,6 +178,6 @@ class TestUserQueries(TestCase):
         mocked_token.query.filter().first.return_value.expires_on = datetime.now() + timedelta(days=10)
         mocked_token.query.filter().first.return_value.token = '123'
         with app.test_client() as client:
-            response = client.get('/api/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+            response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json,
                              {'msg': "Account enabled. An email has been to an admin to validate your account."})

@@ -13,7 +13,7 @@ class TestTemplateLoaders(TestCase):
         data = create_confirmation_email_content('USERNAME', 'TOKEN')
         self.assertIn('USERNAME', data)
         self.assertIn('TOKEN', data)
-        self.assertIn(f'{SITE_URL}/api/enable/TOKEN', data)
+        self.assertIn(f'{SITE_URL}/api/users/enable/TOKEN', data)
 
     def test_validated_email(self):
         data = create_validated_email_content('USERNAME')
@@ -26,4 +26,4 @@ class TestTemplateLoaders(TestCase):
         data = create_validation_mail_content(user)
         self.assertIn('USERNAME', data)
         self.assertIn('EMAIL', data)
-        self.assertIn(f'{SITE_URL}/api/activate/{user.id}', data)
+        self.assertIn(f'{SITE_URL}/api/users/{user.id}/activate', data)

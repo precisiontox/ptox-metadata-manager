@@ -1,4 +1,4 @@
-The route to enable a user account. Admin only.
+The route to enable a user account. Users receive the token by email as a link.
 ---
 parameters:
   - name: token

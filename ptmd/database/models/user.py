@@ -46,18 +46,16 @@ class User(Base):
         self.password = bcrypt.hash(password)
         self.email = email
         self.organisation_id = organisation_id
+        self.role = role
         if role != 'admin':
-            self.role = role
             self.activation_token = Token(token_type='activation', user=self)
-        else:
-            self.role = 'admin'
 
     def __iter__(self) -> Generator:
         """ Iterator for the object. Used to serialize the object as a dictionary.
 
         :return: The iterator.
         """
-        user = {
+        user: dict = {
             "id": self.id,
             "username": self.username,
             "organisation": self.organisation.organisation_id if self.organisation else None,

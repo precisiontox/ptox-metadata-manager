@@ -62,7 +62,7 @@ def modify_token():
     return logout()
 
 
-@app.route("/api/enable/<token>", methods=["GET"])
+@app.route("/api/users/enable/<token>", methods=["GET"])
 @swag_from(path.join(USERS_DOC_PATH, 'enable_account.yml'))
 def enable_account_(token: str):
     """ Route to enable a user account
@@ -72,7 +72,7 @@ def enable_account_(token: str):
     return enable_account(token)
 
 
-@app.route("/api/activate/<user_id>", methods=["GET"])
+@app.route("/api/users/<user_id>/activate", methods=["GET"])
 @swag_from(path.join(USERS_DOC_PATH, 'validate_account.yml'))
 def validate_account_(user_id: int):
     """ Route to validate a user account. This is an admin only route
