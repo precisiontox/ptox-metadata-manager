@@ -1,3 +1,8 @@
+""" A module to create the Google Drive setting file in case it doesn't exist
+
+@Author: D. Batista (Terazus)
+"""
+
 from os.path import exists
 from yaml import dump
 

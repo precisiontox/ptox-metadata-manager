@@ -1,3 +1,8 @@
+""" This module loads the JSON Schemas from the schemas directory and stores them as constants.
+
+@Author: D. Batista (Terazus)
+"""
+
 from json import loads
 
 from .directories import INPUT_SCHEMA_PATH, EXPOSURE_SCHEMA_PATH, PARTNERS_LONGNAME_PATH

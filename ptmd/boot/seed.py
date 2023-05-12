@@ -1,3 +1,8 @@
+""" This module contains the database seeder.
+
+@Author: D. Batista (Terazus)
+"""
+
 from ptmd.logger import LOGGER
 from ptmd.database.models import User, Organisation, Chemical, Organism
 from ptmd.database.queries import create_organisations, create_users, create_chemicals, create_organisms
