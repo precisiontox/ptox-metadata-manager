@@ -13,6 +13,7 @@ from ptmd.database import Base
 from .seed import seed_db
 from .config import create_config_file
 
+
 DEFAULT_USER: dict = {
     'username': ADMIN_USERNAME,
     'email': ADMIN_EMAIL,
@@ -22,8 +23,8 @@ DEFAULT_USER: dict = {
 
 
 def initialize():
-    """ Initialize the application. This will the directories on Google Drive, get their
-    identifiers and create the database with partners and the default admin user.
+    """ Initialize the application. This will create the directories on Google Drive and the database
+    with seeding for partners, chemicals, organisms, organisations, files and the default admin user.
 
     :return: A tuple containing the organisations and users from the database.
     """
@@ -34,8 +35,10 @@ def initialize():
 
     with app.app_context():
         if not User.query.first():
-            seed_db(organisations=connector.create_directories()['partners'],
+            directories, files = connector.create_directories()
+            seed_db(organisations=directories['partners'],
                     chemicals=parse_chemicals(),
                     users=[DEFAULT_USER],
-                    organisms=parse_organisms())
+                    organisms=parse_organisms(),
+                    files=files)
     LOGGER.info('Application initialized')

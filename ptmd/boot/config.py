@@ -22,11 +22,7 @@ def create_config_file():
         'save_credentials_backend': 'file',
         'save_credentials_file': DOT_ENV_CONFIG['GOOGLE_DRIVE_CREDENTIALS_FILEPATH'],
         'get_refresh_token': True,
-        'oauth_scope': [
-            'https://www.googleapis.com/auth/drive.file',
-            'https://www.googleapis.com/auth/drive.install',
-            'https://www.googleapis.com/auth/gmail.send',
-        ]
+        'oauth_scope': ['https://www.googleapis.com/auth/drive', 'https://mail.google.com/']
     }
     if not exists(GOOGLE_DRIVE_SETTINGS_FILE_PATH):
         LOGGER.info('Creating settings file')

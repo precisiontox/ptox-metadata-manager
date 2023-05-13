@@ -20,6 +20,7 @@ class TestInitializeApp(TestCase):
 
     def test_init_no_user(self, mock_boot, mock_gdc, mock_user, mock_base):
         mock_user.query.first.return_value = None
+        mock_gdc.return_value.create_directories.return_value = ({'partners': []}, {})
         initialize()
         mock_boot.assert_called_once()
         mock_base.metadata.create_all.assert_called_once()

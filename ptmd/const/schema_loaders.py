@@ -1,4 +1,4 @@
-""" This module loads the JSON Schemas from the schemas directory and stores them as constants.
+""" This module loads data from JSONs and stores them as constants.
 
 @Author: D. Batista (Terazus)
 """
