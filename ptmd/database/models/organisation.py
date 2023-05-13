@@ -24,7 +24,7 @@ class Organisation(Base):
             'name': self.name,
             'gdrive_id': self.gdrive_id if self.gdrive_id else None,
             'longname': self.longname if self.longname else None,
-            'files': [dict(file) for file in self.files]
+            'files': [file.file_id for file in self.files]
         }
         for key, value in organisation.items():
             yield key, value

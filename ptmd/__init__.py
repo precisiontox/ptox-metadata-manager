@@ -5,6 +5,5 @@ drive.
 @author: D. Batista (Terazus)
 """
 from ptmd.lib import GoogleDriveConnector, DataframeCreator
-
+from ptmd.boot import initialize
 from ptmd.api import app
-from ptmd.utils import init

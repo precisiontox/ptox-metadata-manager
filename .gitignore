@@ -10,7 +10,7 @@ venv*/
 ptmd/clients/gdrive/credentials.txt
 ptmd/clients/gdrive/client_secrets.json
 /examples/
-ptmd/resources/ptmd.db
+ptmd/resources/ptmd_db.db
 ptmd/resources/credential.json
 gdrive.yaml
 credentials.json
@@ -18,3 +18,4 @@ credentials.json
 .env
 .env.prod
 envv/*
+ptmd.db

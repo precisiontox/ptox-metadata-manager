@@ -11,10 +11,9 @@ from json import loads
 from jsonschema import Draft202012Validator as JSONValidator
 from numpy import nan
 from pandas import DataFrame, ExcelFile
-from sqlalchemy.orm import Session
 
-from ptmd.utils import get_session
 from ptmd.const import EXPOSURE_INFORMATION_SCHEMA_FILEPATH
+from ptmd.config import session
 from ptmd.database import File
 from ptmd.lib.gdrive import GoogleDriveConnector
 from .const import PTX_ID_LABEL
@@ -37,28 +36,26 @@ class ExcelValidator:
         self.vertical_validation_data: dict = {}
         self.__schema: dict = {}
         self.file_id: int | str = file_id
-        self.session: Session | None = None
         self.file: dict = {}
         self.filepath: str = ''
 
     def validate(self):
         """ Validates the file. """
-        self.session = get_session()
         self.file = self.__get_file_from_database(self.file_id)
         self.filepath = self.download_file()
         self.validate_file()
         self.__update_file_record()
 
         remove(self.filepath)
-        self.session.close()
 
-    def __get_file_from_database(self, file_id: int) -> dict[str, str]:
+    @staticmethod
+    def __get_file_from_database(file_id: int) -> dict[str, str]:
         """ Get the file id from the database.
 
         :param file_id: The file id to get.
         :return: The file id.
         """
-        file: File = self.session.query(File).filter(File.file_id == file_id).first()
+        file: File = File.query.filter(File.file_id == file_id).first()
         if not file:
             raise ValueError(f"File with ID {file_id} does not exist.")
         return dict(file)
@@ -130,9 +127,10 @@ class ExcelValidator:
 
         :return: None
         """
-        self.session.query(File).filter(File.file_id == self.file['file_id']).update(
+        File.query.filter(File.file_id == self.file['file_id']).update(
             {'validated': 'success' if self.report['valid'] else 'failed'})
-        self.session.commit()
+        session.commit()
+        session.close()
 
 
 class ExternalExcelValidator(ExcelValidator):
@@ -147,7 +145,6 @@ class ExternalExcelValidator(ExcelValidator):
 
     def validate(self):
         """ Validates the file. """
-        self.session = get_session()
         self.filepath = self.download_file()
         self.validate_file()
         remove(self.filepath)

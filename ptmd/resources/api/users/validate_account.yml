@@ -1,0 +1,16 @@
+The route to validate a user account. Admin only
+---
+parameters:
+  - name: user_id
+    in: path
+    required: true
+    type: string
+    description: The account id to validate
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+responses:
+  200:
+    description: The user data with that JWT token

@@ -1,0 +1,11 @@
+The route to enable a user account. Users receive the token by email as a link.
+---
+parameters:
+  - name: token
+    in: path
+    required: true
+    type: string
+    description: The token received by email
+responses:
+  200:
+    description: The user data with that JWT token

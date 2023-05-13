@@ -1,0 +1,13 @@
+<h1> Hello, admin </h1>
+
+<h3> A new account has been enabled </h3>
+
+<p>
+    You received this email because a new Precision Toxicology Metadata Manager account has been enabled
+    and requires your attention. <br>
+    The accounts details are as follows: <br>
+    - Name: {{ user.username }} <br>
+    - Email: {{ user.email }} <br>
+    - Organisation: {{ user.organisation.name }} <br>
+    Click this link to activate the account: {{ site_url }}
+</p>

@@ -1,0 +1,22 @@
+The logout route
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+definitions:
+  Logout Response:
+    type: string
+    description: The logout message
+    example: Logout successfully
+responses:
+  200:
+    description: A JWT token
+    schema:
+      $ref: '#/definitions/Login Response'
+  401:
+    description: Invalid credentials
+    schema:
+      $ref: '#/definitions/Invalid Password Error Response'

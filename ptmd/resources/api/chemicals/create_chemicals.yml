@@ -1,0 +1,64 @@
+The route to create bulk chemicals.
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: chemicals
+    in: body
+    required: true
+    schema:
+      $ref: '#/definitions/Create Chemicals Payload'
+definitions:
+  Create Chemicals Payload:
+    type: object
+    properties:
+      chemicals:
+        type: array
+        items:
+          type: object
+          properties:
+            common_name:
+              type: string
+              description: common_name of the chemical
+              example: Aspirin
+            cas:
+              type: string
+              description: pretox hash id of the chemical
+              example: 50-78-2
+            formula:
+              type: string
+              description: formula of the chemical
+              example: C₉H₈O₄
+            ptx_code:
+              type: string
+              description: ptx_code of the chemical
+              example: PTX665
+  Create Chemicals Response:
+    type: object
+    properties:
+      message:
+        type: string
+        description: The message of the response
+        example: The chemicals have been created
+      data:
+        type: array
+        example: [10, 11, 12]
+        items:
+          type: number
+          description: internal chemical identifier
+responses:
+  200:
+    description: The list of available chemicals compounds
+    schema:
+      $ref: '#/definitions/Create Chemicals Response'
+  403:
+    description: The JWT token is invalid
+    schema:
+      $ref: '#/definitions/Forbidden Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'

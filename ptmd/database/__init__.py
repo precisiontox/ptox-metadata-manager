@@ -1,16 +1,13 @@
 """ The database module provides the SQLAlchemy creator (including Users and Organisations) and functions to interact
-with the database such as boot(), create_organisations() and create_users().
+with the database such as seed_db(), create_organisations() and create_users().
 It also provides the Base and app variables that are required to establish a connection to a database.
 
 :author: D. Batista (Terazus)
 """
 
-from ptmd.config import Base, app
-
-from .models import User, Organisation, Chemical, Organism, File
+from .models import User, Organisation, Chemical, Organism, File, TokenBlocklist, Token
 from .queries import (
     login_user,
-    boot,
     create_organisations,
     create_users,
     create_chemicals,
@@ -20,4 +17,5 @@ from .queries import (
     get_organism_code,
     get_chemical_code_mapping
 )
-from .utils import get_session
+
+from ptmd.config import Base

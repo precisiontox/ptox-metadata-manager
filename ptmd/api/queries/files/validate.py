@@ -5,8 +5,10 @@
 from __future__ import annotations
 
 from ptmd.lib.validator import ExcelValidator, ExternalExcelValidator
+from ptmd.api.queries.utils import check_role
 
 
+@check_role(role='user')
 def validate_file(file_id: int | str):
     """ Method to validate the file in the Google Drive.
 
@@ -17,11 +19,8 @@ def validate_file(file_id: int | str):
 
     try:
         validator = ExcelValidator(int(file_id))
-    except Exception as e:
-        if isinstance(file_id, str):
-            validator = ExternalExcelValidator(file_id)
-        else:
-            return {"error": str(e)}, 404
+    except (ValueError, TypeError):
+        validator = ExternalExcelValidator(str(file_id))
 
     try:
         validator.validate()
@@ -34,4 +33,5 @@ def validate_file(file_id: int | str):
             errors = validator.report['errors']
         return {"message": message, "id": file_id, "errors": errors}, code
     except Exception as e:
-        return {"error": str(e)}, 404
+        error: dict = e.__dict__
+        return {"error": error['error']['errors'][0]['message']}, error['error']['code']

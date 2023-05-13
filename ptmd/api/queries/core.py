@@ -12,44 +12,32 @@ It includes:
 from __future__ import annotations
 from flask import jsonify, Response
 
-from sqlalchemy.orm import Session
-
-from ptmd.utils import get_session
 from ptmd.database import Organism, Chemical, Organisation
+from .utils import check_role
 
 
+@check_role(role='enabled')
 def get_organisms() -> tuple[Response, int]:
     """ Function to get the organisms from the database.
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
-    organisms: dict[str, list[dict[str, int | str]]] = {
-        "data": [dict(organism) for organism in session.query(Organism).all()]
-    }
-    session.close()
-    return jsonify(organisms), 200
+    return jsonify({"data": [dict(organism) for organism in Organism.query.all()]}), 200
 
 
+@check_role(role='enabled')
 def get_chemicals() -> tuple[Response, int]:
     """ Function to get the chemicals from the database.
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
-    response: list[Chemical] = session.query(Chemical).filter(Chemical.ptx_code < 998).all()
-    chemicals: dict = {"data": [dict(chemical) for chemical in response]}
-    session.close()
-    return jsonify(chemicals), 200
+    return jsonify({"data": [dict(chemical) for chemical in Chemical.query.filter(Chemical.ptx_code < 998).all()]}), 200
 
 
+@check_role(role='enabled')
 def get_organisations() -> tuple[Response, int]:
     """ Function to get the organisations from the database.
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
-    response: list[Organisation] = session.query(Organisation).all()
-    organisations: dict[str, list] = {"data": [dict(organisation) for organisation in response]}
-    session.close()
-    return jsonify(organisations), 200
+    return jsonify({"data": [dict(organisation) for organisation in Organisation.query.all()]}), 200

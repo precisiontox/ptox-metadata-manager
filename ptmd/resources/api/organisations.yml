@@ -13,23 +13,29 @@ definitions:
       organisation_id:
         type: string
         description: internal identifier for the organisation
+        example: 1
       name:
         type: string
         description: short name of the organisation
+        example: UOX
       gdrive_id:
         type: string
         description: google drive id of the organisation
+        example: 1234566790
       longname:
         string: string
         description: long name of the organisation
+        example: university of oxford
 responses:
   200:
-    description: The user data with that JWT token
+    description: The list of available organisations
     schema:
       $ref: '#/definitions/Organisations Response'
-    examples:
-      application/json:
-        organisation_id: 1
-        name: UOX
-        gdrive_id: 1234566790
-        longname: university of oxford
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'
+  403:
+    description: The user is not authorized to do access this resource
+    schema:
+      $ref: '#/definitions/Forbidden Response'

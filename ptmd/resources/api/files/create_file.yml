@@ -1,0 +1,121 @@
+The route to create a new excel file from scratch
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: body
+    in: body
+    required: true
+    schema:
+      id: Create File Payload
+      schema:
+        $ref: '#/definitions/Create File Payload'
+definitions:
+  Create File Payload:
+    type: object
+    required:
+      - partner
+      - organism
+      - exposure_batch
+      - replicate4exposure
+      - replicate4control
+      - replicate_blank
+      - start_date
+      - end_date
+      - exposure_conditions
+      - timepoints
+    properties:
+      partner:
+        type: string
+        description: The name of the partner
+        example: UOB
+      organism:
+        type: string
+        description: The name of the organism
+        example: Drosophila_melanogaster_female
+      exposure_batch:
+        type: string
+        description: The code of the current exposure batch
+        example: AC
+      replicate4exposure:
+        type: integer
+        description: The number of replicate for the exposure
+        example: 4
+      replicate4control:
+        type: integer
+        description: The number of replicate for the control
+        example: 4
+      replicate_blank:
+        type: integer
+        description: The number of blanks in the experiment
+        example: 2
+      start_date:
+        type: string
+        description: The start date of the experiment
+        example: 2020-01-01
+      end_date:
+        type: string
+        description: The end date of the experiment
+        example: 2020-10-01
+      timepoints:
+        type: array
+        description: The timepoints of the experiment in hours. Maximum is 5 timepoints.
+        items:
+            type: integer
+        example: [4, 12, 36]
+      vehicle:
+        type: string
+        description: The vehicle used in the experiment
+        example: DMSO
+        enum:
+          - DMSO
+          - water
+      exposure_conditions:
+        type: array
+        description: The exposure conditions
+        items:
+            $ref: '#/definitions/Exposure Conditions Payload'
+        example: [{"chemicals_name": ["Ethoprophos"], "dose": "BMD10"}]
+  Exposure Conditions Payload:
+    type: object
+    required:
+      - chemicals_name
+      - dose
+    properties:
+        chemicals:
+            type: array
+            description: The names of the chemicals
+            items:
+                type: string
+                example: ["Ethoprophos"]
+                description: See GET /api/chemicals for the list of chemicals.
+        dose:
+            type: string
+            description: The dose for these chemicals
+            enum: ["BMD10", "BMD25", "10mg/L"]
+  Create File Response:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          file_url:
+            type: string
+            description: The URL to the google spreadsheet
+            example: https://docs.google.com/spreadsheets/d/1
+responses:
+  200:
+    description: The URL to the google spreadsheet
+    schema:
+      $ref: '#/definitions/Create File Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'
+  403:
+    description: The user is not authorized to do create this file
+    schema:
+      $ref: '#/definitions/Forbidden Response'

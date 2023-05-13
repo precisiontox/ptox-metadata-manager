@@ -8,12 +8,12 @@ from os import path
 
 from flask import request, Response, jsonify
 from flask_jwt_extended import get_jwt
-from sqlalchemy.orm import Session
 
 from ptmd import DataframeCreator, GoogleDriveConnector
-from ptmd.utils import get_session
+from ptmd.config import session
 from ptmd.const import ROOT_PATH
 from ptmd.database import Organisation, File
+from ptmd.api.queries.utils import check_role
 
 OUTPUT_DIRECTORY_PATH: str = path.join(ROOT_PATH, 'resources')
 
@@ -37,10 +37,9 @@ class CreateGDriveFile:
             "vehicle": request.json.get("vehicle", None)
         }
 
-    def generate_file(self, session: Session, user: int) -> dict[str, str]:
+    def generate_file(self, user: int) -> dict[str, str]:
         """ Method to process the user input and create a file in the Google Drive.
 
-        :param session: SQLAlchemy session
         :param user: user ID
         :return: dictionary containing the response from the Google Drive API
         """
@@ -48,7 +47,7 @@ class CreateGDriveFile:
         file_path: str = path.join(OUTPUT_DIRECTORY_PATH, filename)
         dataframes_generator: DataframeCreator = DataframeCreator(user_input=self.data)
         dataframes_generator.save_file(file_path)
-        folder_id: str = session.query(Organisation).filter_by(name=dataframes_generator.partner).first().gdrive_id
+        folder_id: str = Organisation.query.filter(Organisation.name == dataframes_generator.partner).first().gdrive_id
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
         response: dict[str, str] = gdrive.upload_file(directory_id=folder_id, file_path=file_path, title=filename)
         dataframes_generator.delete_file()
@@ -57,26 +56,22 @@ class CreateGDriveFile:
                              organisation_name=self.data['partner'],
                              user_id=user,
                              batch=self.data['exposure_batch'],
-                             session=session,
                              organism_name=self.data['organism'])
         session.add(db_file)
         session.commit()
         return response
 
 
+@check_role(role='user')
 def create_gdrive_file() -> tuple[Response, int]:
     """ Function to create a file in the Google Drive using the data provided by the user. Acquire data from a
     JSON request.
 
     :return: tuple containing a JSON response and a status code
     """
-    session: Session = get_session()
     try:
-        user_id = get_jwt()['sub']
         payload: CreateGDriveFile = CreateGDriveFile()
-        response: dict[str, str] = payload.generate_file(session=session, user=user_id)
-        session.close()
+        response: dict[str, str] = payload.generate_file(user=get_jwt()['sub'])
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
-        session.close()
         return jsonify({"message": str(e)}), 400

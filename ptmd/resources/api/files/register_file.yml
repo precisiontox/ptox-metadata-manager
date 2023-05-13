@@ -1,0 +1,76 @@
+The route to register an existing excel file on google drive that's readable.
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: body
+    in: body
+    required: true
+    schema:
+      id: Register File Payload
+      schema:
+        $ref: '#/definitions/Register File Payload'
+definitions:
+  Register File Payload:
+    type: object
+    required:
+      - partner
+      - organism
+      - batch
+      - file_id
+    properties:
+      partner:
+        type: string
+        description: The name of the partner
+        example: UOB
+      organism:
+        type: string
+        description: The name of the organism
+        example: Drosophila_melanogaster_female
+      batch:
+        type: string
+        description: The code of the current exposure batch
+        example: AC
+      file_id:
+        type: string
+        description: The id of the google document to register
+        example: "1"
+  Register File Response:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          file_url:
+            type: string
+            description: The URL to the google spreadsheet
+            example: https://docs.google.com/spreadsheets/d/1
+          message:
+            type: string
+            description: The message to display to the user
+            example: "file 'xxx' was successfully created with internal id 15"
+
+responses:
+  200:
+    description: The URL to the google spreadsheet
+    schema:
+      $ref: '#/definitions/Register File Response'
+  400:
+    description: The file could not be registered
+    schema:
+      $ref: '#/definitions/Missing Field Error Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'
+  403:
+    description: The user is not authorized to register this file
+    schema:
+      $ref: '#/definitions/Forbidden Response'
+  404:
+    description: The file was not found
+    schema:
+      $ref: '#/definitions/Not Found Response'
