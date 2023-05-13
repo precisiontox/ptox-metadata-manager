@@ -17,7 +17,7 @@ excel stub saved in Google Drive. This repository contains the source code for t
 ## Getting started
 ### Requirements:
 -  Python 3.9 or newer
--  A Google Cloud Platform account with the Google Drive API enabled.
+-  A Google Cloud Platform account with the Google Drive API and GMail API enabled.
 -  An SQL database running. Tested with SQLite.
 
 ### Setup:
@@ -59,14 +59,14 @@ The environment variables are divided into three categories:
   - `SQLALCHEMY_DATABASE_URL`: this is the URL to your database. You can use sqlite, postgres, mysql, etc., e.g.
     sqlite:///ptmd.db, and will need to change this before running the application.
   - `SQLALCHEMY_SECRET_KEY`: this is the secret key used to encrypt hashes and other sensitive data.
-  - `SITE_URL`: the URL of the site. This is used to generate the OAuth callback URL. Defaults to http://localhost:5000.
+  - `SITE_URL`: the URL of the site.
 - The Google Drive API configuration variables:
   - `GOOGLE_DRIVE_CLIENT_ID`: the Google Drive client ID obtainable in your Google Cloud Console (see above).
   - `GOOGLE_DRIVE_CLIENT_SECRET`: the Google Drive client secret obtaining in your Google Cloud Console (see above).
-  - `GOOGLE_DRIVE_CREDENTIALS_FILEPATH`: the path where to store the credentials file created during first seed_db 
-    (e.g. credentials.json).
+  - `GOOGLE_DRIVE_CREDENTIALS_FILEPATH`: the path where to store the credentials file created during first boot. This needs to 
+    be a json file (e.g. credentials.json).
   - `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first seed_db 
-    e.g. settings.yaml - a .yml suffix must not be used).
+    e.g. settings.yaml) Not that a `.yml` extension <b>will not be accepted</b>, please use `.yaml` instead.
 - The admin account configuration variables.
   - `ADMIN_EMAIL`: the email address of the admin user. This is used to send emails to the admin user when a new user
     registers.
