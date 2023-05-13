@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/api/create_chemicals_schema.json",
+  "type": "array",
+  "description": "An array of chemicals to be created",
+  "items": {
+    "$ref": "create_chemical_schema.json"
+  },
+  "minItems": 1,
+  "required": ["chemicals"]
+}

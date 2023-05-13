@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/api/create_chemical_schema.json",
+  "type": "object",
+  "description": "A schema to represent the create user validation rules.",
+  "properties": {
+    "common_name": {
+      "type": "string"
+    },
+    "cas": {
+      "type": "string"
+    },
+    "formula": {
+      "type": "string"
+    },
+    "ptx_code": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 996
+    }
+  },
+  "required": ["common_name", "formula", "ptx_code"]
+}

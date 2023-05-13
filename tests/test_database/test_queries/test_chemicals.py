@@ -14,9 +14,9 @@ class TestChemicalQueries(TestCase):
 
     def test_create_chemicals(self):
         with patch('ptmd.database.queries.chemicals.session'):
-            chemical_input = [{"common_name": "test", "formula": "test", "name_hash_id": "test", "ptx_code": 1}]
+            chemical_input = [{"common_name": "test", "formula": "test", "cas": "test", "ptx_code": 1}]
             expected_chemical = {
-                'chemical_id': None, 'common_name': 'test', 'name_hash_id': 'test', 'formula': 'test', 'ptx_code': 1
+                'chemical_id': None, 'common_name': 'test', 'cas': 'test', 'formula': 'test', 'ptx_code': 1
             }
             chemicals = create_chemicals(chemicals=chemical_input)
             self.assertEqual(dict(chemicals['test']), expected_chemical)

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/exposure_schema.json",
+  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/creator/create_exposure_schema.json",
   "type": "object",
   "description": "A JSON Schema representing an exposure condition",
   "properties": {

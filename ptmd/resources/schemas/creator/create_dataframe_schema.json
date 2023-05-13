@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/inputs2dataframes.json",
+  "$id": "https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/ptmd/resources/schemas/creator/create_dataframe_schema.json",
   "type": "object",
   "description": "A schema to represent the input data required by the metadata harvester.",
   "properties": {
@@ -67,7 +67,7 @@
           "minItems": 1,
           "description": "The exposure represent a list of chemical names and doses.",
           "items": {
-              "$ref": "exposure_schema.json#"
+              "$ref": "create_exposure_schema.json#"
           }
       }
   },

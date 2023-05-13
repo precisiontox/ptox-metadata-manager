@@ -11,7 +11,8 @@ from ptmd.config import app
 from ptmd.const import ROOT_PATH
 from ptmd.api.queries import (
     login as login_user, change_password, get_me, logout, enable_account, validate_account,
-    get_organisms, get_chemicals, get_organisations,
+    get_organisms, get_organisations,
+    get_chemicals, create_chemicals,
     create_gdrive_file, create_user, validate_file,  register_gdrive_file
 )
 
@@ -83,6 +84,25 @@ def validate_account_(user_id: int):
 
 
 ###########################################################
+#                     CHEMICALS                           #
+###########################################################
+@app.route('/api/chemicals', methods=['GET'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'chemicals.yml'))
+@jwt_required()
+def chemicals():
+    """ Get the list of chemicals """
+    return get_chemicals()
+
+
+@app.route('/api/chemicals', methods=['POST'])
+@swag_from(path.join(SWAGGER_DATA_PATH, 'create_chemicals.yml'))
+@jwt_required()
+def new_chemicals():
+    """ Create a new chemical """
+    return create_chemicals()
+
+
+###########################################################
 #                   MISCELLANEOUS                         #
 ###########################################################
 @app.route('/api/organisms', methods=['GET'])
@@ -91,14 +111,6 @@ def validate_account_(user_id: int):
 def organisms():
     """ Get the list of organisms """
     return get_organisms()
-
-
-@app.route('/api/chemicals', methods=['GET'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'chemicals.yml'))
-@jwt_required()
-def chemicals():
-    """ Get the list of chemicals """
-    return get_chemicals()
 
 
 @app.route('/api/organisations', methods=['GET'])
@@ -112,7 +124,6 @@ def organisations():
 ###########################################################
 #                          FILES                          #
 ###########################################################
-
 @app.route('/api/files', methods=['POST'])
 @swag_from(path.join(FILES_DOC_PATH, 'create_file.yml'))
 @jwt_required()
