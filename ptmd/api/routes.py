@@ -8,18 +8,13 @@ from flask_jwt_extended import jwt_required
 from flasgger import swag_from
 
 from ptmd.config import app
-from ptmd.const import ROOT_PATH
 from ptmd.api.queries import (
     login as login_user, change_password, get_me, logout, enable_account, validate_account,
     get_organisms, get_organisations,
     get_chemicals, create_chemicals,
     create_gdrive_file, create_user, validate_file,  register_gdrive_file
 )
-
-
-SWAGGER_DATA_PATH: str = path.join(ROOT_PATH, 'resources', 'api')
-FILES_DOC_PATH: str = path.join(SWAGGER_DATA_PATH, 'files')
-USERS_DOC_PATH: str = path.join(SWAGGER_DATA_PATH, 'users')
+from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH
 
 
 ###########################################################
@@ -87,7 +82,7 @@ def validate_account_(user_id: int):
 #                     CHEMICALS                           #
 ###########################################################
 @app.route('/api/chemicals', methods=['GET'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'chemicals.yml'))
+@swag_from(path.join(CHEMICALS_DOC_PATH, 'get_chemicals.yml'))
 @jwt_required()
 def chemicals():
     """ Get the list of chemicals """
@@ -95,7 +90,7 @@ def chemicals():
 
 
 @app.route('/api/chemicals', methods=['POST'])
-@swag_from(path.join(SWAGGER_DATA_PATH, 'create_chemicals.yml'))
+@swag_from(path.join(CHEMICALS_DOC_PATH, 'create_chemicals.yml'))
 @jwt_required()
 def new_chemicals():
     """ Create a new chemical """

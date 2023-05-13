@@ -25,7 +25,7 @@ def create_chemicals() -> tuple[Response, int]:
         session.commit()
         return jsonify({
             'message': 'Chemicals created successfully.',
-            'data': [dict(chemical) for chemical in chemicals_from_db]
+            'data': [chemical.chemical_id for chemical in chemicals_from_db]
         }), 201
     except ValidationError as e:
         return jsonify({'message': e.message}), 400

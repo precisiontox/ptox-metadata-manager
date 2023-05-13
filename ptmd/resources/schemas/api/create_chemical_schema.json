@@ -14,9 +14,8 @@
       "type": "string"
     },
     "ptx_code": {
-      "type": "number",
-      "minimum": 1,
-      "maximum": 996
+      "type": "string",
+      "pattern": "^PTX[0-9]{3}?$"
     }
   },
   "required": ["common_name", "formula", "ptx_code"]
