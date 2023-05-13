@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from ptmd.lib.file_parsers.parse_chemicals import parse_chemicals
+from ptmd.boot.file_parsers.parse_chemicals import parse_chemicals
 
 
 class TestCompound(TestCase):

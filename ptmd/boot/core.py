@@ -2,16 +2,14 @@
 
 @author: D. Batista (Terazus)
 """
-
-
-from ptmd.lib import GoogleDriveConnector, parse_chemicals, parse_organisms
 from ptmd.config import app, engine
-from ptmd.database import User
 from ptmd.const import ADMIN_EMAIL, ADMIN_USERNAME, ADMIN_PASSWORD
+from ptmd.database import User, Base
+from ptmd.lib import GoogleDriveConnector
 from ptmd.logger import LOGGER
-from ptmd.database import Base
-from .seed import seed_db
 from .config import create_config_file
+from .file_parsers import parse_chemicals, parse_organisms
+from .seed import seed_db
 
 
 DEFAULT_USER: dict = {
