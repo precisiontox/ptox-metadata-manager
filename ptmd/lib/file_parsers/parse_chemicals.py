@@ -21,7 +21,7 @@ def parse_chemicals() -> list[dict]:
     for compound in chemicals_dataframe.itertuples():
         chemicals.append({
             'common_name': compound.Compound.replace('"', ''),
-            'ptx_code': compound._2.replace('"', ''),
+            'ptx_code': int(compound._2.replace('"', '').replace('PTX', '')),
             'formula': compound.Formula.replace('"', ''),
             'cas': compound._5.replace('"', '').split('\n')[0]
         })

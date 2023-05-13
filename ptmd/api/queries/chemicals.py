@@ -25,6 +25,8 @@ def create_chemicals() -> tuple[Response, int]:
     chemicals: list = request.json.get('chemicals', None)
     try:
         validate_chemicals(chemicals)
+        for chemical in chemicals:
+            chemical['ptx_code'] = int(chemical['ptx_code'].replace('PTX', ''))
         chemicals_from_db: list[Chemical] = [Chemical(**chemical) for chemical in chemicals]
         session.add_all(chemicals_from_db)
         session.commit()

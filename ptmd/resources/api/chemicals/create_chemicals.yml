@@ -1,4 +1,4 @@
-The route to get data about chemicals.
+The route to create bulk chemicals.
 ---
 parameters:
   - name: Authorization
@@ -23,11 +23,11 @@ definitions:
             common_name:
               type: string
               description: common_name of the chemical
-              example: 50-78-2
+              example: Aspirin
             cas:
               type: string
               description: pretox hash id of the chemical
-              example: Aspirin
+              example: 50-78-2
             formula:
               type: string
               description: formula of the chemical
@@ -35,7 +35,7 @@ definitions:
             ptx_code:
               type: string
               description: ptx_code of the chemical
-              example: PTX220
+              example: PTX665
   Create Chemicals Response:
     type: object
     properties:
