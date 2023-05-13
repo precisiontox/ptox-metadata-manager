@@ -73,7 +73,6 @@ class TestAPIChemicals(TestCase):
     def test_create_chemicals_errors_integrity(self, mock_chemical, mock_role, mock_get_current_user,
                                                mock_verify_jwt, mock_verify_in_request, mock_get_session):
         mock_get_current_user.return_value.role = 'user'
-        mock_chemical.return_value = MockChemical()
         mock_get_session.add_all.side_effect = IntegrityError(None, None, None)
         with app.test_client() as client:
             response = client.post('/api/chemicals',

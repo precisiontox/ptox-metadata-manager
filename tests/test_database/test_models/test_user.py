@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch, mock_open
 
-from ptmd.database import User, Organisation, File
+from ptmd.database import User, Organisation
 
 
 @patch("builtins.open", mock_open(read_data="{'save_credentials_file': 'test'}"))

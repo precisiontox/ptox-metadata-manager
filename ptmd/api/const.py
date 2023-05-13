@@ -1,3 +1,8 @@
+""" This module contains constants like paths to swagger data.
+
+@Author: D. Batista (Terazus)
+"""
+
 from os import path
 
 from ptmd.const import ROOT_PATH

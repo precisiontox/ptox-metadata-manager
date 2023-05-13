@@ -5,7 +5,6 @@
 from __future__ import annotations
 from typing import Generator
 
-from flask_jwt_extended import get_current_user
 from passlib.hash import bcrypt
 
 from ptmd.config import Base, db, session

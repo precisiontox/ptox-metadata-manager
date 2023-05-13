@@ -10,6 +10,10 @@ from ptmd.const import CHEMICALS_FILEPATH
 
 
 def parse_chemicals() -> list[dict]:
+    """ Parse chemicals from XLSX file.
+
+    :return: A list of chemicals.
+    """
     chemicals: list[dict] = []
     chemicals_dataframe: DataFrame = read_excel(CHEMICALS_FILEPATH,
                                                 engine='openpyxl',

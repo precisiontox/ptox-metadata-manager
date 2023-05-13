@@ -1,3 +1,8 @@
+""" This module contains queries for chemicals.
+
+@author: D. Batista (Terazus)
+"""
+
 from typing import Generator
 from json import load
 
@@ -35,6 +40,11 @@ def create_chemicals() -> tuple[Response, int]:
 
 
 def validate_chemicals(chemicals: list[dict]) -> None:
+    """ Validate chemicals against schema.
+
+    :param chemicals: list of chemicals
+    :exception ValidationError: if validation fails
+    """
     with open(CREATE_CHEMICAL_SCHEMA_PATH, 'r') as f:
         create_chemical_schema = load(f)
     with open(CREATE_CHEMICALS_SCHEMA_PATH, 'r') as f:
