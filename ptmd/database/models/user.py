@@ -5,6 +5,7 @@
 from __future__ import annotations
 from typing import Generator
 
+from flask_jwt_extended import get_current_user
 from passlib.hash import bcrypt
 
 from ptmd.config import Base, db, session
@@ -85,17 +86,26 @@ class User(Base):
             return True
         return False
 
-    def enable_account(self) -> None:
+    def set_role(self, role: str):
+        """ Set the user role. Helper function to avoid code repetition.
+        """
+        {'enabled': self.__enable_account, 'user': self.__activate_account, 'admin': self.__make_admin}[role]()
+        session.commit()
+
+    def __enable_account(self) -> None:
         """ Changed the role to 'enabled' when the user confirms the email.
         """
         self.role = 'enabled'
         session.delete(self.activation_token)
-        session.commit()
         send_validation_mail(self)
 
-    def activate_account(self) -> None:
-        """ Change the role to 'user' when an admin activates an enabled account
+    def __activate_account(self) -> None:
+        """ Change the role to 'user' when an admin activates an enabled account.
         """
         self.role = 'user'
-        session.commit()
         send_validated_account_mail(username=self.username, email=self.email)
+
+    def __make_admin(self) -> None:
+        """ Change the role to 'admin'.
+        """
+        self.role = 'admin'

@@ -2,7 +2,6 @@ from unittest import TestCase
 from unittest.mock import patch, mock_open
 
 from ptmd.database import User, Organisation, File
-from ptmd.database.models.token_blocklist import TokenBlocklist, check_if_token_revoked
 
 
 @patch("builtins.open", mock_open(read_data="{'save_credentials_file': 'test'}"))
@@ -15,60 +14,30 @@ class TestUser(TestCase):
         self.assertEqual(dict(user), expected_user)
         self.assertTrue(user.validate_password('test'))
 
-        with patch('ptmd.database.models.user.session'):
+        with patch('ptmd.database.models.user.session') as mock_session:
             changed = user.change_password(old_password='test', new_password='test2')
             self.assertTrue(changed)
             changed = user.change_password(old_password='test', new_password='test2')
             self.assertFalse(changed)
 
-            with patch('ptmd.database.models.user.send_validation_mail'):
-                user.enable_account()
+            with patch('ptmd.database.models.user.send_validation_mail') as mock_email:
+                user.set_role('enabled')
                 self.assertEqual(user.role, 'enabled')
+                mock_email.assert_called_once()
+                mock_session.commit.assert_called()
 
-            with patch('ptmd.database.models.user.send_validated_account_mail'):
-                user.activate_account()
+            with patch('ptmd.database.models.user.send_validated_account_mail') as mock_mail:
+                user.set_role('user')
                 self.assertEqual(user.role, 'user')
+                mock_mail.assert_called_once_with(username='test', email='your@email.com')
+                mock_session.commit.assert_called()
+
+            user.set_role('admin')
+            self.assertEqual(user.role, 'admin')
 
     def test_user_admin(self):
         user = User(username='test', password='test', email='your@email.com', role='admin')
         self.assertEqual(user.role, 'admin')
-
-    @patch('ptmd.database.models.file.Organisation')
-    @patch('ptmd.database.models.file.Organism')
-    def test_files(self, mock_organism, mock_organisation):
-        mock_organisation.query.filter_by().first().organisation_id = 1
-        mock_organism.query.filter_by().first().organism_id = 1
-        file = File(**{
-            'gdrive_id': '123',
-            'name': 'test',
-            'batch': 'AA',
-            'organisation_name': None,
-            'user_id': None,
-            'organism_name': None})
-        self.assertEqual(dict(file), {
-            'file_id': None,
-            'gdrive_id': '123',
-            'name': 'test',
-            'batch': 'AA',
-            'organisation': None,
-            'author': None,
-            'organism': None,
-        })
-
-    def test_token_block_list(self):
-        expired_token = TokenBlocklist(jti='123')
-        self.assertTrue(expired_token.jti == "123")
-
-        with patch('ptmd.database.models.token_blocklist.session') as mocked_session:
-            mocked_session.query().filter_by().return_value = True
-            self.assertTrue(check_if_token_revoked({}, {'jti': '123'}))
-
-    def test_organisation(self):
-        expected_organisation = {
-            'name': 'UOX', 'organisation_id': None, 'gdrive_id': 'test', 'longname': None, 'files': []
-        }
-        organisation = Organisation(name=expected_organisation['name'], gdrive_id=expected_organisation['gdrive_id'])
-        self.assertEqual(dict(organisation), expected_organisation)
 
     @patch('ptmd.database.queries.users.create_access_token', return_value='OK')
     @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)

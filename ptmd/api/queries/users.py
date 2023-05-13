@@ -110,7 +110,7 @@ def validate_account(user_id: int) -> tuple[Response, int]:
     :return: tuple containing a JSON response and a status code
     """
     user: User = User.query.filter(User.id == user_id).first()
-    user.activate_account()
+    user.set_role('user')
     return jsonify(msg="Account validated"), 200
 
 
@@ -126,5 +126,5 @@ def enable_account(token: str) -> tuple[Response, int]:
     if token.expires_on < datetime.now(token.expires_on.tzinfo):
         return jsonify(msg="Token expired"), 400
     user: User = token.user[0]
-    user.enable_account()
+    user.set_role('enabled')
     return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200
