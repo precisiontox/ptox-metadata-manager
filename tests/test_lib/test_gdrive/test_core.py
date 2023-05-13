@@ -143,5 +143,3 @@ class TestGoogleDriveConnector(TestCase):
         file_id = "123"
         file_metadata = gdrive_connector.download_file(file_id=file_id, filename='test.xlsx')
         self.assertIn('test.xlsx', file_metadata)
-
-

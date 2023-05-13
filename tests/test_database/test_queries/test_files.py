@@ -50,4 +50,3 @@ class TestFilesQueries(TestCase):
         self.assertEqual(file.author_id, USER_ID)
         self.assertEqual(file.organism_id, 1)
         self.assertEqual(file.batch, 'AA')
-
