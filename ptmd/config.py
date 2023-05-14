@@ -8,7 +8,7 @@ connection to the database and bindings to the JWT managers, the CORS managers a
 from typing import Any
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy, Model
+from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from sqlalchemy.orm import scoped_session
