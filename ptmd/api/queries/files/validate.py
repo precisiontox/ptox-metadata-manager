@@ -9,7 +9,7 @@ from ptmd.api.queries.utils import check_role
 
 
 @check_role(role='user')
-def validate_file(file_id: int | str):
+def validate_file(file_id: int | str) -> tuple[dict, int]:
     """ Method to validate the file in the Google Drive.
 
     :param file_id: the file id to validate

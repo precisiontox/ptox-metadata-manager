@@ -120,11 +120,11 @@ def enable_account(token: str) -> tuple[Response, int]:
     :param token: token to enable the account
     :return: tuple containing a JSON response and a status code
     """
-    token: Token = Token.query.filter(Token.token == token).first()
-    if token is None:
+    token_from_db: Token = Token.query.filter(Token.token == token).first()
+    if token_from_db is None:
         return jsonify(msg="Invalid token"), 400
-    if token.expires_on < datetime.now(token.expires_on.tzinfo):
+    if token_from_db.expires_on < datetime.now(token_from_db.expires_on.tzinfo):
         return jsonify(msg="Token expired"), 400
-    user: User = token.user[0]
+    user: User = token_from_db.user[0]
     user.set_role('enabled')
     return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200

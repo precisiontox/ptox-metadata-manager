@@ -88,3 +88,33 @@ class TestCreateFile(TestCase):
             response = client.post('/api/files', headers={'Authorization': f'Bearer {123}', **HEADERS},
                                    data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': 'a'}})
+
+    def test_create_gdrive_error(self, mock_user, mock_jwt_1, mock_organism, mock_organisation_1, mock_organisation_2,
+                                 mock_sub, mock_login,
+                                 mock_get_chemicals_mapping, mock_get_organism_code,
+                                 mock_get_organism, mock_get_chem, mock_auth, mock_upload,
+                                 mock_jwt, mock_session):
+        mock_organisation_2.query.filter().first().gdrive_id = '123'
+        mock_organisation_1.query.filter_by().first().organisation_id = 1
+        mock_organism.query.filter_by().first().organism_id = 1
+        mock_upload.return_value = None
+        mock_user().role = 'admin'
+        with app.test_client() as client:
+            data = {
+                "partner": "UOB",
+                "organism": "organism1",
+                "exposure_conditions": [{"chemicals": ["chemical1"], "dose": "BMD10"}],
+                "exposure_batch": "AA",
+                "replicate4control": 4,
+                "replicate4exposure": 4,
+                "replicate_blank": 2,
+                "start_date": "2021-01-01",
+                "end_date": "2022-01-01",
+                "timepoints": [3],
+                "vehicle": "water",
+            }
+            response = client.post('/api/files', headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                   data=dumps(data))
+            self.assertEqual(response.json["message"],
+                             "An error occurred while uploading the file to the Google Drive.")
+            self.assertEqual(response.status_code, 400)

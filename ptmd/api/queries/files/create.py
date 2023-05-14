@@ -21,7 +21,7 @@ OUTPUT_DIRECTORY_PATH: str = path.join(ROOT_PATH, 'resources')
 class CreateGDriveFile:
     """ Class that get the user input and process it to create a file in the Google Drive. """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """ Constructor of the class. Contains the user input. """
         self.data: dict = {
             "partner": request.json.get("partner", None),
@@ -49,8 +49,12 @@ class CreateGDriveFile:
         dataframes_generator.save_file(file_path)
         folder_id: str = Organisation.query.filter(Organisation.name == dataframes_generator.partner).first().gdrive_id
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
-        response: dict[str, str] = gdrive.upload_file(directory_id=folder_id, file_path=file_path, title=filename)
+        response: dict[str, str] | None = gdrive.upload_file(directory_id=folder_id,
+                                                             file_path=file_path,
+                                                             title=filename)
         dataframes_generator.delete_file()
+        if not response:
+            raise Exception("An error occurred while uploading the file to the Google Drive.")
         db_file: File = File(gdrive_id=response['id'],
                              name=response['title'],
                              organisation_name=self.data['partner'],

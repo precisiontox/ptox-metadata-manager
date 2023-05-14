@@ -2,6 +2,8 @@
 
 @author: D. Batista (Terazus)
 """
+from typing import Any
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from base64 import urlsafe_b64encode
@@ -26,7 +28,7 @@ def send_confirmation_mail(username: str, email: str, token: str) -> str:
     @param token: the token to be used to activate the account
     @return: the message sent to the user
     """
-    service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
+    service: Any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
     message: MIMEMultipart = build_email_core(title='PTMD - Account activation', email=email)
     body: str = create_confirmation_email_content(username, token)
     return send_email(message, service, body)
@@ -39,7 +41,7 @@ def send_validated_account_mail(username: str, email: str) -> str:
     @param email: the email of the user
     @return: the message sent to the user
     """
-    service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
+    service: Any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
     message: MIMEMultipart = build_email_core(title='PTMD - Your account is now active', email=email)
     body: str = create_validated_email_content(username)
     return send_email(message, service, body)
@@ -51,7 +53,7 @@ def send_validation_mail(user: object) -> str:
     @param user: the User class to be used to get the user information
     @return: the message sent to the user
     """
-    service: any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
+    service: Any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
     message: MIMEMultipart = build_email_core(title='PTMD - An account needs to be activated', email=ADMIN_EMAIL)
     body: str = create_validation_mail_content(user)
     return send_email(message, service, body)
@@ -71,7 +73,7 @@ def build_email_core(title: str, email: str) -> MIMEMultipart:
     return message
 
 
-def send_email(message: MIMEMultipart, service: any, body: str) -> str:
+def send_email(message: MIMEMultipart, service: Any, body: str) -> str:
     """ Send the email to the user.
 
     @param message: the MIMEMultipart object to be used to send the email

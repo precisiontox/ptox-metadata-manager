@@ -30,24 +30,28 @@ def register_gdrive_file() -> tuple[Response, int]:
         for field in required_fields:
             if field not in request.json or request.json[field] == "":
                 raise ValueError(f'Field {field} is required.')
-
-        file_id: str = request.json['file_id']
-        user_id: int = get_jwt()['sub']
         batch: str = request.json['batch']
-        organisation: Organisation = session.query(User).filter(User.id == user_id).first().organisation
-        connector: GoogleDriveConnector = GoogleDriveConnector()
         if not match(ALLOWED_EXPOSURE_BATCH, batch):
             raise ValueError(f"Batch '{batch}' has an incorrect format.")
+
+        file_id: str = request.json['file_id']
+        connector: GoogleDriveConnector = GoogleDriveConnector()
+        filename: str | None = connector.get_filename(file_id)
+        if not filename:
+            raise ValueError(f"File '{file_id}' does not exist.")
+
+        user_id: int = get_jwt()['sub']
+        user: User = User.query.filter(User.id == user_id).first()
+        organisation: Organisation = user.organisation
 
         file: File = File(gdrive_id=file_id,
                           batch=batch,
                           organism_name=request.json['organism'],
-                          name=connector.get_filename(file_id),
+                          name=filename,
                           organisation_name=organisation.name,
                           user_id=user_id)
         session.add(file)
         session.commit()
-        session.close()
         msg: str = f'file {file_id} was successfully created with internal id {file.file_id}'
         return jsonify({"data": {"message": msg, "file_url": file.file_id}}), 200
     except Exception as e:

@@ -25,4 +25,4 @@ def check_if_token_revoked(jwt_header: dict, jwt_payload: dict) -> bool:
     @param jwt_header: JWT header
     @param jwt_payload: JWT payload
     """
-    return session.query(TokenBlocklist.id).filter_by(jti=jwt_payload["jti"]).scalar() is not None
+    return session.query(TokenBlocklist.id).filter_by(jti=jwt_payload["jti"]).scalar() is not None  # type: ignore
