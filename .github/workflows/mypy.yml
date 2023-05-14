@@ -23,4 +23,4 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
       - name: Run mypy
-        run: mypy --config-file=../../mypy.ini
+        run: mypy --config-file=./mypy.ini
