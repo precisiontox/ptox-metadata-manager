@@ -23,7 +23,7 @@
     <img src="http://www.mypy-lang.org/static/mypy_badge.svg" alt="Mypy Badge"/>
   </a>
   <a href="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/LICENCE" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/licence-APGL-blue" alt="Licence Badge"/>
+    <img src="https://img.shields.io/badge/licence-AGPL-blue" alt="Licence Badge"/>
   </a>
 </p>
 
