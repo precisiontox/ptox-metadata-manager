@@ -129,17 +129,35 @@ class TestGoogleDriveConnector(TestCase):
         for file in files.items():
             self.assertEqual(file[1], [{'id': '1234'}])
 
-    @patch('ptmd.lib.gdrive.core.get_file_information', return_value={'id': '1234'})
-    def test_upload_file(self, content_exist_mock, google_drive_mock, google_auth_mock):
-        here = path.abspath(path.dirname(__file__))
-        xlsx_file = path.join(here, '..', '..', 'data', 'excel', 'test.xlsx')
-        gdrive_connector = GoogleDriveConnector()
-        file_metadata = gdrive_connector.upload_file(file_path=xlsx_file,
-                                                     directory_id=123)
-        self.assertEqual(content_exist_mock.return_value, file_metadata)
-
     def test_download_file(self, google_drive_mock, google_auth_mock):
         gdrive_connector = GoogleDriveConnector()
         file_id = "123"
         file_metadata = gdrive_connector.download_file(file_id=file_id, filename='test.xlsx')
         self.assertIn('test.xlsx', file_metadata)
+
+
+@patch('ptmd.lib.gdrive.core.GoogleAuth')
+@patch('ptmd.lib.gdrive.core.GoogleDrive')
+class TestUploader(TestCase):
+
+    def setUp(self) -> None:
+        here = path.abspath(path.dirname(__file__))
+        self.xlsx_file = path.join(here, '..', '..', 'data', 'excel', 'test.xlsx')
+
+    @patch('ptmd.lib.gdrive.core.get_file_information', return_value={'id': '1234'})
+    def test_upload_file(self, content_exist_mock, google_drive_mock, google_auth_mock):
+        google_drive_mock.CreateFile().return_value = FileMock()
+        gdrive_connector = GoogleDriveConnector()
+        file_metadata = gdrive_connector.upload_file(file_path=self.xlsx_file, directory_id="123")
+        self.assertEqual(content_exist_mock.return_value, file_metadata)
+
+    def test_upload_file_no_file(self, google_drive_mock, google_auth_mock):
+        google_drive_mock.CreateFile().return_value = None
+        gdrive_connector = GoogleDriveConnector()
+        self.assertIsNone(gdrive_connector.upload_file(file_path=self.xlsx_file, directory_id="123"))
+
+    def test_upload_file_no_drive(self, google_drive_mock, google_auth_mock):
+        google_drive_mock.return_value = None
+        gdrive_connector = GoogleDriveConnector()
+        self.assertIsNone(gdrive_connector.upload_file(file_path=self.xlsx_file, directory_id="123"))
+

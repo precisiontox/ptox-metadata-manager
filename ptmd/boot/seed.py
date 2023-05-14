@@ -25,6 +25,6 @@ def seed_db(
     created_users: dict[int, User] = create_users(users=users)
     created_chemicals: dict[str, Chemical] = create_chemicals(chemicals=chemicals)
     created_organisms: dict[str, Organism] = create_organisms(organisms=organisms)
-    created_files: list[dict, File] = create_files(files_data=files)
+    created_files: list[File] = create_files(files_data=files)
     LOGGER.info('Seed completed')
     return [created_organisations, created_users, created_chemicals, created_organisms, created_files]

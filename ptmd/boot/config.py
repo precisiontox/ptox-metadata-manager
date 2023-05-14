@@ -10,7 +10,7 @@ from ptmd.const import GOOGLE_DRIVE_SETTINGS_FILE_PATH, DOT_ENV_CONFIG
 from ptmd.logger import LOGGER
 
 
-def create_config_file():
+def create_config_file() -> dict:
     """ A function to create the Google Drive setting file in case it doesn't exist """
     settings_data = {
         'client_config_backend': 'settings',

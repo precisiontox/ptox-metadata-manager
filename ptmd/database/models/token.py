@@ -2,6 +2,7 @@
 
 @Author: D. Batista (Terazus)
 """
+from typing import Any
 from datetime import datetime, timedelta
 from secrets import token_hex
 
@@ -21,7 +22,7 @@ class Token(Base):
     token_type: str = db.Column(db.String(80), nullable=False)
     expires_on: datetime = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, token_type: str, user: any) -> None:
+    def __init__(self, token_type: str, user: Any) -> None:
         """ Create a new token. """
         self.token = token_hex(16)
         self.token_type = token_type

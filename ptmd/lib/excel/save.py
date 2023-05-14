@@ -4,13 +4,13 @@
 """
 
 from pandas import DataFrame, ExcelWriter
-from pandas.io.formats.excel import ExcelFormatter
+from pandas.io.formats.excel import ExcelFormatter  # type: ignore
 
 from ptmd.const import GENERAL_SHEET_COLUMNS, SAMPLE_SHEET_COLUMNS
 from .styles import style_sheets
 
 
-def save_to_excel(dataframes: tuple[DataFrame, DataFrame], path: str):
+def save_to_excel(dataframes: tuple[DataFrame, DataFrame], path: str) -> str:
     """ Save the dataframes to an Excel file.
 
     :param dataframes: The dataframes to save.

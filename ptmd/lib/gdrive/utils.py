@@ -4,7 +4,7 @@
 """
 from __future__ import annotations
 
-from pydrive2.drive import GoogleDrive, GoogleDriveFileList
+from pydrive2.drive import GoogleDrive, GoogleDriveFileList  # type: ignore
 
 from .const import MIME_TYPE_FOLDER
 

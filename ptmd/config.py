@@ -11,8 +11,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from sqlalchemy.orm import Session
-from flasgger import Swagger
-from sqlalchemy import create_engine, Engine
+from flasgger import Swagger  # type: ignore
+from sqlalchemy import create_engine
+from sqlalchemy.engine.base import Engine
 
 from ptmd.database.const import SQLALCHEMY_SECRET_KEY, SQLALCHEMY_DATABASE_URI
 

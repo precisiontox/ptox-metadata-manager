@@ -26,7 +26,7 @@ class ExcelValidator:
     :param file_id: The file id to validate.
     """
 
-    def __init__(self, file_id: int | str):
+    def __init__(self, file_id: int | str) -> None:
         """ The validator constructor. """
         self.report: dict = {'valid': True, 'errors': {}}
         self.current_record: dict = {'data': {}, 'label': ''}
@@ -39,14 +39,17 @@ class ExcelValidator:
         self.file: dict = {}
         self.filepath: str = ''
 
-    def validate(self):
+    def validate(self) -> None:
         """ Validates the file. """
-        self.file = self.__get_file_from_database(self.file_id)
-        self.filepath = self.download_file()
-        self.validate_file()
-        self.__update_file_record()
+        if type(self.file_id) == int:
+            self.file = self.__get_file_from_database(self.file_id)
+            filepath: str | None = self.download_file()
+            if filepath:
+                self.filepath = filepath
+            self.validate_file()
+            self.__update_file_record()
 
-        remove(self.filepath)
+            remove(self.filepath)
 
     @staticmethod
     def __get_file_from_database(file_id: int) -> dict[str, str]:
@@ -60,14 +63,13 @@ class ExcelValidator:
             raise ValueError(f"File with ID {file_id} does not exist.")
         return dict(file)
 
-    def download_file(self) -> str:
+    def download_file(self) -> str | None:
         """ Download the file from Google Drive.
 
         :return: the downloaded file path.
         """
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
-        filepath: str = gdrive.download_file(self.file['gdrive_id'], self.file['name'])
-        return filepath
+        return gdrive.download_file(self.file['gdrive_id'], self.file['name'])
 
     def __load_data(self) -> None:
         """ Load the dataframe and schema in memory.
@@ -106,7 +108,7 @@ class ExcelValidator:
 
         graph.validate()
 
-    def add_error(self, label, message, field):
+    def add_error(self, label: str, message: str, field: str) -> None:
         """ Adds an error to the report.
 
         :param label: The label of the record.
@@ -139,25 +141,26 @@ class ExternalExcelValidator(ExcelValidator):
     :param file_id: The file id to validate.
     """
 
-    def __init__(self, file_id: str):
+    def __init__(self, file_id: str) -> None:
         """ The validator constructor. """
         super().__init__(file_id)
 
-    def validate(self):
+    def validate(self) -> None:
         """ Validates the file. """
-        self.filepath = self.download_file()
+        file: str | None = self.download_file()
+        if file:
+            self.filepath = file
         self.validate_file()
         remove(self.filepath)
 
-    def download_file(self) -> str:
+    def download_file(self) -> str | None:
         """ Download the file from Google Drive.
 
         :return: the downloaded file path.
         """
         gdrive: GoogleDriveConnector = GoogleDriveConnector()
         file: dict = gdrive.google_drive.CreateFile({'id': self.file_id})
-        filepath: str = gdrive.download_file(self.file_id, file['title'])
-        return filepath
+        return gdrive.download_file(self.file_id, file['title'])
 
 
 class VerticalValidator:
@@ -227,7 +230,7 @@ class VerticalValidator:
             self.compounds[compound_name]['replicates'][timepoint] += 1
             self.compounds[compound_name]['timepoints'][replicate] += 1
 
-    def validate(self):
+    def validate(self) -> None:
         """ Validates the study design after all nodes have been added
 
         :return: None

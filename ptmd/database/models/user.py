@@ -27,9 +27,9 @@ class User(Base):
     role: str = db.Column(db.String(80), nullable=False, default='disabled')
     email: str = db.Column(db.String(80), nullable=False, unique=True)
 
-    organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=True)
-    organisation = db.relationship('Organisation', backref=db.backref('users'), lazy='subquery')
-    activation_token_id: int = db.Column(db.Integer, db.ForeignKey('token.token_id'), nullable=True)
+    organisation_id: int | None = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=True)
+    organisation = db.relationship('Organisation', backref=db.backref('users'))
+    activation_token_id: int | None = db.Column(db.Integer, db.ForeignKey('token.token_id'), nullable=True)
     activation_token = db.relationship('Token', backref=db.backref('user'))
 
     def __init__(
@@ -45,8 +45,8 @@ class User(Base):
         self.username = username
         self.password = bcrypt.hash(password)
         self.email = email
-        self.organisation_id = organisation_id
         self.role = role
+        self.organisation_id = organisation_id
         if role != 'admin':
             self.activation_token = Token(token_type='activation', user=self)
 
@@ -85,7 +85,7 @@ class User(Base):
             return True
         return False
 
-    def set_role(self, role: str):
+    def set_role(self, role: str) -> None:
         """ Set the user role. Helper function to avoid code repetition.
         """
         {'enabled': self.__enable_account, 'user': self.__activate_account, 'admin': self.__make_admin}[role]()
@@ -95,7 +95,7 @@ class User(Base):
         """ Changed the role to 'enabled' when the user confirms the email.
         """
         self.role = 'enabled'
-        session.delete(self.activation_token)
+        session.delete(self.activation_token)  # type: ignore
         send_validation_mail(self)
 
     def __activate_account(self) -> None:

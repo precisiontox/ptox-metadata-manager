@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from os import path
 
-from pydrive2.auth import GoogleAuth
-from pydrive2.drive import GoogleDrive
+from pydrive2.auth import GoogleAuth  # type: ignore
+from pydrive2.drive import GoogleDrive, GoogleDriveFile  # type: ignore
 
 from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME, GOOGLE_DRIVE_SETTINGS_FILE_PATH, DOWNLOAD_DIRECTORY_PATH
 from ptmd.logger import LOGGER
@@ -19,14 +19,13 @@ from .utils import get_folder_id, find_files_in_folder, get_file_information
 class GoogleDriveConnector:
     """ This is the class that handle connection and interaction with the Google Drive. """
     instance_ = None
-    google_drive: GoogleDrive | None
+    google_drive: GoogleDrive
 
     def __new__(cls):
         """ Method to create a new instance of the GoogleDriveConnector class. """
         if not cls.instance_:
             cls.instance_ = super(GoogleDriveConnector, cls).__new__(cls)
             cls.__google_auth: GoogleAuth = GoogleAuth(settings_file=GOOGLE_DRIVE_SETTINGS_FILE_PATH)
-            cls.google_drive = None
             cls.instance_.connect()
             LOGGER.info('Connected to Google Drive')
         else:
@@ -34,17 +33,15 @@ class GoogleDriveConnector:
             LOGGER.info('Refreshing token to Google Drive')
         return cls.instance_
 
-    def __init__(self):
+    def __init__(self) -> None:
         """ Constructor for the GoogleDriveConnector class. """
         pass
 
-    def connect(self):
+    def connect(self) -> None:
         """ Connect to the Google Drive.
 
         :return: A connected Google Drive object
         """
-        if self.google_drive:
-            return self.google_drive
         if not self.__google_auth.credentials:
             self.__google_auth.LocalWebserverAuth()
         elif self.__google_auth.access_token_expired:
@@ -65,32 +62,33 @@ class GoogleDriveConnector:
 
         :return: A tuple containing the ids of the folders and the ids of the files.
         """
-        root_folder_id: str = get_folder_id(google_drive=self.google_drive, folder_name=ROOT_FOLDER_METADATA['title'])
+        root_folder_id: str | None = get_folder_id(google_drive=self.google_drive,
+                                                   folder_name=ROOT_FOLDER_METADATA['title'])
         folders_ids: dict = {"root_directory": root_folder_id, "partners": {key: None for key in ALLOWED_PARTNERS}}
         files: dict = {key: None for key in ALLOWED_PARTNERS}
 
         # Create root directory if it does not exist
-        if not root_folder_id:
+        if not root_folder_id and self.google_drive:
             self.google_drive.CreateFile(ROOT_FOLDER_METADATA).Upload()
             folder = get_folder_id(google_drive=self.google_drive, folder_name=ROOT_FOLDER_METADATA['title'])
             folders_ids['root_directory'] = folder
 
         # Create partners directories if they do not exist
         for partner in ALLOWED_PARTNERS:
-            folder_id: str = get_folder_id(google_drive=self.google_drive,
-                                           folder_name=partner,
-                                           parent=folders_ids['root_directory'])
+            folder_id: str | None = get_folder_id(google_drive=self.google_drive,
+                                                  folder_name=partner,
+                                                  parent=folders_ids['root_directory'])
             if folder_id:
                 folders_ids['partners'][partner] = folder_id
-                files_in_folder: list = find_files_in_folder(google_drive=self.google_drive, folder_id=folder_id)
+                files_in_folder: list | None = find_files_in_folder(google_drive=self.google_drive, folder_id=folder_id)
                 files[partner] = files_in_folder
 
-            else:
+            elif self.google_drive:
                 self.google_drive.CreateFile({
-                        "title": partner,
-                        "parents": [{"id": folders_ids['root_directory']}],
-                        "mimeType": ROOT_FOLDER_METADATA['mimeType']
-                    }).Upload()
+                    "title": partner,
+                    "parents": [{"id": folders_ids['root_directory']}],
+                    "mimeType": ROOT_FOLDER_METADATA['mimeType']
+                }).Upload()
                 folders_ids['partners'][partner] = folder_id
         for partner_acronym in folders_ids['partners']:
             g_drive = folders_ids['partners'][partner_acronym]
@@ -101,7 +99,7 @@ class GoogleDriveConnector:
             }
         return folders_ids, files
 
-    def upload_file(self, directory_id: str | int, file_path: str, title: str = 'SAMPLE_TEST') -> dict[str, str]:
+    def upload_file(self, directory_id: str, file_path: str, title: str = 'SAMPLE_TEST') -> dict[str, str] | None:
         """ This function will upload the file to the Google Drive.
 
         :param directory_id: The partner organisation Google Drive folder identifier.
@@ -113,14 +111,17 @@ class GoogleDriveConnector:
             'mimeType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'parents': [{'id': directory_id}]
         }
-        file = self.google_drive.CreateFile(metadata=file_metadata)
-        file.SetContentFile(file_path)
-        file.Upload()
-        file.content.close()
-        file.InsertPermission({'type': 'anyone', 'role': 'writer'})
-        return get_file_information(google_drive=self.google_drive, folder_id=directory_id, filename=title)
+        if self.google_drive:
+            file: GoogleDriveFile = self.google_drive.CreateFile(metadata=file_metadata)
+            file.SetContentFile(file_path)
+            file.Upload()
+            file.content.close()
+            file.InsertPermission({'type': 'anyone', 'role': 'writer'})
+            if self.google_drive:
+                return get_file_information(google_drive=self.google_drive, folder_id=directory_id, filename=title)
+        return None
 
-    def download_file(self, file_id: str | int, filename: str) -> str:
+    def download_file(self, file_id: str | int, filename: str) -> str | None:
         """ This function will download the file from the Google Drive.
 
         :param file_id: The file identifier.
@@ -131,7 +132,7 @@ class GoogleDriveConnector:
         file.GetContentFile(file_path)
         return file_path
 
-    def get_filename(self, file_id: str | int) -> str:
+    def get_filename(self, file_id: str | int) -> str | None:
         """ This function will return the file name.
 
         :param file_id: The file identifier.

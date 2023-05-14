@@ -3,7 +3,7 @@
 @author: D. Batista (Terazus)
 """
 from pandas import ExcelWriter
-from xlsxwriter.workbook import Format
+from xlsxwriter.workbook import Format  # type: ignore
 
 
 def set_common_formats(formatter: Format) -> Format:
