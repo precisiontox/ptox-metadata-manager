@@ -8,8 +8,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from base64 import urlsafe_b64encode
 
-from google.oauth2.credentials import Credentials  # type: ignore
-from googleapiclient.discovery import build  # type: ignore
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 from .utils import get_config
 from ptmd.const import ADMIN_EMAIL

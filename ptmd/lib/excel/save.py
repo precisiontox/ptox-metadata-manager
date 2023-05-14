@@ -4,7 +4,7 @@
 """
 
 from pandas import DataFrame, ExcelWriter
-from pandas.io.formats.excel import ExcelFormatter  # type: ignore
+from pandas.io.formats.excel import ExcelFormatter
 
 from ptmd.const import GENERAL_SHEET_COLUMNS, SAMPLE_SHEET_COLUMNS
 from .styles import style_sheets

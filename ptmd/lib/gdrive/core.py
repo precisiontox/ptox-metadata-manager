@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from os import path
 
-from pydrive2.auth import GoogleAuth  # type: ignore
-from pydrive2.drive import GoogleDrive, GoogleDriveFile  # type: ignore
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive, GoogleDriveFile
 
 from ptmd.const import ALLOWED_PARTNERS, PARTNERS_LONGNAME, GOOGLE_DRIVE_SETTINGS_FILE_PATH, DOWNLOAD_DIRECTORY_PATH
 from ptmd.logger import LOGGER

@@ -26,3 +26,7 @@ def parse_chemicals() -> list[dict]:
             'cas': compound._5.replace('"', '').split('\n')[0]
         })
     return chemicals
+
+
+if __name__ == '_main_':
+    print(parse_chemicals())

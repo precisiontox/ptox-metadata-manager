@@ -6,7 +6,7 @@ from os import path
 
 from flask import Response
 from flask_jwt_extended import jwt_required
-from flasgger import swag_from  # type: ignore
+from flasgger import swag_from
 
 from ptmd.config import app
 from ptmd.api.queries import (

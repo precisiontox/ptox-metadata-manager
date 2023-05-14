@@ -6,7 +6,7 @@
 from typing import Any
 
 from pandas import ExcelWriter
-from xlsxwriter.workbook import Format  # type: ignore
+from xlsxwriter.workbook import Format
 from .formats import get_header_format, get_extra_cells_format, get_empty_cells_format
 
 

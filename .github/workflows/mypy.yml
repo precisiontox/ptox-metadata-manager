@@ -23,4 +23,4 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
       - name: Run mypy
-        run: mypy ptmd/ --disallow-untyped-calls  --disallow-incomplete-defs --follow-imports=skip  --check-untyped-defs
+        run: mypy --config-file=../../mypy.ini

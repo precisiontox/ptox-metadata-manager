@@ -5,13 +5,14 @@ connection to the database and bindings to the JWT managers, the CORS managers a
 
 :author: D. Batista (Terazus)
 """
+from typing import Any
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, Model
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from sqlalchemy.orm import Session
-from flasgger import Swagger  # type: ignore
+from sqlalchemy.orm import scoped_session
+from flasgger import Swagger
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 
@@ -24,7 +25,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db: SQLAlchemy = SQLAlchemy(app)
 jwt: JWTManager = JWTManager(app)
 CORS(app)
-Base = db.Model
+Base: Any = db.Model
 swagger: Swagger = Swagger(app)
-session: Session = db.session
+session: scoped_session = db.session
 engine: Engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
