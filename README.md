@@ -6,6 +6,9 @@
 ![Status](https://camo.githubusercontent.com/d101bf45a713753a714d0cd41b86cd92fbcda60c63f32f48c611e63b5df2e656/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7374617475732d616c7068612d6f72616e6765)
 ![Documentation Coverage](./docs_badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/pretox-metadata-manager/badge/?version=latest)](https://pretox-metadata-manager.readthedocs.io/en/latest/?badge=latest)
+[![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](https://github.com/precisiontox/ptox-metadata-manager/actions/workflows/mypy.yml)
+[![Checked with mypy](https://img.shields.io/badge/licence-APGL-blue)](https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/LICENCE)
+
 
 
 ## Introduction
