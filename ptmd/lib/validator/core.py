@@ -41,7 +41,7 @@ class ExcelValidator:
 
     def validate(self) -> None:
         """ Validates the file. """
-        if type(self.file_id) == int:
+        if isinstance(self.file_id, int):
             self.file = self.__get_file_from_database(self.file_id)
             filepath: str | None = self.download_file()
             if filepath:
