@@ -22,7 +22,5 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-      - name: Install mypy types
-        run: mypy --install-types --non-interactive
       - name: Run mypy
         run: mypy ptmd/ --disallow-untyped-calls  --disallow-incomplete-defs --follow-imports=skip  --check-untyped-defs

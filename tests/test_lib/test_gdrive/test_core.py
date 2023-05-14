@@ -160,4 +160,3 @@ class TestUploader(TestCase):
         google_drive_mock.return_value = None
         gdrive_connector = GoogleDriveConnector()
         self.assertIsNone(gdrive_connector.upload_file(file_path=self.xlsx_file, directory_id="123"))
-

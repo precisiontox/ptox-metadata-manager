@@ -71,11 +71,11 @@ class TestRegisterFile(TestCase):
         mock_get_user().role = 'admin'
         mock_file.return_value.file_id = '123'
         mock_user.query.filter.first.return_value.organisation.name = 'organisation'
-        with app.test_client() as test_client:
+        with app.test_client() as client:
             with patch('ptmd.api.queries.files.register.jsonify') as mock_jsonify:
                 external_file = {'file_id': '123', 'batch': 'AA', 'organism': 'human'}
-                file = test_client.post('/api/files/register', headers={'Authorization': f'Bearer {123}', **HEADERS},
-                                        data=json_dumps(external_file))
+                client.post('/api/files/register', headers={'Authorization': f'Bearer {123}', **HEADERS},
+                            data=json_dumps(external_file))
                 mock_session.add.assert_called_once()
                 mock_session.commit.assert_called_once()
                 mock_jsonify.assert_called_once_with({
