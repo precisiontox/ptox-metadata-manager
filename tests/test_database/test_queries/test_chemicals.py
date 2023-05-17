@@ -47,5 +47,5 @@ class TestChemicalQueries(TestCase):
 
     @patch('ptmd.database.queries.chemicals.Chemical')
     def test_get_chemicals_from_name(self, mock_chemical):
-        mock_chemical.query.filter().all.return_value =  ['A NAME']
+        mock_chemical.query.filter().all.return_value = ['A NAME']
         self.assertEqual(get_chemicals_from_name(["A"]), ['A NAME'])
