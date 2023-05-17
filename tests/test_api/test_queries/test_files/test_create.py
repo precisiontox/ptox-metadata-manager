@@ -48,21 +48,26 @@ def mock_jwt_required(*args, **kwargs):
 @patch('ptmd.lib.creator.core.get_organism_code', return_value=['A'])
 @patch('ptmd.lib.creator.core.get_chemical_code_mapping', return_value={'chemical1': '001'})
 @patch('ptmd.api.queries.users.login_user', return_value={'access_token': '123'})
-@patch('ptmd.api.queries.files.create.get_jwt', return_value={'sub': 1})
+@patch('ptmd.api.queries.files.create.get_current_user')
 @patch('ptmd.api.queries.files.create.Organisation')
 @patch('ptmd.database.models.file.Organisation')
 @patch('ptmd.database.models.file.Organism')
 @patch('ptmd.api.queries.utils.verify_jwt_in_request')
 @patch('ptmd.api.queries.utils.get_current_user')
+@patch('ptmd.database.models.file.Chemical')
 class TestCreateFile(TestCase):
-    def test_create_gdrive_file(self, mock_user, mock_jwt_1, mock_organism, mock_organisation_1, mock_organisation_2,
-                                mock_sub, mock_login,
+    def test_create_gdrive_file(self,
+                                mock_chemical,
+                                mock_user, mock_jwt_1, mock_organism, mock_organisation_1, mock_organisation_2,
+                                mock_get_current_user, mock_login,
                                 mock_get_chemicals_mapping, mock_get_organism_code,
                                 mock_get_organism, mock_get_chem, mock_upload, mock_auth,
                                 mock_jwt, mock_session):
         mock_organisation_2.query.filter().first().gdrive_id = '123'
         mock_organisation_1.query.filter_by().first().organisation_id = 1
         mock_organism.query.filter_by().first().organism_id = 1
+        mock_chemical.query.filter_by().first().chemical_id = 1
+        mock_get_current_user().id = 1
         mock_user().role = 'admin'
         with app.test_client() as client:
             data = {
@@ -89,7 +94,9 @@ class TestCreateFile(TestCase):
                                    data=dumps(data))
             self.assertEqual(response.json, {'data': {'file_url': 'a'}})
 
-    def test_create_gdrive_error(self, mock_user, mock_jwt_1, mock_organism, mock_organisation_1, mock_organisation_2,
+    def test_create_gdrive_error(self,
+                                 mock_chemical,
+                                 mock_user, mock_jwt_1, mock_organism, mock_organisation_1, mock_organisation_2,
                                  mock_sub, mock_login,
                                  mock_get_chemicals_mapping, mock_get_organism_code,
                                  mock_get_organism, mock_get_chem, mock_auth, mock_upload,
@@ -97,6 +104,7 @@ class TestCreateFile(TestCase):
         mock_organisation_2.query.filter().first().gdrive_id = '123'
         mock_organisation_1.query.filter_by().first().organisation_id = 1
         mock_organism.query.filter_by().first().organism_id = 1
+        mock_chemical.query.filter_by().first().chemical_id = 1
         mock_upload.return_value = None
         mock_user().role = 'admin'
         with app.test_client() as client:

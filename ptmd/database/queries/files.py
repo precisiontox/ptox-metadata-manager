@@ -2,10 +2,16 @@
 
 @author: D. Batista (Terazus)
 """
+from __future__ import annotations
+
+from os import remove
+from uuid import uuid4
 
 from ptmd.logger import LOGGER
 from ptmd.database import User, Organisation, File
 from ptmd.config import session
+from ptmd.lib.gdrive import GoogleDriveConnector
+from ptmd.lib.data_extractor import extract_data_from_spreadsheet
 
 
 def prepare_files_data(files_data: dict) -> list[dict]:
@@ -23,14 +29,21 @@ def prepare_files_data(files_data: dict) -> list[dict]:
         if organisation_files:
             for file_data in organisation_files:
                 organism_name, batch = extract_values_from_title(file_data['title'])
-                files.append({
-                    'gdrive_id': file_data['id'],
-                    'name': file_data['title'],
-                    'organisation_name': organisation.name,
-                    'user_id': author.id,
-                    'organism_name': organism_name,
-                    'batch': batch
-                })
+                connector: GoogleDriveConnector = GoogleDriveConnector()
+                file_name: str = file_data['title'].replace('.xlsx', f'_{uuid4()}.xlsx')
+                file_path: str = connector.download_file(file_data['id'], file_name)
+                data: dict | None = extract_data_from_spreadsheet(file_path)
+                if data:
+                    files.append({
+                        'gdrive_id': file_data['id'],
+                        'name': file_data['title'],
+                        'organisation_name': organisation.name,
+                        'user_id': author.id,
+                        'organism_name': organism_name,
+                        'batch': batch,
+                        **data
+                    })
+                remove(file_path)
     return files
 
 

@@ -12,7 +12,7 @@ from ptmd.config import app
 from ptmd.api.queries import (
     login as login_user, change_password, get_me, logout, enable_account, validate_account,
     get_organisms, get_organisations,
-    get_chemicals, create_chemicals,
+    get_chemicals, create_chemicals, get_chemical,
     create_gdrive_file, create_user, validate_file,  register_gdrive_file
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH
@@ -96,6 +96,17 @@ def chemicals() -> tuple[Response, int]:
 def new_chemicals() -> tuple[Response, int]:
     """ Create a new chemical """
     return create_chemicals()
+
+
+@app.route('/api/chemicals/<ptx_code>', methods=['GET'])
+@jwt_required(optional=True)
+def chemical(ptx_code: str) -> tuple[Response, int]:
+    """ Get a chemical by its PTX code
+
+    :param ptx_code: the PTX code of the chemical
+    :return: the chemical and the status code
+    """
+    return get_chemical(ptx_code)
 
 
 ###########################################################

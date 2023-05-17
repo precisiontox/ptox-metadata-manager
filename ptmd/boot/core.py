@@ -31,12 +31,17 @@ def initialize():
     connector: GoogleDriveConnector = GoogleDriveConnector()
     Base.metadata.create_all(engine)
 
-    with app.app_context():
-        if not User.query.first():
-            directories, files = connector.create_directories()
-            seed_db(organisations=directories['partners'],
-                    chemicals=parse_chemicals(),
-                    users=[DEFAULT_USER],
-                    organisms=parse_organisms(),
-                    files=files)
+    try:
+        with app.app_context():
+            if not User.query.first():
+                directories, files = connector.create_directories()
+                seed_db(organisations=directories['partners'],
+                        chemicals=parse_chemicals(),
+                        users=[DEFAULT_USER],
+                        organisms=parse_organisms(),
+                        files=files)
+    except Exception as e:
+        Base.metadata.drop_all(engine)
+        LOGGER.error('Error initializing the application: %s', e)
+        raise e
     LOGGER.info('Application initialized')

@@ -80,3 +80,25 @@ class TestAPIChemicals(TestCase):
                                    data=dumps({'chemicals': [VALID_CHEMICAL]}))
             self.assertEqual(response.status_code, 500)
             self.assertEqual(response.json, {'message': "common_name and ptx_code must be uniques"})
+
+    @patch('ptmd.api.queries.chemicals.Chemical')
+    def test_get_chemical_not_found(self, mock_chemical):
+        mock_chemical.query.filter().first.return_value = None
+        with app.test_client() as client:
+            response = client.get('/api/chemicals/PTX780', headers=HEADERS)
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.json, {'message': 'Chemical not found.'})
+
+    @patch('ptmd.api.queries.utils.verify_jwt_in_request', return_value=None)
+    @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
+    @patch('ptmd.api.queries.utils.get_current_user')
+    @patch('ptmd.api.queries.utils.check_role')
+    @patch('ptmd.api.queries.chemicals.Chemical')
+    def test_get_chemical_success_admin(self, mock_chemical, mock_role, mock_get_current_user,
+                                        mock_verify_jwt, mock_verify_in_request):
+        mock_chemical.query.filter().first.return_value = {'a': 'b'}
+        mock_get_current_user.return_value.role = 'admin'
+        with app.test_client() as client:
+            response = client.get('/api/chemicals/PTX780', headers=HEADERS)
+            self.assertEqual(response.json, {'msg': {'a': 'b'}})
+            self.assertEqual(response.status_code, 200)

@@ -3,8 +3,10 @@
 @author: D. Batista (Terazus)
 """
 from typing import Generator
+from flask_jwt_extended import get_current_user
 
 from ptmd.config import Base, db
+from ptmd.database.models.user import User
 
 
 class Chemical(Base):
@@ -25,11 +27,13 @@ class Chemical(Base):
     def __iter__(self) -> Generator:
         """ Iterator for the object. Used to serialize the object as a dictionary. """
         chemical: dict = {
-            'chemical_id': self.chemical_id,
             'common_name': self.common_name,
             'cas': self.cas,
             'formula': self.formula,
-            'ptx_code': self.ptx_code if self.ptx_code else None
+            'ptx_code': 'PTX' + str(self.ptx_code).rjust(3, '0')
         }
+        current_user: User = get_current_user()
+        if current_user and current_user.role != 'banned':
+            chemical['chemical_id'] = self.chemical_id
         for key, value in chemical.items():
             yield key, value

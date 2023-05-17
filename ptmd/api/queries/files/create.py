@@ -7,7 +7,7 @@ from __future__ import annotations
 from os import path
 
 from flask import request, Response, jsonify
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import get_current_user
 
 from ptmd import DataframeCreator, GoogleDriveConnector
 from ptmd.config import session
@@ -60,7 +60,11 @@ class CreateGDriveFile:
                              organisation_name=self.data['partner'],
                              user_id=user,
                              batch=self.data['exposure_batch'],
-                             organism_name=self.data['organism'])
+                             organism_name=self.data['organism'],
+                             replicates=self.data['replicates4exposure'],
+                             controls=self.data['replicates4control'],
+                             blanks=self.data['replicates_blank'],
+                             vehicle_name=self.data['vehicle'])
         session.add(db_file)
         session.commit()
         return response
@@ -75,7 +79,7 @@ def create_gdrive_file() -> tuple[Response, int]:
     """
     try:
         payload: CreateGDriveFile = CreateGDriveFile()
-        response: dict[str, str] = payload.generate_file(user=get_jwt()['sub'])
+        response: dict[str, str] = payload.generate_file(user=get_current_user().id)
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 400

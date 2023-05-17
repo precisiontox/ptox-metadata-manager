@@ -29,3 +29,4 @@ Base: Any = db.Model
 swagger: Swagger = Swagger(app)
 session: scoped_session = db.session
 engine: Engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+Table: Any = db.Table

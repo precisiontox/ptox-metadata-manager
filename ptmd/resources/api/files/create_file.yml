@@ -78,11 +78,11 @@ definitions:
         description: The exposure conditions
         items:
             $ref: '#/definitions/Exposure Conditions Payload'
-        example: [{"chemicals_name": ["Ethoprophos"], "dose": "BMD10"}]
+        example: [{"chemicals": ["Ethoprophos"], "dose": "BMD10"}]
   Exposure Conditions Payload:
     type: object
     required:
-      - chemicals_name
+      - chemicals
       - dose
     properties:
         chemicals:

@@ -1,5 +1,7 @@
-""" This module contains all the database models."""
+""" This module contains all the database models.
 
+@author: D. Batista (Terazus)
+"""
 from .organisation import Organisation
 from .user import User
 from .chemical import Chemical
@@ -7,3 +9,4 @@ from .organism import Organism
 from .file import File
 from .token_blocklist import TokenBlocklist
 from .token import Token
+from .dose import Dose

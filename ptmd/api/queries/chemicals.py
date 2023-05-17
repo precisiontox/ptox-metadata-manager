@@ -61,3 +61,16 @@ def validate_chemicals(chemicals: list[dict]) -> None:
     for error in errors:
         message: str = f"'{error.path[0]}' value {error.message}" if error.path else error.message
         raise ValidationError(message)
+
+
+def get_chemical(ptx_code: str) -> tuple[Response, int]:
+    """ Get chemical by its ptx_code.
+
+    :param ptx_code: the ptx_code of the chemical
+    :return: tuple of response and status code
+    """
+    chemical_id = int(ptx_code.replace('PTX', ''))
+    chemical: Chemical = Chemical.query.filter(Chemical.chemical_id == chemical_id).first()
+    if not chemical:
+        return jsonify({'message': 'Chemical not found.'}), 404
+    return jsonify(msg=dict(chemical)), 200

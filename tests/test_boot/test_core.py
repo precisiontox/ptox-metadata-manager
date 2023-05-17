@@ -32,3 +32,11 @@ class TestInitializeApp(TestCase):
         mock_boot.assert_not_called()
         mock_base.metadata.create_all.assert_called_once()
         mock_gdc.assert_called_once()
+
+    def test_init_error(self, mock_boot, mock_gdc, mock_user, mock_base):
+        mock_user.query.first.side_effect = Exception('Error')
+        with self.assertRaises(Exception):
+            initialize()
+        mock_boot.assert_not_called()
+        mock_base.metadata.drop_all.assert_called_once()
+        mock_gdc.assert_called_once()
