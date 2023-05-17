@@ -1,7 +1,12 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from ptmd.database.queries import get_allowed_chemicals, create_chemicals, get_chemical_code_mapping
+from ptmd.database.queries import (
+    get_allowed_chemicals,
+    create_chemicals,
+    get_chemical_code_mapping,
+    get_chemicals_from_name
+)
 
 
 class MockModel:
@@ -39,3 +44,8 @@ class TestChemicalQueries(TestCase):
         with self.assertRaises(ValueError) as context:
             get_chemical_code_mapping(['A'])
         self.assertEqual(str(context.exception), 'Chemical A not found in the database.')
+
+    @patch('ptmd.database.queries.chemicals.Chemical')
+    def test_get_chemicals_from_name(self, mock_chemical):
+        mock_chemical.query.filter().all.return_value =  ['A NAME']
+        self.assertEqual(get_chemicals_from_name(["A"]), ['A NAME'])

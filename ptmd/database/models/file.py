@@ -9,7 +9,7 @@ from ptmd.config import Base, db
 from ptmd.database.models.organisation import Organisation
 from ptmd.database.models.organism import Organism
 from ptmd.database.models.chemical import Chemical
-from ptmd.database.models.relationship import files_doses
+from ptmd.database.models.relationship import files_doses, files_chemicals
 
 
 class File(Base):
@@ -25,6 +25,9 @@ class File(Base):
     :param user_id: User identifier.
     :param organism_name: Organism name.
     :param batch: Batch name.
+
+    :param doses: List of doses.
+    :param chemicals: List of chemicals.
     """
     __tablename__: str = 'file'
     file_id: int = db.Column(db.Integer, primary_key=True)
@@ -46,6 +49,9 @@ class File(Base):
     vehicle_id: int = db.Column(db.Integer, db.ForeignKey('chemical.chemical_id'), nullable=False)
     vehicle = db.relationship('Chemical', backref=db.backref('files'))
 
+    # Relationships many-to-many
+    chemicals = db.relationship('Chemical', secondary=files_chemicals, back_populates='used_in_files')
+
     doses = db.relationship('Dose', secondary=files_doses, back_populates='files')
 
     def __init__(
@@ -60,7 +66,8 @@ class File(Base):
             user_id: int,
             organism_name: str,
             vehicle_name: str,
-            doses: list | None = None
+            doses: list | None = None,
+            chemicals: list | None = None
     ) -> None:
         """ The File Model constructor """
         self.gdrive_id: str = gdrive_id
@@ -74,8 +81,9 @@ class File(Base):
         self.vehicle_id = Chemical.query.filter_by(common_name=vehicle_name).first().chemical_id
         self.organism_id = Organism.query.filter_by(ptox_biosystem_name=organism_name).first().organism_id
         self.organisation_id = Organisation.query.filter_by(name=organisation_name).first().organisation_id
-        if doses:
-            self.doses = doses
+
+        self.chemicals = chemicals if chemicals else []
+        self.doses = doses if doses else []
 
     def __iter__(self):
         """ Iterator for the object. Used to serialize the object as a dictionary. """
@@ -92,6 +100,7 @@ class File(Base):
             'author': self.author.username if self.author else None,
             'organism': self.organism.ptox_biosystem_name if self.organism else None,
             'vehicle': self.vehicle.common_name if self.vehicle else None,
+            'chemicals': [chemical.common_name for chemical in self.chemicals],
 
             'doses': [{"value": dose.value, "unit": dose.unit, "label": dose.label} for dose in self.doses]
         }

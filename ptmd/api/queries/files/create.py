@@ -12,7 +12,8 @@ from flask_jwt_extended import get_current_user
 from ptmd import DataframeCreator, GoogleDriveConnector
 from ptmd.config import session
 from ptmd.const import ROOT_PATH
-from ptmd.database import Organisation, File
+from ptmd.database import Organisation, File, Chemical
+from ptmd.database.queries import get_chemicals_from_name
 from ptmd.api.queries.utils import check_role
 
 OUTPUT_DIRECTORY_PATH: str = path.join(ROOT_PATH, 'resources')
@@ -43,6 +44,10 @@ class CreateGDriveFile:
         :param user: user ID
         :return: dictionary containing the response from the Google Drive API
         """
+        chemical_names: list[str] = []
+        for exposure in self.data['exposure']:
+            chemical_names += exposure['chemicals']
+        chemicals: list[Chemical] = get_chemicals_from_name(chemical_names)
         filename: str = f"{self.data['partner']}_{self.data['organism']}_{self.data['exposure_batch']}.xlsx"
         file_path: str = path.join(OUTPUT_DIRECTORY_PATH, filename)
         dataframes_generator: DataframeCreator = DataframeCreator(user_input=self.data)
@@ -64,7 +69,8 @@ class CreateGDriveFile:
                              replicates=self.data['replicates4exposure'],
                              controls=self.data['replicates4control'],
                              blanks=self.data['replicates_blank'],
-                             vehicle_name=self.data['vehicle'])
+                             vehicle_name=self.data['vehicle'],
+                             chemicals=chemicals)
         session.add(db_file)
         session.commit()
         return response

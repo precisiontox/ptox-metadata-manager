@@ -48,3 +48,12 @@ def create_chemicals(chemicals: list[dict]) -> dict[str, Chemical]:
             LOGGER.error(f'Could not create chemical {chemical} with error {str(e)}')
             session.rollback()
     return chemicals_in_database
+
+
+def get_chemicals_from_name(chemicals: list[str]) -> list[Chemical]:
+    """ Get the chemicals from the database.
+
+    :return: a list of chemicals from the database
+    """
+    LOGGER.info('Getting Chemicals')
+    return Chemical.query.filter(Chemical.common_name.in_(chemicals)).all()

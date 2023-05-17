@@ -21,7 +21,6 @@ class Dose(Base):
     # relationships to organism and chemical
     organism_id: int = db.Column(db.Integer, db.ForeignKey('organism.organism_id'), nullable=False)
     organism = db.relationship(Organism, backref=db.backref('doses'))
-
     chemical_id: int = db.Column(db.Integer, db.ForeignKey('chemical.chemical_id'), nullable=False)
     chemical = db.relationship(Chemical, backref=db.backref('doses'))
 

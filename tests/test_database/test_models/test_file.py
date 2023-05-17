@@ -41,7 +41,8 @@ class TestFile(TestCase):
             'author': None,
             'organism': None,
             'vehicle': None,
-            'doses': []
+            'doses': [],
+            'chemicals': []
         })
 
     @patch('ptmd.database.models.file.Organisation')
