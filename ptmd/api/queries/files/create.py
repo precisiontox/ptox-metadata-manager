@@ -9,14 +9,14 @@ from os import path
 from flask import request, Response, jsonify
 from flask_jwt_extended import get_current_user
 
-from ptmd import DataframeCreator, GoogleDriveConnector
+from ptmd.lib.creator import DataframeCreator
+from ptmd.lib.gdrive import GoogleDriveConnector
 from ptmd.config import session
-from ptmd.const import ROOT_PATH
-from ptmd.database import Organisation, File, Chemical
-from ptmd.database.queries import get_chemicals_from_name
+from ptmd.const import DATA_PATH as OUTPUT_DIRECTORY_PATH
+from ptmd.database.models import Organisation, File, Chemical, Timepoint
+from ptmd.database.queries.chemicals import get_chemicals_from_name
+from ptmd.database.queries.timepoints import create_timepoints_hours
 from ptmd.api.queries.utils import check_role
-
-OUTPUT_DIRECTORY_PATH: str = path.join(ROOT_PATH, 'resources')
 
 
 class CreateGDriveFile:
@@ -48,6 +48,7 @@ class CreateGDriveFile:
         for exposure in self.data['exposure']:
             chemical_names += exposure['chemicals']
         chemicals: list[Chemical] = get_chemicals_from_name(chemical_names)
+        timepoints: list[Timepoint] = create_timepoints_hours(self.data['timepoints'])
         filename: str = f"{self.data['partner']}_{self.data['organism']}_{self.data['exposure_batch']}.xlsx"
         file_path: str = path.join(OUTPUT_DIRECTORY_PATH, filename)
         dataframes_generator: DataframeCreator = DataframeCreator(user_input=self.data)
@@ -70,7 +71,8 @@ class CreateGDriveFile:
                              controls=self.data['replicates4control'],
                              blanks=self.data['replicates_blank'],
                              vehicle_name=self.data['vehicle'],
-                             chemicals=chemicals)
+                             chemicals=chemicals,
+                             timepoints=timepoints)
         session.add(db_file)
         session.commit()
         return response

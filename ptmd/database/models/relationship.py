@@ -22,3 +22,11 @@ files_chemicals = Table(
     db.Column("chemical", db.ForeignKey("chemical.chemical_id"), primary_key=True),
     comment="A Table that represents the relationship between files and compounds."
 )
+
+files_timepoints = Table(
+    "files_timepoints",
+    Base.metadata,
+    db.Column("file_id", db.ForeignKey("file.file_id"), primary_key=True),
+    db.Column("timepoint_id", db.ForeignKey("timepoint.timepoint_id"), primary_key=True),
+    comment="A Table that represents the relationship between files and timepoints."
+)

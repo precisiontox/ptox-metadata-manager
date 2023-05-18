@@ -6,6 +6,7 @@ from json import dumps
 
 from ptmd.api import app
 from ptmd.const import ALLOWED_DOSE_VALUES
+from ptmd.database.models import Timepoint
 
 
 class MockGoogleAuth(GoogleAuth):
@@ -56,9 +57,11 @@ def mock_jwt_required(*args, **kwargs):
 @patch('ptmd.api.queries.utils.verify_jwt_in_request')
 @patch('ptmd.api.queries.utils.get_current_user')
 @patch('ptmd.api.queries.files.create.get_chemicals_from_name')
+@patch('ptmd.api.queries.files.create.create_timepoints_hours',
+       return_value=[Timepoint(value=3, unit='hours', label='TP1')])
 class TestCreateFile(TestCase):
     def test_create_gdrive_file(self,
-                                mock_chemical,
+                                mock_timepoints, mock_chemical,
                                 mock_user, mock_jwt_1, mock_organism, mock_file_chem,
                                 mock_organisation_1, mock_organisation_2,
                                 mock_get_current_user, mock_login,
@@ -97,8 +100,9 @@ class TestCreateFile(TestCase):
             self.assertEqual(response.json, {'data': {'file_url': 'a'}})
 
     def test_create_gdrive_error(self,
-                                 mock_chemical,
-                                 mock_user, mock_jwt_1, mock_organism, mock_file_chem, mock_organisation_1, mock_organisation_2,
+                                 mock_timepoints, mock_chemical,
+                                 mock_user, mock_jwt_1, mock_organism, mock_file_chem, mock_organisation_1,
+                                 mock_organisation_2,
                                  mock_sub, mock_login,
                                  mock_get_chemicals_mapping, mock_get_organism_code,
                                  mock_get_organism, mock_get_chem, mock_auth, mock_upload,

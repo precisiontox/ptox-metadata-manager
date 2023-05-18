@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch, mock_open
 
-from ptmd.database import File, Dose
+from ptmd.database import File, Dose, Timepoint
 
 
 DATA = {
@@ -42,13 +42,14 @@ class TestFile(TestCase):
             'organism': None,
             'vehicle': None,
             'doses': [],
-            'chemicals': []
+            'chemicals': [],
+            'timepoints': []
         })
 
     @patch('ptmd.database.models.file.Organisation')
     @patch('ptmd.database.models.file.Organism')
     @patch('ptmd.database.models.file.Chemical')
-    def test_file_with_dose(self, mock_chemical, mock_organism, mock_organisation):
+    def test_file_with_dose_and_timepoints(self, mock_chemical, mock_organism, mock_organisation):
         mock_organisation.query.filter_by().first().organisation_id = 1
         mock_organism.query.filter_by().first().organism_id = 1
         mock_chemical.query.filter_by().first().chemical_id = 1
@@ -57,3 +58,7 @@ class TestFile(TestCase):
         self.assertEqual(dict(file)['doses'], [{'value': 1, 'unit': 'mg/kg', 'label': 'BMD10'}])
         self.assertEqual(file.doses[0].organism_id, 1)
         self.assertEqual(file.doses[0].chemical_id, 1)
+
+        timepoint = Timepoint(value=1, unit='mg/kg', label="BMD10")
+        file = File(**DATA, timepoints=[timepoint])
+        self.assertEqual(dict(file)['timepoints'][0], {'files': ['123'], 'label': 'BMD10', 'unit': 'mg/kg', 'value': 1})

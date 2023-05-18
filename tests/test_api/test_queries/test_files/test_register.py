@@ -121,7 +121,8 @@ class TestRegisterFile(TestCase):
     @patch('ptmd.api.queries.utils.get_current_user')
     @patch('ptmd.api.queries.files.register.GoogleDriveConnector')
     @patch('ptmd.api.queries.files.register.remove')
-    def test_register_file_wrong_data(self, mock_rm, mock_gdrive, mock_get_user,
+    @patch('ptmd.api.queries.files.register.extract_data_from_spreadsheet', return_value=None)
+    def test_register_file_wrong_data(self, mock_data, mock_rm, mock_gdrive, mock_get_user,
                                       mock_jwt_in_request, mock_verify_jwt, mock_get_current_user):
         mock_get_user().role = 'admin'
         mock_get_current_user().id = 1

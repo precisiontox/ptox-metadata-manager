@@ -46,7 +46,6 @@ def register_gdrive_file() -> tuple[Response, int]:
         filepath: str = connector.download_file(file_id, filename.replace('.xlsx', f'_{uuid4()}.xlsx'))
         extra_data: dict | None = extract_data_from_spreadsheet(filepath)
         remove(filepath)
-
         if extra_data is None:
             raise ValueError(f"File '{file_id}' does not contain the required data.")
 

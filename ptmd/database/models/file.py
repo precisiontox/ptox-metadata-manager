@@ -9,7 +9,7 @@ from ptmd.config import Base, db
 from ptmd.database.models.organisation import Organisation
 from ptmd.database.models.organism import Organism
 from ptmd.database.models.chemical import Chemical
-from ptmd.database.models.relationship import files_doses, files_chemicals
+from ptmd.database.models.relationship import files_doses, files_chemicals, files_timepoints
 
 
 class File(Base):
@@ -25,9 +25,9 @@ class File(Base):
     :param user_id: User identifier.
     :param organism_name: Organism name.
     :param batch: Batch name.
-
     :param doses: List of doses.
     :param chemicals: List of chemicals.
+    :param timepoints: List of timepoints.
     """
     __tablename__: str = 'file'
     file_id: int = db.Column(db.Integer, primary_key=True)
@@ -51,6 +51,7 @@ class File(Base):
 
     # Relationships many-to-many
     chemicals = db.relationship('Chemical', secondary=files_chemicals, back_populates='used_in_files')
+    timepoints = db.relationship('Timepoint', secondary=files_timepoints, back_populates='files')
 
     doses = db.relationship('Dose', secondary=files_doses, back_populates='files')
 
@@ -67,7 +68,8 @@ class File(Base):
             organism_name: str,
             vehicle_name: str,
             doses: list | None = None,
-            chemicals: list | None = None
+            chemicals: list | None = None,
+            timepoints: list | None = None
     ) -> None:
         """ The File Model constructor """
         self.gdrive_id: str = gdrive_id
@@ -84,6 +86,7 @@ class File(Base):
 
         self.chemicals = chemicals if chemicals else []
         self.doses = doses if doses else []
+        self.timepoints = timepoints if timepoints else []
 
     def __iter__(self):
         """ Iterator for the object. Used to serialize the object as a dictionary. """
@@ -101,6 +104,7 @@ class File(Base):
             'organism': self.organism.ptox_biosystem_name if self.organism else None,
             'vehicle': self.vehicle.common_name if self.vehicle else None,
             'chemicals': [chemical.common_name for chemical in self.chemicals],
+            'timepoints': [dict(timepoint) for timepoint in self.timepoints],
 
             'doses': [{"value": dose.value, "unit": dose.unit, "label": dose.label} for dose in self.doses]
         }

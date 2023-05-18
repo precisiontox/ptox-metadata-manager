@@ -5,7 +5,7 @@ It also provides the Base and app variables that are required to establish a con
 :author: D. Batista (Terazus)
 """
 
-from .models import User, Organisation, Chemical, Organism, File, TokenBlocklist, Token, Dose
+from .models import User, Organisation, Chemical, Organism, File, TokenBlocklist, Token, Dose, Timepoint
 from .queries import (
     login_user,
     create_organisations,
@@ -15,7 +15,10 @@ from .queries import (
     get_allowed_organisms,
     get_allowed_chemicals,
     get_organism_code,
-    get_chemical_code_mapping
+    get_chemical_code_mapping,
+    get_chemicals_from_name,
+    create_files,
+    create_timepoints_hours
 )
 
 from ptmd.config import Base
