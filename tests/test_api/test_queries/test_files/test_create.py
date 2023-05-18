@@ -52,13 +52,15 @@ def mock_jwt_required(*args, **kwargs):
 @patch('ptmd.api.queries.files.create.Organisation')
 @patch('ptmd.database.models.file.Organisation')
 @patch('ptmd.database.models.file.Organism')
+@patch('ptmd.database.models.file.Chemical')
 @patch('ptmd.api.queries.utils.verify_jwt_in_request')
 @patch('ptmd.api.queries.utils.get_current_user')
-@patch('ptmd.database.models.file.Chemical')
+@patch('ptmd.api.queries.files.create.get_chemicals_from_name')
 class TestCreateFile(TestCase):
     def test_create_gdrive_file(self,
                                 mock_chemical,
-                                mock_user, mock_jwt_1, mock_organism, mock_organisation_1, mock_organisation_2,
+                                mock_user, mock_jwt_1, mock_organism, mock_file_chem,
+                                mock_organisation_1, mock_organisation_2,
                                 mock_get_current_user, mock_login,
                                 mock_get_chemicals_mapping, mock_get_organism_code,
                                 mock_get_organism, mock_get_chem, mock_upload, mock_auth,
@@ -96,7 +98,7 @@ class TestCreateFile(TestCase):
 
     def test_create_gdrive_error(self,
                                  mock_chemical,
-                                 mock_user, mock_jwt_1, mock_organism, mock_organisation_1, mock_organisation_2,
+                                 mock_user, mock_jwt_1, mock_organism, mock_file_chem, mock_organisation_1, mock_organisation_2,
                                  mock_sub, mock_login,
                                  mock_get_chemicals_mapping, mock_get_organism_code,
                                  mock_get_organism, mock_get_chem, mock_auth, mock_upload,
