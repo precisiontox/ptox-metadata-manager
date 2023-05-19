@@ -4,12 +4,14 @@
 """
 from __future__ import annotations
 
+from flask import jsonify, Response
+
 from ptmd.lib.validator import ExcelValidator, ExternalExcelValidator
 from ptmd.api.queries.utils import check_role
 
 
 @check_role(role='user')
-def validate_file(file_id: int | str) -> tuple[dict, int]:
+def validate_file(file_id: int | str) -> tuple[Response, int]:
     """ Method to validate the file in the Google Drive.
 
     :param file_id: the file id to validate
@@ -31,7 +33,7 @@ def validate_file(file_id: int | str) -> tuple[dict, int]:
             code = 406
             message = "File validation failed."
             errors = validator.report['errors']
-        return {"message": message, "id": file_id, "errors": errors}, code
+        return jsonify({"message": message, "id": file_id, "errors": errors}), code
     except Exception as e:
         error: dict = e.__dict__
-        return {"error": error['error']['errors'][0]['message']}, error['error']['code']
+        return jsonify({"error": error['error']['errors'][0]['message']}), error['error']['code']

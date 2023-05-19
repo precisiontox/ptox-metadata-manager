@@ -7,15 +7,16 @@ from __future__ import annotations
 from os import path
 
 from flask import request, Response, jsonify
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import get_current_user
 
-from ptmd import DataframeCreator, GoogleDriveConnector
+from ptmd.lib.creator import DataframeCreator
+from ptmd.lib.gdrive import GoogleDriveConnector
 from ptmd.config import session
-from ptmd.const import ROOT_PATH
-from ptmd.database import Organisation, File
+from ptmd.const import DATA_PATH as OUTPUT_DIRECTORY_PATH
+from ptmd.database.models import Organisation, File, Chemical, Timepoint
+from ptmd.database.queries.chemicals import get_chemicals_from_name
+from ptmd.database.queries.timepoints import create_timepoints_hours
 from ptmd.api.queries.utils import check_role
-
-OUTPUT_DIRECTORY_PATH: str = path.join(ROOT_PATH, 'resources')
 
 
 class CreateGDriveFile:
@@ -43,6 +44,11 @@ class CreateGDriveFile:
         :param user: user ID
         :return: dictionary containing the response from the Google Drive API
         """
+        chemical_names: list[str] = []
+        for exposure in self.data['exposure']:
+            chemical_names += exposure['chemicals']
+        chemicals: list[Chemical] = get_chemicals_from_name(chemical_names)
+        timepoints: list[Timepoint] = create_timepoints_hours(self.data['timepoints'])
         filename: str = f"{self.data['partner']}_{self.data['organism']}_{self.data['exposure_batch']}.xlsx"
         file_path: str = path.join(OUTPUT_DIRECTORY_PATH, filename)
         dataframes_generator: DataframeCreator = DataframeCreator(user_input=self.data)
@@ -60,7 +66,13 @@ class CreateGDriveFile:
                              organisation_name=self.data['partner'],
                              user_id=user,
                              batch=self.data['exposure_batch'],
-                             organism_name=self.data['organism'])
+                             organism_name=self.data['organism'],
+                             replicates=self.data['replicates4exposure'],
+                             controls=self.data['replicates4control'],
+                             blanks=self.data['replicates_blank'],
+                             vehicle_name=self.data['vehicle'],
+                             chemicals=chemicals,
+                             timepoints=timepoints)
         session.add(db_file)
         session.commit()
         return response
@@ -75,7 +87,7 @@ def create_gdrive_file() -> tuple[Response, int]:
     """
     try:
         payload: CreateGDriveFile = CreateGDriveFile()
-        response: dict[str, str] = payload.generate_file(user=get_jwt()['sub'])
+        response: dict[str, str] = payload.generate_file(user=get_current_user().id)
         return jsonify({"data": {'file_url': response['alternateLink']}}), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 400

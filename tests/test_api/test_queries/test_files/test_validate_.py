@@ -44,30 +44,32 @@ class TestValidateFile(TestCase):
     @patch('ptmd.api.queries.files.validate.ExcelValidator', return_value=MockedValidator(1))
     @patch('ptmd.api.queries.utils.verify_jwt_in_request')
     @patch('ptmd.api.queries.utils.get_current_user', return_value=MockedValidatorError(1))
-    def test_valid(self, mock_get_current_user, mock_jwt, mock_validator):
+    @patch('ptmd.api.queries.files.validate.jsonify', return_value='success')
+    def test_valid(self, mock_jsonify, mock_get_current_user, mock_jwt, mock_validator):
         mock_get_current_user().role = 'user'
         report, code = validate_file(1)
-        self.assertTrue(report['message'], "File validated successfully.")
+        self.assertTrue(report, "success")
         self.assertEqual(code, 200)
 
     @patch('ptmd.api.queries.files.validate.ExcelValidator', return_value=MockedValidatorFailed(1))
     @patch('ptmd.api.queries.files.validate.ExternalExcelValidator', return_value=MockedValidatorFailed(1))
     @patch('ptmd.api.queries.utils.verify_jwt_in_request')
     @patch('ptmd.api.queries.utils.get_current_user', return_value=MockedValidatorError(1))
-    def test_error_406(self, mock_get_current_user, mock_jwt, mock_validator, mock_external_validator):
+    @patch('ptmd.api.queries.files.validate.jsonify', return_value='File validation failed.')
+    def test_error_406(self, mock_jsonify, mock_get_current_user, mock_jwt, mock_validator, mock_external_validator):
         mock_get_current_user().role = 'user'
         report, code = validate_file(1)
-        self.assertEqual(report['message'], 'File validation failed.')
+        self.assertEqual(report, 'File validation failed.')
         self.assertEqual(code, 406)
-
         report, code = validate_file('a')
-        self.assertEqual(report['errors'][0], 'error')
+        self.assertEqual(report, 'File validation failed.')
         self.assertEqual(code, 406)
 
     @patch('ptmd.api.queries.files.validate.ExcelValidator', return_value=MockedValidatorError(1))
     @patch('ptmd.api.queries.utils.verify_jwt_in_request')
     @patch('ptmd.api.queries.utils.get_current_user', return_value=MockedValidatorError(1))
-    def test_error_404(self, mock_get_current_user, mock_jwt, mock_validator):
+    @patch('ptmd.api.queries.files.validate.jsonify', return_value={'error': 'test'})
+    def test_error_404(self, mock_jsonify, mock_get_current_user, mock_jwt, mock_validator):
         mock_get_current_user().role = 'user'
         report, code = validate_file(1)
         self.assertTrue(report['error'], "test")

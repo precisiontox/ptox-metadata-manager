@@ -83,13 +83,14 @@ class GoogleDriveConnector:
                 files_in_folder: list | None = find_files_in_folder(google_drive=self.google_drive, folder_id=folder_id)
                 files[partner] = files_in_folder
 
-            elif self.google_drive:
+            else:
                 self.google_drive.CreateFile({
                     "title": partner,
                     "parents": [{"id": folders_ids['root_directory']}],
                     "mimeType": ROOT_FOLDER_METADATA['mimeType']
                 }).Upload()
                 folders_ids['partners'][partner] = folder_id
+
         for partner_acronym in folders_ids['partners']:
             g_drive = folders_ids['partners'][partner_acronym]
             long_name = PARTNERS_LONGNAME[partner_acronym]
@@ -97,6 +98,7 @@ class GoogleDriveConnector:
                 "g_drive": g_drive,
                 "long_name": long_name
             }
+
         return folders_ids, files
 
     def upload_file(self, directory_id: str, file_path: str, title: str = 'SAMPLE_TEST') -> dict[str, str] | None:
@@ -121,7 +123,7 @@ class GoogleDriveConnector:
                 return get_file_information(google_drive=self.google_drive, folder_id=directory_id, filename=title)
         return None
 
-    def download_file(self, file_id: str | int, filename: str) -> str | None:
+    def download_file(self, file_id: str | int, filename: str) -> str:
         """ This function will download the file from the Google Drive.
 
         :param file_id: The file identifier.

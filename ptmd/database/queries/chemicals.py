@@ -15,13 +15,13 @@ def get_allowed_chemicals() -> list[str]:
     return [chemical.common_name for chemical in Chemical.query.all()]
 
 
-def get_chemical_code_mapping(chemicals: list[str]) -> dict[str, str]:
+def get_chemical_code_mapping(chemicals: list[str]) -> dict:
     """ Get the chemical code from the chemical name.
 
     :param chemicals: list[str]: list of chemicals names
     :return: list of chemicals codes
     """
-    chemicals_mapping = {}
+    chemicals_mapping: dict = {}
     for chemical_name in chemicals:
         chemical: Chemical = Chemical.query.filter(Chemical.common_name == chemical_name).first()
         if not chemical:
@@ -48,3 +48,12 @@ def create_chemicals(chemicals: list[dict]) -> dict[str, Chemical]:
             LOGGER.error(f'Could not create chemical {chemical} with error {str(e)}')
             session.rollback()
     return chemicals_in_database
+
+
+def get_chemicals_from_name(chemicals: list[str]) -> list[Chemical]:
+    """ Get the chemicals from the database.
+
+    :return: a list of chemicals from the database
+    """
+    LOGGER.info('Getting Chemicals')
+    return Chemical.query.filter(Chemical.common_name.in_(chemicals)).all()
