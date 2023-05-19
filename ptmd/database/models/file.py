@@ -72,13 +72,13 @@ class File(Base):
             timepoints: list | None = None
     ) -> None:
         """ The File Model constructor """
-        self.gdrive_id: str = gdrive_id
-        self.name: str = name
-        self.batch: str = batch
-        self.replicates: int = replicates
-        self.controls: int = controls
-        self.blanks: int = blanks
-        self.author_id: int = user_id
+        self.gdrive_id = gdrive_id
+        self.name = name
+        self.batch = batch
+        self.replicates = replicates
+        self.controls = controls
+        self.blanks = blanks
+        self.author_id = user_id
 
         self.vehicle_id = Chemical.query.filter_by(common_name=vehicle_name).first().chemical_id
         self.organism_id = Organism.query.filter_by(ptox_biosystem_name=organism_name).first().organism_id

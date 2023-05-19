@@ -12,8 +12,8 @@ def create_timepoints_hours(values: list[int]) -> list[Timepoint]:
     :param values: a list of plain values
     """
     timepoints: list[Timepoint] = []
-    for i in range(len(values)):
-        timepoint = Timepoint(value=values[i], unit='hours', label=f'TP{i + 1}')
+    for i, value in enumerate(values):
+        timepoint = Timepoint(value=value, unit='hours', label=f'TP{i + 1}')
         session.add(timepoint)
         timepoints.append(timepoint)
     session.commit()

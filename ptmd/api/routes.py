@@ -13,7 +13,7 @@ from ptmd.api.queries import (
     login as login_user, change_password, get_me, logout, enable_account, validate_account,
     get_organisms, get_organisations,
     get_chemicals, create_chemicals, get_chemical,
-    create_gdrive_file, create_user, validate_file,  register_gdrive_file
+    create_gdrive_file, create_user, validate_file,  register_gdrive_file, search_files_in_database
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH
 
@@ -156,3 +156,11 @@ def validate(file_id: int) -> tuple[Response, int]:
 def register_file() -> tuple[Response, int]:
     """ Register a file from an external Google Drive """
     return register_gdrive_file()
+
+
+@app.route('/api/files/search', methods=['GET'])
+@swag_from(path.join(FILES_DOC_PATH, 'search_files.yml'))
+@jwt_required()
+def search_files() -> tuple[Response, int]:
+    """ Search files """
+    return search_files_in_database()
