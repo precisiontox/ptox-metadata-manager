@@ -159,7 +159,6 @@ def register_file() -> tuple[Response, int]:
 
 
 @app.route('/api/files/search', methods=['GET'])
-@swag_from(path.join(FILES_DOC_PATH, 'search_files.yml'))
 @jwt_required()
 def search_files() -> tuple[Response, int]:
     """ Search files """
