@@ -129,5 +129,5 @@ class File(Base):
         connector.delete_file(self.gdrive_id)
 
         # Remove the file from the database
-        session.delete(self)
+        session.delete(self)  # type: ignore
         session.commit()
