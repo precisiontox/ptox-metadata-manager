@@ -38,6 +38,10 @@ def create_chemicals(chemicals: list[dict]) -> dict[str, Chemical]:
     """
     LOGGER.info('Creating Chemicals')
     chemicals_in_database = {}
+    water: Chemical = Chemical(common_name='Water', ptx_code=997, cas='7732-18-5', formula='H2O')
+    dmso: Chemical = Chemical(common_name='DMSO', ptx_code=998, cas='67-68-5', formula='C2H6OS')
+    session.add_all([water, dmso])
+    session.commit()
     for chemical in chemicals:
         try:
             chemical_in_database = Chemical(**chemical)
@@ -55,5 +59,4 @@ def get_chemicals_from_name(chemicals: list[str]) -> list[Chemical]:
 
     :return: a list of chemicals from the database
     """
-    LOGGER.info('Getting Chemicals')
     return Chemical.query.filter(Chemical.common_name.in_(chemicals)).all()

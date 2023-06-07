@@ -17,7 +17,7 @@ from jsonschema import Draft202012Validator as Validator
 
 from ptmd.config import session
 from ptmd.const import CREATE_USER_SCHEMA_PATH
-from ptmd.database import login_user, User, TokenBlocklist, Token
+from ptmd.database import login_user, User, TokenBlocklist, Token, Organisation
 from .utils import check_role
 
 
@@ -38,7 +38,11 @@ def create_user() -> tuple[Response, int]:
 
     try:
         del user_data['confirm_password']
-        user: User = User(**user_data)
+        organisation: Organisation = Organisation.query.filter(
+            Organisation.name == user_data['organisation']
+        ).first().organisation_id
+        del user_data['organisation']
+        user: User = User(**user_data, organisation_id=organisation)
         session.add(user)
         session.commit()
         user_dict = dict(user)
@@ -128,3 +132,23 @@ def enable_account(token: str) -> tuple[Response, int]:
     user: User = token_from_db.user[0]
     user.set_role('enabled')
     return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200
+
+
+@check_role(role='admin')
+def get_users() -> tuple[Response, int]:
+    """ Gets all the users in the database. Admin only
+
+    :return: tuple containing a JSON response and a status code
+    """
+    users: list[User] = User.query.all()
+    users_dict: list[dict] = []
+    for user in users:
+        users_dict.append({
+            'id': user.id,
+            'username': user.username,
+            'organisation': user.organisation.name if user.organisation else None,
+            'role': user.role,
+            'email': user.email,
+            'files': [file.file_id for file in user.files]
+        })
+    return jsonify(users_dict), 200

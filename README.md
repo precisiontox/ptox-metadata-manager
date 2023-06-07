@@ -130,7 +130,7 @@ docstr-coverage ptmd/ --fail-under=100
 ## Verify type hints
 You will need the development dependencies installed to verify the type hints.
 ```shell
-mypy mypy --config-file=./mypy.ini
+mypy --config-file=./mypy.ini
 ```
 
 

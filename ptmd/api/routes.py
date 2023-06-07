@@ -10,10 +10,10 @@ from flasgger import swag_from
 
 from ptmd.config import app
 from ptmd.api.queries import (
-    login as login_user, change_password, get_me, logout, enable_account, validate_account,
+    login as login_user, change_password, get_me, logout, enable_account, validate_account, get_users,
     get_organisms, get_organisations,
     get_chemicals, create_chemicals, get_chemical,
-    create_gdrive_file, create_user, validate_file,  register_gdrive_file, search_files_in_database
+    create_gdrive_file, create_user, validate_file,  register_gdrive_file, search_files_in_database, delete_file
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH
 
@@ -36,12 +36,20 @@ def user() -> tuple[Response, int]:
     return create_user()
 
 
-@app.route("/api/users", methods=["GET"])
+@app.route("/api/user", methods=["GET"])
 @swag_from(path.join(USERS_DOC_PATH, 'me.yml'))
 @jwt_required()
 def me() -> tuple[Response, int]:
     """ Get the current user"""
     return get_me()
+
+
+@app.route("/api/users", methods=["GET"])
+@swag_from(path.join(USERS_DOC_PATH, 'users.yml'))
+@jwt_required()
+def users() -> tuple[Response, int]:
+    """ Get the current user"""
+    return get_users()
 
 
 @app.route("/api/session", methods=["POST"])
@@ -114,7 +122,7 @@ def chemical(ptx_code: str) -> tuple[Response, int]:
 ###########################################################
 @app.route('/api/organisms', methods=['GET'])
 @swag_from(path.join(SWAGGER_DATA_PATH, 'organisms.yml'))
-@jwt_required()
+@jwt_required(optional=True)
 def organisms() -> tuple[Response, int]:
     """ Get the list of organisms """
     return get_organisms()
@@ -122,7 +130,7 @@ def organisms() -> tuple[Response, int]:
 
 @app.route('/api/organisations', methods=['GET'])
 @swag_from(path.join(SWAGGER_DATA_PATH, 'organisations.yml'))
-@jwt_required()
+@jwt_required(optional=True)
 def organisations() -> tuple[Response, int]:
     """ Get the list of organisations """
     return get_organisations()
@@ -163,3 +171,14 @@ def register_file() -> tuple[Response, int]:
 def search_files() -> tuple[Response, int]:
     """ Search files """
     return search_files_in_database()
+
+
+@app.route('/api/files/<file_id>', methods=['DELETE'])
+@swag_from(path.join(FILES_DOC_PATH, 'delete_file.yml'))
+@jwt_required()
+def delete_file_(file_id: int) -> tuple[Response, int]:
+    """ Delete the given  file
+
+    :param file_id: the id of the file to validate
+    """
+    return delete_file(file_id)

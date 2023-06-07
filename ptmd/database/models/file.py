@@ -5,10 +5,16 @@ A file represents an identifier pointing to a specific Google Drive file.
 """
 from __future__ import annotations
 
-from ptmd.config import Base, db
+from typing import Generator
+
+from flask_jwt_extended import get_current_user
+
+from ptmd.config import Base, db, session
+from ptmd.lib.gdrive import GoogleDriveConnector
 from ptmd.database.models.organisation import Organisation
 from ptmd.database.models.organism import Organism
 from ptmd.database.models.chemical import Chemical
+from ptmd.database.models.user import User
 from ptmd.database.models.relationship import files_doses, files_chemicals, files_timepoints
 
 
@@ -88,7 +94,7 @@ class File(Base):
         self.doses = doses if doses else []
         self.timepoints = timepoints if timepoints else []
 
-    def __iter__(self):
+    def __iter__(self) -> Generator:
         """ Iterator for the object. Used to serialize the object as a dictionary. """
         output: dict = {
             'file_id': self.file_id,
@@ -105,8 +111,23 @@ class File(Base):
             'vehicle': self.vehicle.common_name if self.vehicle else None,
             'chemicals': [chemical.common_name for chemical in self.chemicals],
             'timepoints': [dict(timepoint) for timepoint in self.timepoints],
+            'validated': self.validated,
 
             'doses': [{"value": dose.value, "unit": dose.unit, "label": dose.label} for dose in self.doses]
         }
         for key, value in output.items():
             yield key, value
+
+    def remove(self) -> None:
+        """ Remove the file from the database. """
+        current_user: User = get_current_user()
+        if current_user != self.author and current_user.role != 'admin':
+            raise PermissionError(f"You don't have permission to delete file {self.file_id}.")
+
+        # Remove the file from the Google Drive
+        connector: GoogleDriveConnector = GoogleDriveConnector()
+        connector.delete_file(self.gdrive_id)
+
+        # Remove the file from the database
+        session.delete(self)
+        session.commit()

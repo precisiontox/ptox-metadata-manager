@@ -30,7 +30,6 @@ class GoogleDriveConnector:
             LOGGER.info('Connected to Google Drive')
         else:
             cls.instance_.refresh_connection()
-            LOGGER.info('Refreshing token to Google Drive')
         return cls.instance_
 
     def __init__(self) -> None:
@@ -53,6 +52,7 @@ class GoogleDriveConnector:
     def refresh_connection(self):
         """ This function will refresh the connection to the Google Drive when the token has expired. """
         if self.__google_auth.access_token_expired:
+            LOGGER.info('Refreshing token to Google Drive')
             self.__google_auth.Refresh()
             self.__google_auth.SaveCredentialsFile()
             self.google_drive = GoogleDrive(self.__google_auth)
@@ -89,6 +89,9 @@ class GoogleDriveConnector:
                     "parents": [{"id": folders_ids['root_directory']}],
                     "mimeType": ROOT_FOLDER_METADATA['mimeType']
                 }).Upload()
+                folder_id = get_folder_id(google_drive=self.google_drive,
+                                          folder_name=partner,
+                                          parent=folders_ids['root_directory'])
                 folders_ids['partners'][partner] = folder_id
 
         for partner_acronym in folders_ids['partners']:
@@ -141,3 +144,16 @@ class GoogleDriveConnector:
         """
         file = self.google_drive.CreateFile({'id': file_id})
         return file['title']
+
+    def delete_file(self, file_id: str) -> str:
+        """ This function will delete the file from the Google Drive.
+
+        :param file_id: The file identifier.
+        """
+        try:
+            file = self.google_drive.CreateFile({'id': file_id})
+            file.Delete()
+            return file_id
+        except Exception:
+            raise PermissionError(f'Unable to delete file {file_id} from Google Drive. This is probably because it is '
+                                  f'an external file.')

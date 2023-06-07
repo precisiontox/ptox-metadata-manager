@@ -32,34 +32,31 @@ class TestUserQueries(TestCase):
 
     @patch('ptmd.api.queries.users.session')
     @patch('ptmd.api.queries.users.User')
-    def test_create_user(self, mock_user,
+    @patch('ptmd.api.queries.users.Organisation')
+    def test_create_user(self, mock_organisation, mock_user,
                          mock_session, mock_get_current_user,
                          mock_verify_jwt, mock_verify_in_request):
         mock_get_current_user().role = 'admin'
+        mock_organisation.query.filter.return_value.first.organisation_id = 1
         mock_user.return_value = {'id': None, 'username': '1234', 'organisation': None, 'files': []}
         user_data = {
             "username": "1234",
             "password": "1234",
             "confirm_password": "1234",
-            "organisation_id": None,
+            "organisation": "UOX",
             "email": "t@t.com"
         }
         with app.test_client() as client:
+            client.post('/api/users', headers={'Authorization': f'Bearer {123}', **HEADERS},
+                        data=dumps(user_data))
+            user_data['confirm_password'] = None
             created_user = client.post('/api/users',
                                        headers={'Authorization': f'Bearer {123}', **HEADERS},
                                        data=dumps(user_data))
-            self.assertEqual(created_user.json,
-                             {'msg': {'error': "None is not of type 'number'", 'field': 'organisation_id'}})
-
-            user_data['organisation_id'] = "abc"
-            created_user = client.post('/api/users',
-                                       headers={'Authorization': f'Bearer {123}', **HEADERS},
-                                       data=dumps(user_data))
-            self.assertEqual(created_user.json,
-                             {'msg': {'error': "'abc' is not of type 'number'", 'field': 'organisation_id'}})
+            self.assertEqual(created_user.json['msg'],
+                             {'error': "None is not of type 'string'", 'field': 'confirm_password'})
 
             user_data['confirm_password'] = '124'
-            user_data['organisation_id'] = 1
             created_user = client.post('/api/users',
                                        headers={'Authorization': f'Bearer {123}', **HEADERS},
                                        data=dumps(user_data))
@@ -126,7 +123,7 @@ class TestUserQueries(TestCase):
         mock_get_current_user().role = 'admin'
         mock_user.query.filter().first.return_value = MockUser()
         with app.test_client() as client:
-            response = client.get('/api/users', headers={'Authorization': f'Bearer {123}', **HEADERS})
+            response = client.get('/api/user', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json, {'a': "1", 'b': "2"})
             self.assertEqual(response.status_code, 200)
 
@@ -181,3 +178,22 @@ class TestUserQueries(TestCase):
             response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json,
                              {'msg': "Account enabled. An email has been to an admin to validate your account."})
+
+    @patch('ptmd.api.queries.users.User')
+    def test_get_users(self, mock_users, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+
+        class MockedUser:
+            def __init__(self) -> None:
+                self.id = 1
+                self.username = 'test'
+                self.organisation = None
+                self.role = 'admin'
+                self.email = ''
+                self.files: list = []
+
+        mock_get_current_user().role = 'admin'
+        mock_users.query.all.return_value = [MockedUser()]
+        expected_user = {'id': 1, 'username': 'test', 'organisation': None, 'role': 'admin', 'email': '', 'files': []}
+        with app.test_client() as client:
+            response = client.get('/api/users', headers={'Authorization': f'Bearer {123}', **HEADERS})
+            self.assertEqual(response.json, [expected_user])

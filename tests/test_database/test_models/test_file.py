@@ -43,7 +43,8 @@ class TestFile(TestCase):
             'vehicle': None,
             'doses': [],
             'chemicals': [],
-            'timepoints': []
+            'timepoints': [],
+            'validated': None
         })
 
     @patch('ptmd.database.models.file.Organisation')
@@ -62,3 +63,35 @@ class TestFile(TestCase):
         timepoint = Timepoint(value=1, unit='mg/kg', label="BMD10")
         file = File(**DATA, timepoints=[timepoint])
         self.assertEqual(dict(file)['timepoints'][0], {'files': ['123'], 'label': 'BMD10', 'unit': 'mg/kg', 'value': 1})
+
+    @patch('ptmd.database.models.file.Organisation')
+    @patch('ptmd.database.models.file.Organism')
+    @patch('ptmd.database.models.file.Chemical')
+    @patch('ptmd.database.models.file.get_current_user')
+    def test_remove_file_permission_denied(self, mock_user, mock_chemical, mock_organism, mock_organisation):
+        mock_user.return_value.role = 'NONE'
+        mock_organisation.query.filter_by().first().organisation_id = 1
+        mock_organism.query.filter_by().first().organism_id = 1
+        mock_chemical.query.filter_by().first().chemical_id = 1
+        file = File(**DATA)
+        with self.assertRaises(PermissionError) as context:
+            file.remove()
+        self.assertEqual(str(context.exception), "You don't have permission to delete file None.")
+
+    @patch('ptmd.database.models.file.Organisation')
+    @patch('ptmd.database.models.file.Organism')
+    @patch('ptmd.database.models.file.Chemical')
+    @patch('ptmd.database.models.file.get_current_user')
+    @patch('ptmd.database.models.file.GoogleDriveConnector')
+    @patch('ptmd.database.models.file.session')
+    def test_remove_file_success(self, mock_session, mock_gdrive,
+                                 mock_user, mock_chemical, mock_organism, mock_organisation):
+        mock_user.return_value.role = 'admin'
+        mock_organisation.query.filter_by().first().organisation_id = 1
+        mock_organism.query.filter_by().first().organism_id = 1
+        mock_chemical.query.filter_by().first().chemical_id = 1
+        file = File(**DATA)
+        file.remove()
+        mock_gdrive.return_value.delete_file.assert_called_once_with(file.gdrive_id)
+        mock_session.delete.assert_called_once_with(file)
+        mock_session.commit.assert_called_once()

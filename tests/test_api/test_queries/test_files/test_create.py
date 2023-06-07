@@ -86,7 +86,7 @@ class TestCreateFile(TestCase):
                 "start_date": "2021-01-01",
                 "end_date": "2022-01-01",
                 "timepoints": [3],
-                "vehicle": "water",
+                "vehicle": "Water",
             }
             response = client.post('/api/files', headers={'Authorization': f'Bearer {123}', **HEADERS},
                                    data=dumps(data))
@@ -97,7 +97,7 @@ class TestCreateFile(TestCase):
             data["exposure_conditions"][0]["dose"] = "BMD10"
             response = client.post('/api/files', headers={'Authorization': f'Bearer {123}', **HEADERS},
                                    data=dumps(data))
-            self.assertEqual(response.json, {'data': {'file_url': 'a'}})
+            self.assertEqual(response.json['data']['file_url'], 'a')
 
     def test_create_gdrive_error(self,
                                  mock_timepoints, mock_chemical,
@@ -125,7 +125,7 @@ class TestCreateFile(TestCase):
                 "start_date": "2021-01-01",
                 "end_date": "2022-01-01",
                 "timepoints": [3],
-                "vehicle": "water",
+                "vehicle": "Water",
             }
             response = client.post('/api/files', headers={'Authorization': f'Bearer {123}', **HEADERS},
                                    data=dumps(data))

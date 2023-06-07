@@ -36,4 +36,6 @@ def validate_file(file_id: int | str) -> tuple[Response, int]:
         return jsonify({"message": message, "id": file_id, "errors": errors}), code
     except Exception as e:
         error: dict = e.__dict__
-        return jsonify({"error": error['error']['errors'][0]['message']}), error['error']['code']
+        error_msg = error['error']['errors'][0]['message'] if error else str(e)
+        error_code = error['error']['code'] if error else 404
+        return jsonify({"errors": error_msg}), error_code

@@ -48,6 +48,7 @@ def build_sample_dataframe(harvester: Any, chemicals_mapping: dict[str, str], or
     hash_id: str
     series: Series
     timepoint_value: int
+    timepoint_key: str
     number_of_timepoints: int = len(harvester.timepoints)
 
     # build the section containing the exposition conditions
@@ -56,7 +57,8 @@ def build_sample_dataframe(harvester: Any, chemicals_mapping: dict[str, str], or
         for chemical in exposure_condition['chemicals']:
             chemical_code: str = chemicals_mapping[chemical]
             for tp in range(1, number_of_timepoints + 1):
-                timepoint = TIME_POINT_MAPPING[f'TP{tp}']
+                timepoint_key = f'TP{tp}'
+                timepoint = TIME_POINT_MAPPING[timepoint_key] if timepoint_key in TIME_POINT_MAPPING else 'X'
                 timepoint_value = harvester.timepoints[tp - 1]
                 for replicate in range(1, harvester.replicates4exposure + 1):
                     hash_id = '%s%s%s%s%s%s' % (organism_code, harvester.exposure_batch, chemical_code,
@@ -75,7 +77,8 @@ def build_sample_dataframe(harvester: Any, chemicals_mapping: dict[str, str], or
     # build the section containing the control conditions
     for replicate in range(1, harvester.replicates4control + 1):
         for tp in range(1, number_of_timepoints + 1):
-            timepoint = TIME_POINT_MAPPING[f'TP{tp}']
+            timepoint_key = f'TP{tp}'
+            timepoint = TIME_POINT_MAPPING[timepoint_key] if timepoint_key in TIME_POINT_MAPPING else 'X'
             timepoint_value = harvester.timepoints[tp - 1]
             control_code = '999' if harvester.vehicle == 'DMSO' else '997'
             hash_id = '%s%s%sZ%s%s' % (organism_code, harvester.exposure_batch, control_code, timepoint, replicate)

@@ -58,8 +58,9 @@ class User(Base):
         user: dict = {
             "id": self.id,
             "username": self.username,
-            "organisation": self.organisation.organisation_id if self.organisation else None,
-            "files": [dict(file) for file in self.files]
+            "organisation": self.organisation.name if self.organisation else None,
+            "files": [dict(file) for file in self.files],
+            "role": self.role
         }
         for key, value in user.items():
             yield key, value

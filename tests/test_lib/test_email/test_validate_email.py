@@ -14,4 +14,4 @@ class TestValidateEmail(TestCase):
         mock_credentials.from_authorized_user_file.return_value = {'save_credentials_file': 'test'}
         message = send_confirmation_mail(username='test', email="test@test.com", token="test")
         self.assertIn("<h1> Hello, test</h1>", message)
-        self.assertIn(f"{SITE_URL}/api/users/enable/test", message)
+        self.assertIn(f"{SITE_URL}/users/enable/test", message)

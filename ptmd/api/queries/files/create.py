@@ -38,7 +38,7 @@ class CreateGDriveFile:
             "vehicle": request.json.get("vehicle", None)
         }
 
-    def generate_file(self, user: int) -> dict[str, str]:
+    def generate_file(self, user: int) -> dict:
         """ Method to process the user input and create a file in the Google Drive.
 
         :param user: user ID
@@ -75,7 +75,7 @@ class CreateGDriveFile:
                              timepoints=timepoints)
         session.add(db_file)
         session.commit()
-        return response
+        return {**dict(db_file), 'file_url': response['alternateLink']}
 
 
 @check_role(role='user')
@@ -87,7 +87,7 @@ def create_gdrive_file() -> tuple[Response, int]:
     """
     try:
         payload: CreateGDriveFile = CreateGDriveFile()
-        response: dict[str, str] = payload.generate_file(user=get_current_user().id)
-        return jsonify({"data": {'file_url': response['alternateLink']}}), 200
+        response: dict = payload.generate_file(user=get_current_user().id)
+        return jsonify({"data": response}), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 400
