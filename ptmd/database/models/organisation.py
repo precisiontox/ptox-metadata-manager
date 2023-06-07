@@ -2,6 +2,10 @@
 
 @author: D. Batista (Terazus)
 """
+from typing import Any
+
+from flask_jwt_extended import get_current_user
+
 from ptmd.config import Base, db
 
 
@@ -20,11 +24,13 @@ class Organisation(Base):
     def __iter__(self):
         """ Iterator for the object. Used to serialize the object as a dictionary.  """
         organisation: dict = {
-            'organisation_id': self.organisation_id,
             'name': self.name,
-            'gdrive_id': self.gdrive_id if self.gdrive_id else None,
-            'longname': self.longname if self.longname else None,
-            'files': [file.file_id for file in self.files]
+            'longname': self.longname if self.longname else None
         }
+        current_user: Any = get_current_user()
+        if current_user and current_user.role in ['admin', 'enabled', 'user']:
+            organisation['files'] = [file.file_id for file in self.files]
+            organisation['gdrive_id'] = self.gdrive_id if self.gdrive_id else None
+            organisation['organisation_id'] = self.organisation_id
         for key, value in organisation.items():
             yield key, value

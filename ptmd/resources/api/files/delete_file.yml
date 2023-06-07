@@ -1,0 +1,27 @@
+The route to delete a file
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: file_id
+    in: path
+    required: true
+    type: string
+    description: The file id
+definitions:
+  Delete File Response:
+    type: string
+    description: File 1 was successfully deleted.
+    example:
+responses:
+  200:
+    description: A JWT token
+    schema:
+      $ref: '#/definitions/Login Response'
+  401:
+    description: Invalid credentials
+    schema:
+      $ref: '#/definitions/Invalid Password Error Response'

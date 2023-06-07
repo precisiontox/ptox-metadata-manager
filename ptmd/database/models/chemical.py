@@ -22,7 +22,7 @@ class Chemical(Base):
     """
     __tablename__: str = 'chemical'
     chemical_id: int = db.Column(db.Integer, primary_key=True)
-    common_name: Column = db.Column(db.String(100), nullable=False, unique=True)
+    common_name: Column = db.Column(db.String(100), nullable=False)
     cas: str = db.Column(db.String(100), nullable=True)
     formula: str = db.Column(db.String(100), nullable=False)
     ptx_code: int = db.Column(db.Integer, nullable=False, unique=True)

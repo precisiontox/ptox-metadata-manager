@@ -20,7 +20,7 @@ def create_confirmation_email_content(username: str, token: str) -> str:
     """
     with open(path.join(TEMPLATES_PATH, 'enable_account.html'), 'r') as template_data:
         template: Template = Template(template_data.read())
-        return template.render(username=username, url=f'{SITE_URL}/api/users/enable/{token}')
+        return template.render(username=username, url=f'{SITE_URL}/users/enable/{token}')
 
 
 def create_validated_email_content(username: str) -> str:

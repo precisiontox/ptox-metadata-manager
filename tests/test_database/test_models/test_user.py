@@ -9,7 +9,7 @@ class TestUser(TestCase):
 
     @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
     def test_user(self, mock_send_confirmation_mail):
-        expected_user = {'files': [], 'id': None, 'organisation': None, 'username': 'test'}
+        expected_user = {'files': [], 'id': None, 'organisation': None, 'username': 'test', 'role': 'disabled'}
         user = User(username='test', password='test', email='your@email.com')
         self.assertEqual(dict(user), expected_user)
         self.assertTrue(user.validate_password('test'))

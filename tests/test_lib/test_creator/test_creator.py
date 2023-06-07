@@ -22,7 +22,7 @@ VALID_INPUT = {
     "exposure": [{}],
     "start_date": "2020-01-01",
     "end_date": "2020-01-01",
-    "vehicle": "water",
+    "vehicle": "Water",
     "timepoints": [1, 2, 3]
 
 }

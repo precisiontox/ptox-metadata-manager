@@ -23,6 +23,7 @@ REPLICATES_BLANK_RANGE: ReplicateBlankRange = ReplicateBlankRange(
 
 DOSE_MAPPING: dict = {
     0: "Z",
+    '0': "Z",
     "BMD10": "L",
     "BMD25": "M",
     "10mg/L": "H",

@@ -1,0 +1,11 @@
+The route to get a list of users. Admin only.
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The user JWT
+responses:
+  200:
+    description: The list of users

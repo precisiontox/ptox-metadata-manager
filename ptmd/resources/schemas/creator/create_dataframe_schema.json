@@ -45,7 +45,7 @@
       },
       "vehicle": {
         "type": "string",
-        "enum": ["water", "DMSO"],
+        "enum": ["Water", "DMSO"],
         "description": "The vehicle used as the solvent."
       },
       "timepoints": {
@@ -56,7 +56,7 @@
               "minimum": 0
           },
           "minItems": 0,
-          "maxItems": 5
+          "maxItems": 10
       },
       "time point zero": {
         "type": "boolean",

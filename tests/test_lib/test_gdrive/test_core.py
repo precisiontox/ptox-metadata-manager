@@ -53,6 +53,12 @@ class FileMock(dict):
     def GetContentFile(self, *args, **kwargs):
         return {"title": "title test"}
 
+    def Delete(self, *args, **kwargs):
+        pass
+
+    def CreateFile(self, *args, **kwargs):
+        return self
+
 
 class MockGoogleDrive:
     def CreateFile(self, *args, **kwargs):
@@ -100,7 +106,7 @@ class TestGoogleDriveConnector(TestCase):
     def test_create_directories_skip(self, content_exist_mock, google_drive_mock, google_auth_mock):
         gdrive_connector = GoogleDriveConnector()
         gdrive_connector.create_directories()
-        self.assertEqual(11, content_exist_mock.call_count)
+        self.assertEqual(20, content_exist_mock.call_count)
 
     @patch('ptmd.lib.gdrive.core.get_folder_id', return_value=None)
     def test_create_directories_no_files(self, google_drive_mock, content_exist_mock, google_auth_mock):
@@ -160,3 +166,21 @@ class TestUploader(TestCase):
         google_drive_mock.return_value = None
         gdrive_connector = GoogleDriveConnector()
         self.assertIsNone(gdrive_connector.upload_file(file_path=self.xlsx_file, directory_id="123"))
+
+    def test_delete_file_success(self, google_drive_mock, google_auth_mock):
+        google_drive_mock.return_value = FileMock()
+        gdrive_connector = GoogleDriveConnector()
+        file_id = gdrive_connector.delete_file(file_id="123")
+        self.assertEqual(file_id, '123')
+
+    def test_delete_file_permission_denied(self, google_drive_mock, google_auth_mock):
+        class FileError:
+            def Delete(self):
+                raise Exception()
+
+        err = 'Unable to delete file 123 from Google Drive. This is probably because it is an external file.'
+        google_drive_mock.return_value = FileError()
+        gdrive_connector = GoogleDriveConnector()
+        with self.assertRaises(PermissionError) as context:
+            gdrive_connector.delete_file(file_id="123")
+        self.assertEqual(str(context.exception), err)
