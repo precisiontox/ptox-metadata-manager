@@ -25,6 +25,9 @@
   <a href="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/LICENCE" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/licence-AGPL-blue" alt="Licence Badge"/>
   </a>
+  <a href="https://pretox.isa-tools.org/apidocs/" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/API-Swagger-blue" alt="Licence Badge"/>
+  </a>
 </p>
 
 
@@ -33,6 +36,12 @@
 The precision toxicology metadata manager is a tool to manage metadata for the precision toxicology project. 
 It is a web application that allows users to create study designs from a very simple form and generates a metadata
 excel stub saved in Google Drive. This repository contains the source code for the API.
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=XWItfWplwT0&hd=1">
+    <img src="https://i9.ytimg.com/vi/XWItfWplwT0/mqdefault.jpg?v=647f85e1&sqp=COi1hqQG&rs=AOn4CLAevojyI0YAyf4j2ZjnX4N4aPiucA" alt="Tool presentation">
+  </a>
+</p>
 
 
 ## Getting started
