@@ -8,7 +8,7 @@ from json import load
 
 from flask import jsonify, request, Response
 from sqlalchemy.exc import IntegrityError
-from jsonschema import Draft202012Validator as JSONValidator, RefResolver, ValidationError
+from jsonschema import Draft4Validator as JSONValidator, RefResolver, ValidationError
 
 from ptmd.const import CREATE_CHEMICAL_SCHEMA_PATH, CREATE_CHEMICALS_SCHEMA_PATH
 from ptmd.config import session
@@ -53,7 +53,9 @@ def validate_chemicals(chemicals: list[dict]) -> None:
         create_chemicals_schema = load(f)
     schema_mapping: dict = {
         create_chemicals_schema['$id']: create_chemicals_schema,
-        create_chemical_schema['$id']: create_chemical_schema
+        create_chemical_schema['$id']: create_chemical_schema,
+        'file:///create_chemicals_schema.json': create_chemicals_schema,
+        'file:///create_chemical_schema.json': create_chemical_schema
     }
     resolver: RefResolver = RefResolver(store=schema_mapping, base_uri='file:///', referrer=create_chemicals_schema)
     validator: JSONValidator = JSONValidator(create_chemicals_schema, resolver=resolver)

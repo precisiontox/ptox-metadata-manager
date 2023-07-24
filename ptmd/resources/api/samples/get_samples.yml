@@ -1,0 +1,43 @@
+The route to get information about a samples (paginated)
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: sample_id
+    in: path
+    required: true
+    type: string
+    description: The ID of the sample to retrieve
+  - name: page
+    in: query
+    required: false
+    type: integer
+    description: The page number to retrieve
+  - name: per_page
+    in: query
+    required: false
+    type: integer
+    description: The number of items per page
+definitions:
+  Samples Info Response:
+    type: object
+    properties:
+      data:
+        type: object
+        example: {"samples": ["The sample data"], "pagination": {"page": 1, "per_page": 10, "total": 1}}
+responses:
+  200:
+    description: Information about samples
+    schema:
+      $ref: '#/definitions/Samples Info Response'
+  403:
+    description: The JWT token is invalid
+    schema:
+      $ref: '#/definitions/Forbidden Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'

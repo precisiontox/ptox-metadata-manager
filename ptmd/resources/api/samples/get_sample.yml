@@ -1,0 +1,33 @@
+The route to get information about a sample
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: sample_id
+    in: path
+    required: true
+    type: string
+    description: The ID of the sample to retrieve
+definitions:
+  Sample Info Response:
+    type: object
+    properties:
+      data:
+        type: object
+        example: {"data": "The sample data"}
+responses:
+  200:
+    description: Information about a sample
+    schema:
+      $ref: '#/definitions/Sample Info Response'
+  403:
+    description: The JWT token is invalid
+    schema:
+      $ref: '#/definitions/Forbidden Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'

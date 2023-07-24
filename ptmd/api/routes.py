@@ -13,9 +13,12 @@ from ptmd.api.queries import (
     login as login_user, change_password, get_me, logout, enable_account, validate_account, get_users,
     get_organisms, get_organisations,
     get_chemicals, create_chemicals, get_chemical,
-    create_gdrive_file, create_user, validate_file,  register_gdrive_file, search_files_in_database, delete_file
+    create_gdrive_file, create_user, validate_file,  register_gdrive_file, search_files_in_database, delete_file,
+    get_sample, get_samples,
+    ship_data, receive_data,
+    convert_to_isa
 )
-from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH
+from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH, SAMPLES_DOC_PATH
 
 
 ###########################################################
@@ -107,6 +110,7 @@ def new_chemicals() -> tuple[Response, int]:
 
 
 @app.route('/api/chemicals/<ptx_code>', methods=['GET'])
+@swag_from(path.join(CHEMICALS_DOC_PATH, 'get_chemical.yml'))
 @jwt_required(optional=True)
 def chemical(ptx_code: str) -> tuple[Response, int]:
     """ Get a chemical by its PTX code
@@ -182,3 +186,59 @@ def delete_file_(file_id: int) -> tuple[Response, int]:
     :param file_id: the id of the file to validate
     """
     return delete_file(file_id)
+
+
+@app.route('/api/files/<file_id>/ship', methods=['GET'])
+@swag_from(path.join(FILES_DOC_PATH, 'ship_file.yml'))
+@jwt_required()
+def ship_file(file_id: int) -> tuple[Response, int]:
+    """ Ship the given file
+
+    :param file_id: the id of the file to ship
+    """
+    return ship_data(file_id)
+
+
+@app.route('/api/files/<file_id>/receive', methods=['GET'])
+@swag_from(path.join(FILES_DOC_PATH, 'receive_file.yml'))
+@jwt_required()
+def receive_file(file_id: int) -> tuple[Response, int]:
+    """ Receive the given file
+
+    :param file_id: the id of the file to receive
+    """
+    return receive_data(file_id)
+
+
+@app.route('/api/files/<file_id>/isa', methods=['GET'])
+@swag_from(path.join(FILES_DOC_PATH, 'isa.yml'))
+@jwt_required()
+def file_to_isa(file_id: int) -> tuple[Response, int]:
+    """ Convert the given file to ISA-Tab
+
+    :param file_id: the id of the file to convert
+    """
+    return convert_to_isa(file_id)
+
+
+###########################################################
+#                          SAMPLES                        #
+###########################################################
+@app.route('/api/samples/<sample_id>', methods=['GET'])
+@swag_from(path.join(SAMPLES_DOC_PATH, 'get_sample.yml'))
+@jwt_required()
+def get_sample_(sample_id: str) -> tuple[Response, int]:
+    """ Get a sample by its id
+
+    :param sample_id: the id of the sample to get
+    """
+    return get_sample(sample_id)
+
+
+@app.route('/api/samples', methods=['GET'])
+@swag_from(path.join(SAMPLES_DOC_PATH, 'get_samples.yml'))
+@jwt_required()
+def get_samples_() -> tuple[Response, int]:
+    """ Get a list of paginated samples
+    """
+    return get_samples()

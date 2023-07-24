@@ -1,0 +1,33 @@
+The route to ship samples.
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: file_id
+    in: path
+    required: true
+    type: string
+    description: The ID of the file to send
+definitions:
+  Ship Samples Response:
+    type: object
+    properties:
+      data:
+        type: string
+        example: "File 1 shipped successfully"
+responses:
+  200:
+    description: The list of available chemicals compounds
+    schema:
+      $ref: '#/definitions/Ship Samples Response'
+  403:
+    description: The JWT token is invalid
+    schema:
+      $ref: '#/definitions/Forbidden Response'
+  401:
+    description: The JWT token is missing
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'

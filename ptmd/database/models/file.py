@@ -45,6 +45,10 @@ class File(Base):
     controls: int = db.Column(db.Integer, nullable=False, default=1)
     blanks: int = db.Column(db.Integer, nullable=False, default=1)
 
+    # Shipping status
+    shipped: bool = db.Column(db.Boolean, nullable=False, default=False)
+    received: bool = db.Column(db.Boolean, nullable=False, default=False)
+
     # Relationships
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=False)
     organisation = db.relationship('Organisation', backref=db.backref('files'))
@@ -105,6 +109,9 @@ class File(Base):
             'controls': self.controls,
             'blanks': self.blanks,
 
+            'shipped': self.shipped,
+            'received': self.received,
+
             'organisation': self.organisation.name if self.organisation else None,
             'author': self.author.username if self.author else None,
             'organism': self.organism.ptox_biosystem_name if self.organism else None,
@@ -115,6 +122,7 @@ class File(Base):
 
             'doses': [{"value": dose.value, "unit": dose.unit, "label": dose.label} for dose in self.doses]
         }
+
         for key, value in output.items():
             yield key, value
 
@@ -124,10 +132,35 @@ class File(Base):
         if current_user != self.author and current_user.role != 'admin':
             raise PermissionError(f"You don't have permission to delete file {self.file_id}.")
 
-        # Remove the file from the Google Drive
-        connector: GoogleDriveConnector = GoogleDriveConnector()
-        connector.delete_file(self.gdrive_id)
+        try:
+            connector: GoogleDriveConnector = GoogleDriveConnector()
+            connector.delete_file(self.gdrive_id)
+        except PermissionError:
+            # we can just pass here and delete the file from the database without deleting the file from the drive
+            pass
+        finally:
+            session.delete(self)  # type: ignore
+            session.commit()
 
-        # Remove the file from the database
-        session.delete(self)  # type: ignore
+    def shipment_was_received(self) -> None:
+        """ Update the shipment status of the file. This method is called when the shipment is received.
+        """
+        user: User = get_current_user()
+        if user.role != 'admin':
+            raise PermissionError(f"You don't have permission to update to receive shipment for file {self.file_id}.")
+        if not self.shipped:
+            raise ValueError(f"File {self.file_id} has not been shipped yet.")
+        self.received = True
+        session.commit()
+
+    def ship_samples(self) -> None:
+        """ Ship the samples to the user. """
+        user: User = get_current_user()
+        if user != self.author and user.role != 'admin':
+            raise PermissionError(f"You don't have permission to ship file {self.file_id}.")
+        if self.validated != 'success':
+            raise ValueError(f"File {self.file_id} has not been validated yet or has failed validation.")
+        if self.shipped:
+            raise ValueError(f"File {self.file_id} has already been shipped.")
+        self.shipped = True
         session.commit()

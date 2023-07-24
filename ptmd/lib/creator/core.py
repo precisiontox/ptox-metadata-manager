@@ -9,7 +9,7 @@ from os import remove
 from datetime import datetime
 
 from pandas import DataFrame
-from jsonschema import Draft202012Validator as JSONValidator, ValidationError, RefResolver
+from jsonschema import Draft4Validator as JSONValidator, ValidationError, RefResolver
 from dateutil.parser import parse as parse_date
 
 from ptmd.const import INPUT_SCHEMA, EXPOSURE_SCHEMA
@@ -52,7 +52,8 @@ class DataframeCreator:
         """
         mapping: dict = {
             self.__general_information_schema['$id']: self.__general_information_schema,
-            self.__exposure_information_schema['$id']: self.__exposure_information_schema
+            self.__exposure_information_schema['$id']: self.__exposure_information_schema,
+            'file:///create_exposure_schema.json': self.__exposure_information_schema
         }
         resolver: RefResolver = RefResolver(store=mapping,
                                             base_uri='file:///',

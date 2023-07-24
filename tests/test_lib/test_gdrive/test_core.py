@@ -59,6 +59,12 @@ class FileMock(dict):
     def CreateFile(self, *args, **kwargs):
         return self
 
+    def GetPermissions(self, *args, **kwargs):
+        return [{'id': '1234'}]
+
+    def DeletePermission(self, *args, **kwargs):
+        pass
+
 
 class MockGoogleDrive:
     def CreateFile(self, *args, **kwargs):
@@ -184,3 +190,23 @@ class TestUploader(TestCase):
         with self.assertRaises(PermissionError) as context:
             gdrive_connector.delete_file(file_id="123")
         self.assertEqual(str(context.exception), err)
+
+
+@patch('ptmd.lib.gdrive.core.GoogleAuth')
+class TestLockFile(TestCase):
+
+    @patch('ptmd.lib.gdrive.core.GoogleDrive', return_value=MockGoogleDrive())
+    def test_lock_file_success(self, drive_mock, google_auth_mock):
+        gdrive_connector = GoogleDriveConnector()
+        self.assertIsNone(gdrive_connector.lock_file(file_id="123"))
+
+    @patch('ptmd.lib.gdrive.core.GoogleDrive', return_value=MockGoogleDrive())
+    def test_lock_file_permission_denied(self, drive_mock, google_auth_mock):
+        gdrive_connector = GoogleDriveConnector()
+        gdrive_connector.google_drive = None
+        with self.assertRaises(PermissionError) as context:
+            gdrive_connector.lock_file(file_id="123")
+        self.assertEqual(str(context.exception), "Unable to lock file 123 from Google Drive. This is probably because "
+                                                 "it is an external file: "
+                                                 "'NoneType' object has no attribute 'CreateFile'")
+
