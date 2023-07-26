@@ -209,4 +209,3 @@ class TestLockFile(TestCase):
         self.assertEqual(str(context.exception), "Unable to lock file 123 from Google Drive. This is probably because "
                                                  "it is an external file: "
                                                  "'NoneType' object has no attribute 'CreateFile'")
-

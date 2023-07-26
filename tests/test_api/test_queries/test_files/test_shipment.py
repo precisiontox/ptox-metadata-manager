@@ -64,7 +64,7 @@ class TestShipments(TestCase):
         mock_user().role = 'admin'
         with app.test_client() as client:
             response = client.get('/api/files/1/ship', headers=HEADERS)
-            self.assertEqual(response.json, {'message': f'File 1 shipped successfully.'})
+            self.assertEqual(response.json, {'message': 'File 1 shipped successfully.'})
             self.assertEqual(response.status_code, 200)
             mock_drive().lock_file.assert_called_once_with('123')
 
@@ -120,7 +120,6 @@ class TestShipments(TestCase):
         mock_user().role = 'admin'
         with app.test_client() as client:
             response = client.get('/api/files/1/receive', headers=HEADERS)
-            self.assertEqual(response.json, {'message': f'File 1 received successfully.'})
+            self.assertEqual(response.json, {'message': 'File 1 received successfully.'})
             self.assertEqual(response.status_code, 200)
             mock_save.assert_called_once_with("1")
-

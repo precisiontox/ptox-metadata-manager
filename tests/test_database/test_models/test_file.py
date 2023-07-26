@@ -212,4 +212,3 @@ class TestFile(TestCase):
         file.ship_samples()
         self.assertTrue(file.shipped)
         mock_session.commit.assert_called_once()
-
