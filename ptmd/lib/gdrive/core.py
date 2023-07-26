@@ -157,3 +157,18 @@ class GoogleDriveConnector:
         except Exception:
             raise PermissionError(f'Unable to delete file {file_id} from Google Drive. This is probably because it is '
                                   f'an external file.')
+
+    def lock_file(self, file_id: str) -> None:
+        """ Given a file id, this function change the permissions of the file to read-only for 'anyone'.
+        Admin keeps the permission to read and write.
+
+        :param file_id: The file identifier.
+        """
+        try:
+            file = self.google_drive.CreateFile({'id': file_id})
+            permissions: list = file.GetPermissions()
+            file.DeletePermission(permissions[0]['id'])
+            file.InsertPermission({'type': 'anyone', 'role': 'reader'})
+        except Exception as e:
+            raise PermissionError(f'Unable to lock file {file_id} from Google Drive. This is probably because it is '
+                                  f'an external file: {str(e)}')

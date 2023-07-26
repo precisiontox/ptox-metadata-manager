@@ -8,7 +8,7 @@ from typing import Generator
 from os import remove
 
 from json import loads
-from jsonschema import Draft202012Validator as JSONValidator
+from jsonschema import Draft4Validator as JSONValidator
 from numpy import nan
 from pandas import DataFrame, ExcelFile
 

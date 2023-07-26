@@ -13,7 +13,7 @@ from json import loads
 from flask import jsonify, request, Response
 from flask_jwt_extended import get_jwt
 from sqlalchemy.exc import IntegrityError
-from jsonschema import Draft202012Validator as Validator
+from jsonschema import Draft4Validator as Validator
 
 from ptmd.config import session
 from ptmd.const import CREATE_USER_SCHEMA_PATH

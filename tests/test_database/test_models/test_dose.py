@@ -58,5 +58,7 @@ class TestDose(TestCase):
             'vehicle': None,
             'chemicals': [],
             'timepoints': [],
-            'validated': None
+            'validated': None,
+            'received': None,
+            'shipped': None
         })
