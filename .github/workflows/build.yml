@@ -23,7 +23,6 @@ jobs:
           python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
-          cython --version
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with flake8
