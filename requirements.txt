@@ -13,12 +13,14 @@ passlib~=1.7.4
 bcrypt~=4.0.1
 xlsxwriter==3.0.8
 flasgger~=0.9.5
-PyYAML~=5.4.1
+PyYAML~=6.0.1
 numpy~=1.23.3
-jsonschema~=3.2.0
+jsonschema~=4.18.4
 jinja2~=3.0.1
 werkzeug~=2.2.2
-isatools~=0.14.2
+
+git+https://github.com/isa-tools/isa-api.git@Bump-jsonschema
+# isatools~=0.14.2
 
 google-api-python-client==2.86.0
 google-auth-httplib2==0.1.0

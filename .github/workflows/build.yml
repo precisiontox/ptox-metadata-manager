@@ -13,19 +13,14 @@ jobs:
         python-version: [3.9, '3.10', '3.11']
 
     steps:
-      - name: Setup venv
-        run: |
-          python -m pip install --upgrade pip
-          python -m venv venv
-          source venv/bin/activate
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install cython
+      - name: Upgrade pip
         run: |
-          pip install "cython<3.0.0"
+          python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
           cython --version
