@@ -126,7 +126,6 @@ def enable_account(token: str) -> tuple[Response, int]:
         token_from_db: Token = get_token(token=token)
         user: User = token_from_db.user_activation[0]
         user.set_role('enabled')
-        session.delete(token_from_db)
         return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200
     except Exception as e:
         return jsonify(msg=str(e)), 400
@@ -157,7 +156,7 @@ def send_reset_email() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    response: tuple = jsonify({"msg": "Email sent"}), 200
+    response: tuple[Response, int] = jsonify({"msg": "Email sent"}), 200
     email: str = request.json.get('email', None)
     if not email:
         return jsonify({"msg": "Missing email"}), 400
@@ -167,7 +166,7 @@ def send_reset_email() -> tuple[Response, int]:
 
     reset_token: Token = user.reset_token
     if reset_token:
-        session.delete(reset_token)
+        session.delete(reset_token)  # type: ignore
     reset_token = Token(user=user, token_type='reset')
     session.add(reset_token)
     user.reset_token = reset_token
@@ -189,7 +188,7 @@ def reset_password(token: str) -> tuple[Response, int]:
         reset_token_from_db: Token = get_token(token=token)
         user: User = reset_token_from_db.user_reset[0]
         user.set_password(password)
-        session.delete(reset_token_from_db)
+        session.delete(reset_token_from_db)  # type: ignore
         return jsonify({"msg": "Password changed successfully"}), 200
     except Exception as e:
         return jsonify({"msg": str(e)}), 400

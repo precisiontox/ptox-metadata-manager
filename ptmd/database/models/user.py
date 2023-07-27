@@ -90,7 +90,7 @@ class User(Base):
             return True
         return False
 
-    def set_password(self, password) -> None:
+    def set_password(self, password: str) -> None:
         """ Set the user password. Helper function to avoid code repetition.
 
         :param password: the new password

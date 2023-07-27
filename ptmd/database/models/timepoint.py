@@ -4,8 +4,6 @@
 """
 from typing import Generator
 
-from sqlalchemy.orm import Mapped
-
 from ptmd.config import Base, db
 from ptmd.database.models.relationship import files_timepoints
 
@@ -18,7 +16,7 @@ class Timepoint(Base):
     unit: str = db.Column(db.String(255), nullable=False)
     label: str = db.Column(db.String(255), nullable=True)
 
-    files: Mapped[int] = db.relationship('File', secondary=files_timepoints, back_populates='timepoints')
+    files = db.relationship('File', secondary=files_timepoints, back_populates='timepoints')
 
     def __iter__(self) -> Generator:
         """ This method implements the iterator protocol. """
