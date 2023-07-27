@@ -96,6 +96,7 @@ def validate_account_(user_id: int) -> tuple[Response, int]:
 
 
 @app.route('/api/users/request_reset', methods=['POST'])
+@swag_from(path.join(USERS_DOC_PATH, 'request_reset.yml'))
 def request_reset() -> tuple[Response, int]:
     """ Route to request a password reset
 
@@ -105,6 +106,7 @@ def request_reset() -> tuple[Response, int]:
 
 
 @app.route('/api/users/reset/<token>', methods=['POST'])
+@swag_from(path.join(USERS_DOC_PATH, 'reset_pwd.yml'))
 def reset_pwd(token: str) -> tuple[Response, int]:
     """ Route to reset the password
 

@@ -1,0 +1,12 @@
+The route to let user request a password reset by email
+---
+parameters:
+  - name: email
+    in: body
+    required: true
+    type: string
+    description: The email of the user
+responses:
+  200:
+    example:
+      message: "Email sent"
