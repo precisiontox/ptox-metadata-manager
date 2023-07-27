@@ -29,8 +29,13 @@ class User(Base):
 
     organisation_id: int | None = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=True)
     organisation = db.relationship('Organisation', backref=db.backref('users'))
+
     activation_token_id: int | None = db.Column(db.Integer, db.ForeignKey('token.token_id'), nullable=True)
-    activation_token = db.relationship('Token', backref=db.backref('user'))
+    activation_token = db.relationship(
+        'Token', backref=db.backref('user_activation'), foreign_keys=[activation_token_id]
+    )
+    reset_token_id: int | None = db.Column(db.Integer, db.ForeignKey('token.token_id'), nullable=True)
+    reset_token = db.relationship('Token', backref=db.backref('user_reset'), foreign_keys=[reset_token_id])
 
     def __init__(
             self,
@@ -81,10 +86,17 @@ class User(Base):
         :return: True if the password was changed, False otherwise
         """
         if self.validate_password(old_password):
-            self.password = bcrypt.hash(new_password)
-            session.commit()
+            self.set_password(new_password)
             return True
         return False
+
+    def set_password(self, password) -> None:
+        """ Set the user password. Helper function to avoid code repetition.
+
+        :param password: the new password
+        """
+        self.password = bcrypt.hash(password)
+        session.commit()
 
     def set_role(self, role: str) -> None:
         """ Set the user role. Helper function to avoid code repetition.

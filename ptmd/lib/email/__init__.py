@@ -7,4 +7,9 @@
 
 @author: D. Batista (Terazus)
 """
-from .core import send_confirmation_mail, send_validated_account_mail, send_validation_mail
+from .core import (
+    send_confirmation_mail,
+    send_validated_account_mail,
+    send_validation_mail,
+    send_reset_pwd_email
+)

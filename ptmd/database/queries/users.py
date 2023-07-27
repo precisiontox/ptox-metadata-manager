@@ -3,13 +3,13 @@
 @author: D. Batista (Terazus)
 """
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from flask_jwt_extended import create_access_token
 from flask import jsonify, Response
 
 from ptmd.config import session
 from ptmd.logger import LOGGER
-from ptmd.database.models import User
+from ptmd.database.models import User, Token
 
 
 def login_user(username: str, password: str) -> tuple[Response, int]:
@@ -41,3 +41,20 @@ def create_users(users: list[dict]) -> dict[int, User]:
         created_users[user_index] = user_from_db
     session.commit()
     return created_users
+
+
+def get_token(token: str) -> Token:
+    """ Gets a token from the database and checks if it is valid
+
+    :param token: the token to get
+    :return: the token from the database
+
+    :raises Exception: if the token is invalid
+    :raises Exception: if the token is expired
+    """
+    token_from_db: Token = Token.query.filter(Token.token == token).first()
+    if token_from_db is None:
+        raise Exception("Invalid token")
+    if token_from_db.expires_on < datetime.now(token_from_db.expires_on.tzinfo):
+        raise Exception("Token expired")
+    return token_from_db

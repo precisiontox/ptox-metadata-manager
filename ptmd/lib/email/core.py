@@ -16,7 +16,8 @@ from ptmd.const import ADMIN_EMAIL
 from .load_templates import (
     create_confirmation_email_content,
     create_validated_email_content,
-    create_validation_mail_content
+    create_validation_mail_content,
+    create_reset_pwd_mail_content
 )
 
 
@@ -84,3 +85,17 @@ def send_email(message: MIMEMultipart, service: Any, body: str) -> str:
     create_message = {'raw': urlsafe_b64encode(message.as_bytes()).decode()}
     service.users().messages().send(userId="me", body=create_message).execute()
     return body
+
+
+def send_reset_pwd_email(username: str, email: str, token: str) -> str:
+    """ Send the reset password token to the user.
+
+    @param username: the name of the user
+    @param email: the email of the user
+    @param token: the token to be used to reset the account password
+    @return: the message sent to the user
+    """
+    service: Any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
+    message: MIMEMultipart = build_email_core(title='PTMD -Reset Password', email=email)
+    body: str = create_reset_pwd_mail_content(username, token)
+    return send_email(message, service, body)

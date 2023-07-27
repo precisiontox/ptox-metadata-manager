@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from secrets import token_hex
 
 from ptmd.config import Base, db
-from ptmd.lib.email import send_confirmation_mail
+from ptmd.lib.email import send_confirmation_mail, send_reset_pwd_email
 
 
 class Token(Base):
@@ -26,5 +26,10 @@ class Token(Base):
         """ Create a new token. """
         self.token = token_hex(16)
         self.token_type = token_type
-        self.expires_on = datetime.now() + timedelta(days=1)
-        send_confirmation_mail(username=user.username, email=user.email, token=self.token)
+        self.expires_on = datetime.now() + timedelta(days=10)
+        if token_type not in ['activation', 'reset']:
+            raise ValueError(f'Invalid token type: {token_type}; must be either "activation" or "reset"')
+        if token_type == 'activation':
+            send_confirmation_mail(username=user.username, email=user.email, token=self.token)
+        elif token_type == 'reset':
+            send_reset_pwd_email(username=user.username, email=user.email, token=self.token)
