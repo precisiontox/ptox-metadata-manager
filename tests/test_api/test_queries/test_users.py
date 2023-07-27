@@ -72,7 +72,7 @@ class TestUserQueries(TestCase):
             created_user = client.post('/api/users',
                                        headers={'Authorization': f'Bearer {123}', **HEADERS},
                                        data=dumps(user_data))
-            self.assertEqual(created_user.json, {'msg': 'Username already taken'})
+            self.assertEqual(created_user.json, {'msg': 'Username or email already taken'})
 
     @patch('ptmd.api.queries.users.session')
     @patch('ptmd.api.queries.users.get_jwt', return_value={'sub': 1})
@@ -153,8 +153,8 @@ class TestUserQueries(TestCase):
                 self.assertEqual(response.json, {'msg': 'Account validated'})
 
     def test_enable_account_errors(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
-        with patch('ptmd.api.queries.users.Token') as mocked_token:
-            mocked_token.query.filter().first.return_value.expires_on = datetime.now() - timedelta(days=1)
+        with patch('ptmd.database.queries.users.Token') as mocked_token:
+            mocked_token.query.filter().first.return_value.expires_on = datetime.now() - timedelta(days=11)
             with app.test_client() as client:
                 response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
                 self.assertEqual(response.json, {'msg': 'Token expired'})
@@ -167,17 +167,19 @@ class TestUserQueries(TestCase):
                 self.assertEqual(response.status_code, 400)
 
     @patch('ptmd.api.queries.users.User')
-    @patch('ptmd.api.queries.users.Token')
+    @patch('ptmd.database.queries.users.Token')
     @patch('ptmd.api.queries.users.enable_account')
-    def test_enable_account_success(self, mock_email,
+    @patch('ptmd.api.queries.users.session')
+    def test_enable_account_success(self, mock_session, mock_email,
                                     mocked_token, mocked_user,
                                     mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
-        mocked_token.query.filter().first.return_value.expires_on = datetime.now() + timedelta(days=10)
+        mocked_token.query.filter().first.return_value.expires_on = datetime.now() + timedelta(days=1)
         mocked_token.query.filter().first.return_value.token = '123'
         with app.test_client() as client:
             response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json,
                              {'msg': "Account enabled. An email has been to an admin to validate your account."})
+            self.assertEqual(response.status_code, 200)
 
     @patch('ptmd.api.queries.users.User')
     def test_get_users(self, mock_users, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
@@ -197,3 +199,73 @@ class TestUserQueries(TestCase):
         with app.test_client() as client:
             response = client.get('/api/users', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json, [expected_user])
+
+    def test_send_reset_email_failed(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.post('/api/users/request_reset', data=dumps({}), headers=headers)
+            self.assertEqual(response.json, {'msg': 'Missing email'})
+            self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.users.User')
+    def test_send_reset_email_success_no_user(self, mock_user,
+                                              mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        mock_user.query.filter().first.return_value = None
+        with app.test_client() as client:
+            response = client.post('/api/users/request_reset', data=dumps({"email": "test"}), headers=headers)
+            self.assertEqual(response.json, {'msg': 'Email sent'})
+            self.assertEqual(response.status_code, 200)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.Token')
+    @patch('ptmd.api.queries.users.session')
+    def test_send_reset_email_success(self, mock_session, mock_token, mock_user,
+                                      mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        mock_user.query.filter().first.return_value.reset_token = '123'
+        mock_token.return_value.token = '456'
+        with app.test_client() as client:
+            response = client.post('/api/users/request_reset', data=dumps({"email": "test"}), headers=headers)
+            self.assertEqual(response.json, {'msg': 'Email sent'})
+            self.assertEqual(response.status_code, 200)
+            mock_session.add.assert_called_with(mock_user.query.filter().first.return_value)
+            mock_session.commit.assert_called_once()
+
+    def test_reset_password_failed(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.post('/api/users/reset/123', data=dumps({}), headers=headers)
+            self.assertEqual(response.json, {"msg": "Missing password"})
+            self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.users.get_token')
+    def test_reset_password_error(self, mock_token,
+                                  mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        mock_token.side_effect = Exception('test')
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.post('/api/users/reset/123', data=dumps({"password": "None"}), headers=headers)
+            self.assertEqual(response.json, {"msg": "test"})
+            self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.users.get_token')
+    @patch('ptmd.api.queries.users.session')
+    def test_reset_password_success(self, mock_session, mock_token,
+                                    mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        class MockedUser:
+            def __init__(self):
+                self.pwd = None
+
+            def set_password(self, pwd):
+                self.pwd = pwd
+
+        mocked_user = MockedUser()
+        mock_token.return_value.user_reset = [mocked_user]
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.post('/api/users/reset/123', data=dumps({"password": "None"}), headers=headers)
+            self.assertEqual(response.json, {"msg": "Password changed successfully"})
+            self.assertEqual(response.status_code, 200)
+            mock_session.delete.assert_called_with(mock_token.return_value)
+            self.assertEqual(mocked_user.pwd, "None")

@@ -16,7 +16,8 @@ from ptmd.api.queries import (
     create_gdrive_file, create_user, validate_file,  register_gdrive_file, search_files_in_database, delete_file,
     get_sample, get_samples,
     ship_data, receive_data,
-    convert_to_isa
+    convert_to_isa,
+    send_reset_email, reset_password
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH, SAMPLES_DOC_PATH
 
@@ -66,7 +67,9 @@ def login() -> tuple[Response, int]:
 @swag_from(path.join(USERS_DOC_PATH, 'logout.yml'))
 @jwt_required()
 def modify_token() -> tuple[Response, int]:
-    """ Route to log out a user """
+    """ Route to log out a user
+
+    :return: the response and the status code"""
     return logout()
 
 
@@ -76,6 +79,7 @@ def enable_account_(token: str) -> tuple[Response, int]:
     """ Route to enable a user account
 
     :param token: the token sent by email that will enable the account
+    :return: the response and the status code
     """
     return enable_account(token)
 
@@ -86,8 +90,30 @@ def validate_account_(user_id: int) -> tuple[Response, int]:
     """ Route to validate a user account. This is an admin only route
 
     :param user_id: the id of the user to validate
+    :return: the response and the status code
     """
     return validate_account(user_id)
+
+
+@app.route('/api/users/request_reset', methods=['POST'])
+@swag_from(path.join(USERS_DOC_PATH, 'request_reset.yml'))
+def request_reset() -> tuple[Response, int]:
+    """ Route to request a password reset
+
+    :return: the response and the status code
+    """
+    return send_reset_email()
+
+
+@app.route('/api/users/reset/<token>', methods=['POST'])
+@swag_from(path.join(USERS_DOC_PATH, 'reset_pwd.yml'))
+def reset_pwd(token: str) -> tuple[Response, int]:
+    """ Route to reset the password
+
+    :param token: the token sent by email that will enable the account
+    :return: the response and the status code
+    """
+    return reset_password(token)
 
 
 ###########################################################

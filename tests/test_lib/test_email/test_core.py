@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from ptmd.lib.email.core import send_validation_mail, send_validated_account_mail
+from ptmd.lib.email.core import send_validation_mail, send_validated_account_mail, send_reset_pwd_email
 from ptmd.database.models import User
 
 
@@ -19,3 +19,9 @@ class TestEmailCore(TestCase):
         response = send_validated_account_mail('username', 'email')
         self.assertIn('<h1> Hello, username </h1>', response)
         self.assertNotIn('email', response)
+
+    def test_send_reset_pwd_email(self, mock_build, mock_get_config, mock_credentials):
+        response = send_reset_pwd_email('username', 'email@test.com', 'token')
+        self.assertIn('<h1> Hello, username </h1>', response)
+        self.assertIn('token', response)
+        self.assertNotIn('email@test.com', response)

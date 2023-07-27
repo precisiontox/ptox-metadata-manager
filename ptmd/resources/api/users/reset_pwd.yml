@@ -1,0 +1,17 @@
+The route to reset the password of a user
+---
+parameters:
+  - name: token
+    in: path
+    required: true
+    type: string
+    description: The token sent by email
+  - name: password
+    in: body
+    required: true
+    type: string
+    description: The email of the user
+responses:
+  200:
+    example:
+      message: "Email sent"

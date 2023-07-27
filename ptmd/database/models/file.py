@@ -61,7 +61,7 @@ class File(Base):
 
     # Relationships many-to-many
     chemicals = db.relationship('Chemical', secondary=files_chemicals, back_populates='used_in_files')
-    timepoints = db.relationship('Timepoint', secondary=files_timepoints, back_populates='files')
+    timepoints = db.relationship('Timepoint', secondary=files_timepoints, back_populates='files', cascade='all, delete')
 
     doses = db.relationship('Dose', secondary=files_doses, back_populates='files')
 

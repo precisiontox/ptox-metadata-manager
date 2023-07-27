@@ -6,8 +6,6 @@
 
 @author: D. Batista (Terazus)
 """
-
-from datetime import datetime
 from json import loads
 
 from flask import jsonify, request, Response
@@ -17,7 +15,7 @@ from jsonschema import Draft4Validator as Validator
 
 from ptmd.config import session
 from ptmd.const import CREATE_USER_SCHEMA_PATH
-from ptmd.database import login_user, User, TokenBlocklist, Token, Organisation
+from ptmd.database import login_user, get_token, User, TokenBlocklist, Token, Organisation
 from .utils import check_role
 
 
@@ -48,7 +46,7 @@ def create_user() -> tuple[Response, int]:
         user_dict = dict(user)
         return jsonify(user_dict), 200
     except IntegrityError:
-        return jsonify({"msg": "Username already taken"}), 400
+        return jsonify({"msg": "Username or email already taken"}), 400
 
 
 def login() -> tuple[Response, int]:
@@ -124,14 +122,13 @@ def enable_account(token: str) -> tuple[Response, int]:
     :param token: token to enable the account
     :return: tuple containing a JSON response and a status code
     """
-    token_from_db: Token = Token.query.filter(Token.token == token).first()
-    if token_from_db is None:
-        return jsonify(msg="Invalid token"), 400
-    if token_from_db.expires_on < datetime.now(token_from_db.expires_on.tzinfo):
-        return jsonify(msg="Token expired"), 400
-    user: User = token_from_db.user[0]
-    user.set_role('enabled')
-    return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200
+    try:
+        token_from_db: Token = get_token(token=token)
+        user: User = token_from_db.user_activation[0]
+        user.set_role('enabled')
+        return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200
+    except Exception as e:
+        return jsonify(msg=str(e)), 400
 
 
 @check_role(role='admin')
@@ -152,3 +149,46 @@ def get_users() -> tuple[Response, int]:
             'files': [file.file_id for file in user.files]
         })
     return jsonify(users_dict), 200
+
+
+def send_reset_email() -> tuple[Response, int]:
+    """ Sends an email to the user to reset his password
+
+    :return: tuple containing a JSON response and a status code
+    """
+    response: tuple[Response, int] = jsonify({"msg": "Email sent"}), 200
+    email: str = request.json.get('email', None)
+    if not email:
+        return jsonify({"msg": "Missing email"}), 400
+    user: User = User.query.filter(User.email == email).first()
+    if user is None:
+        return response
+
+    reset_token: Token = user.reset_token
+    if reset_token:
+        session.delete(reset_token)  # type: ignore
+    reset_token = Token(user=user, token_type='reset')
+    session.add(reset_token)
+    user.reset_token = reset_token
+    session.add(user)
+    session.commit()
+    return response
+
+
+def reset_password(token: str) -> tuple[Response, int]:
+    """ Resets the password of a user
+
+    :param token: the token to reset the password
+    :return: tuple containing a JSON response and a status code
+    """
+    password: str = request.json.get('password', None)
+    if not password:
+        return jsonify({"msg": "Missing password"}), 400
+    try:
+        reset_token_from_db: Token = get_token(token=token)
+        user: User = reset_token_from_db.user_reset[0]
+        user.set_password(password)
+        session.delete(reset_token_from_db)  # type: ignore
+        return jsonify({"msg": "Password changed successfully"}), 200
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 400
