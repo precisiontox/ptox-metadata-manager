@@ -39,7 +39,7 @@ excel stub saved in Google Drive. This repository contains the source code for t
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=XWItfWplwT0&hd=1">
-    <img src="https://i9.ytimg.com/vi/XWItfWplwT0/mqdefault.jpg?v=647f85e1&sqp=COi1hqQG&rs=AOn4CLAevojyI0YAyf4j2ZjnX4N4aPiucA" alt="Tool presentation">
+    <img src="https://i9.ytimg.com/vi/XWItfWplwT0/mqdefault.jpg?v=647f85e1&sqp=CIihiaYG&rs=AOn4CLBAb6msZyCnaP0gYMADwzNniivEpw" alt="Tool presentation">
   </a>
 </p>
 
@@ -112,6 +112,9 @@ python -m app
 
 Once the API is booted go to http://localhost:5000/apidocs to see the Swagger documentation.
 
+## Database schema
+<img src="./database.png" alt="Licence Badge"/>
+
 ## Testing
 You will need the development dependencies installed to run the tests.
 ```shell
@@ -144,4 +147,4 @@ mypy --config-file=./mypy.ini
 
 
 ## Authors:
--  [B. Dominique](https://github.com/terazus), University of Oxford.
+-  [B. Dominique](https://github.com/terazus), University of Oxford (orcid: [0000-0002-2109-489X](https://orcid.org/0000-0002-2109-489X))
