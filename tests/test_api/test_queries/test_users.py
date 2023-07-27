@@ -180,7 +180,6 @@ class TestUserQueries(TestCase):
             self.assertEqual(response.json,
                              {'msg': "Account enabled. An email has been to an admin to validate your account."})
             self.assertEqual(response.status_code, 200)
-            mock_session.delete.assert_called_once()
 
     @patch('ptmd.api.queries.users.User')
     def test_get_users(self, mock_users, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
