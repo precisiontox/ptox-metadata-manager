@@ -17,7 +17,8 @@ from ptmd.api.queries import (
     get_sample, get_samples,
     ship_data, receive_data,
     convert_to_isa,
-    send_reset_email, reset_password
+    send_reset_email, reset_password,
+    change_role
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH, SAMPLES_DOC_PATH
 
@@ -114,6 +115,17 @@ def reset_pwd(token: str) -> tuple[Response, int]:
     :return: the response and the status code
     """
     return reset_password(token)
+
+
+@app.route("/api/users/<user_id>/make_admin", methods=["GET"])
+@jwt_required()
+def make_admin_(user_id: int) -> tuple[Response, int]:
+    """ Route to make a user an admin. This is an admin only route
+
+    :param user_id: the id of the user to make admin
+    :return: the response and the status code
+    """
+    return change_role(user_id=user_id, role='admin')
 
 
 ###########################################################

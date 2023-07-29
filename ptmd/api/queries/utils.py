@@ -11,6 +11,7 @@ from flask_jwt_extended import get_current_user, verify_jwt_in_request
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
 from ptmd.config import jwt
+from ptmd.const import ROLES
 from ptmd.database import User
 
 
@@ -37,7 +38,7 @@ def check_role(role: str = "enabled") -> Callable:
         def decorator_function(*args, **kwargs):
             """ wrapper logic """
             verify_jwt_in_request()
-            current_user = get_current_user()
+            current_user: User = get_current_user()
             allowed: bool = is_allowed(user_role=current_user.role, level=role)
             if not allowed:
                 raise NoAuthorizationError("You are not authorized to access this route")
@@ -54,11 +55,10 @@ def is_allowed(user_role: str, level: str = 'enabled') -> bool:
 
     :return: True if the user is allowed to access the route, False otherwise
     """
-    levels: list[str] = ['banned', 'disabled', 'enabled', 'user', 'admin']
     if user_role == 'admin':
         return True
     if user_role == 'banned':
         return False
-    if levels.index(user_role) >= levels.index(level):
+    if ROLES.index(user_role) >= ROLES.index(level):
         return True
     return False

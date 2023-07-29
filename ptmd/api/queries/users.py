@@ -9,7 +9,7 @@
 from json import loads
 
 from flask import jsonify, request, Response
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import get_jwt, get_current_user
 from sqlalchemy.exc import IntegrityError
 from jsonschema import Draft4Validator as Validator
 
@@ -192,3 +192,24 @@ def reset_password(token: str) -> tuple[Response, int]:
         return jsonify({"msg": "Password changed successfully"}), 200
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
+
+
+@check_role(role='admin')
+def change_role(user_id: int, role: str) -> tuple[Response, int]:
+    """ Change the role of a user. Admin only
+
+    :param user_id: ID of the user to make admin
+    :param role: role to change to
+    :return: tuple containing a JSON response and a status code
+    """
+    user: User = User.query.filter(User.id == user_id).first()
+    if not user:
+        return jsonify(msg="User not found"), 404
+    current_user: User = get_current_user()
+    if current_user.id == user.id:
+        return jsonify(msg="Cannot change your own role"), 400
+    try:
+        user.set_role(role)
+        return jsonify(msg=f"User {user_id} role has been changed to {role}"), 200
+    except ValueError:
+        return jsonify(msg="Invalid role"), 400

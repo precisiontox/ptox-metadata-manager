@@ -12,6 +12,7 @@ from .users import (
     enable_account, validate_account,
     send_reset_email, reset_password,
     get_users,
+    change_role
 )
 from .files import (
     validate_file,

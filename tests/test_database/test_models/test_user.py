@@ -53,3 +53,19 @@ class TestUser(TestCase):
         self.assertEqual(user.role, 'disabled')
         self.assertEqual(user.username, user_input['username'])
         self.assertEqual(user.organisation_id, user_input['organisation_id'])
+
+    @patch('ptmd.database.models.user.session')
+    @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
+    def test_set_role_success(self, mock_send_confirmation_mail, mock_session):
+        user = User('test', 'test', 'test', 'disabled')
+        user.set_role('banned')
+        self.assertEqual(user.role, 'banned')
+        mock_session.commit.assert_called_once()
+
+    @patch('ptmd.database.models.user.session')
+    @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
+    def test_set_role_invalid_role(self, mock_send_confirmation_mail, mock_session):
+        user = User('test', 'test', 'test', 'disabled')
+        with self.assertRaises(ValueError) as context:
+            user.set_role('invalid role')
+        self.assertEqual(str(context.exception), "Invalid role: invalid role")

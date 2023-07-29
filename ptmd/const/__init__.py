@@ -38,3 +38,5 @@ from .spreadsheets import (
     EMPTY_FIELDS_VALUES
 )
 from .site import SITE_URL, ADMIN_EMAIL, ADMIN_USERNAME, ADMIN_PASSWORD
+
+ROLES: list[str] = ['banned', 'disabled', 'enabled', 'user', 'admin']  # careful with the order
