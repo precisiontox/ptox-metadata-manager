@@ -7,7 +7,17 @@ from sqlalchemy.exc import IntegrityError
 
 from ptmd.api import app
 
+
 HEADERS = {'Content-Type': 'application/json'}
+
+
+class MockedUser:
+    def __init__(self) -> None:
+        self.role = "enabled"
+        self.id = 2
+
+    def set_role(self, role):
+        self.role = role
 
 
 @patch('ptmd.api.queries.utils.verify_jwt_in_request', return_value=None)
@@ -254,13 +264,13 @@ class TestUserQueries(TestCase):
     def test_reset_password_success(self, mock_session, mock_token,
                                     mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
         class MockedUser:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.pwd = None
 
             def set_password(self, pwd):
                 self.pwd = pwd
 
-        mocked_user = MockedUser()
+        mocked_user: MockedUser = MockedUser()
         mock_token.return_value.user_reset = [mocked_user]
         headers = {'Authorization': f'Bearer {123}', **HEADERS}
         with app.test_client() as client:
@@ -269,3 +279,58 @@ class TestUserQueries(TestCase):
             self.assertEqual(response.status_code, 200)
             mock_session.delete.assert_called_with(mock_token.return_value)
             self.assertEqual(mocked_user.pwd, "None")
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.session')
+    @patch('ptmd.api.queries.users.get_current_user')
+    def test_make_admin_success(self, mock_current_user, mock_session, mock_user,
+                                mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
+
+        mock_get_current_user_utils.return_value.role = 'admin'
+        mock_user.query.filter().return_value = MockedUser()
+        mock_current_user.return_value = MockedUser()
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.get('/api/users/2/make_admin', headers=headers)
+            self.assertEqual(response.json, {"msg": "User 2 role has been changed to admin"})
+            self.assertEqual(response.status_code, 200)
+
+    @patch('ptmd.api.queries.users.User')
+    def test_make_admin_failed_404(self, mock_user, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        mock_user.query.filter().first.return_value = None
+        mock_get_current_user.return_value.role = 'admin'
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.get('/api/users/100/make_admin', headers=headers)
+            self.assertEqual(response.json, {"msg": "User not found"})
+            self.assertEqual(response.status_code, 404)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.get_current_user')
+    def test_make_admin_failed_change_self(self, mock_get_current_user, mock_user,
+                                           mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
+        mock_user.query.filter().first.return_value.id = 1
+        mock_get_current_user_utils.return_value.role = 'admin'
+        mock_get_current_user.return_value.id = 1
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.get('/api/users/1/make_admin', headers=headers)
+            self.assertEqual(response.json, {"msg": "Cannot change your own role"})
+            self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.session')
+    @patch('ptmd.api.queries.users.get_current_user')
+    def test_make_admin_failed_invalid_role(self, mock_current_user, mock_session, mock_user,
+                                            mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
+        mock_get_current_user_utils.return_value.role = 'admin'
+        mock_get_current_user_utils.return_value.role = 'admin'
+        mock_user.query.filter().return_value = MockedUser()
+        mock_current_user.return_value = MockedUser()
+        mock_user.query.filter().first.return_value.set_role.side_effect = ValueError()
+
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.get('/api/users/2/make_admin', headers=headers)
+            self.assertEqual(response.json, {'msg': 'Invalid role'})
+            self.assertEqual(response.status_code, 400)

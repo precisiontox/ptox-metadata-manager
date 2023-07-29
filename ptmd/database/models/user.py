@@ -8,6 +8,7 @@ from typing import Generator
 from passlib.hash import bcrypt
 
 from ptmd.config import Base, db, session
+from ptmd.const import ROLES
 from ptmd.database.models.token import Token
 from ptmd.lib.email import send_validation_mail, send_validated_account_mail
 
@@ -101,14 +102,20 @@ class User(Base):
     def set_role(self, role: str) -> None:
         """ Set the user role. Helper function to avoid code repetition.
         """
-        {'enabled': self.__enable_account, 'user': self.__activate_account, 'admin': self.__make_admin}[role]()
+        if role not in ROLES:
+            raise ValueError(f"Invalid role: {role}")
+        if role == 'banned':
+            self.role = role
+        else:
+            {'enabled': self.__enable_account, 'user': self.__activate_account, 'admin': self.__make_admin}[role]()
         session.commit()
 
     def __enable_account(self) -> None:
         """ Changed the role to 'enabled' when the user confirms the email.
         """
         self.role = 'enabled'
-        session.delete(self.activation_token)  # type: ignore
+        if self.activation_token:
+            session.delete(self.activation_token)  # type: ignore
         send_validation_mail(self)
 
     def __activate_account(self) -> None:
