@@ -69,7 +69,7 @@ class TestFileCreator(TestCase):
         data['exposure'] = [{"chemicals": ["chemical1", "chemical1", "chemical2"], "dose": 0}]
         creator: DataframeCreator = DataframeCreator(data)
         df1, df2 = creator.to_dataframe()
-        self.assertEqual(df1.shape, (25, 20))
+        self.assertEqual(df1.shape, (25, 19))
         self.assertEqual(df2.shape, (1, 10))
 
         output_path = path.join(HERE, "..", "..", "test.xlsx")

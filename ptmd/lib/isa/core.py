@@ -123,7 +123,7 @@ class Batch2ISA:
         return [
             ParameterValue(category=self.protocol_parameters["collection_order"],
                            value=str(values['collection_order'])),
-            ParameterValue(category=self.protocol_parameters["exposure batch"], value=values['exposure batch']),
+            ParameterValue(category=self.protocol_parameters["exposure_batch"], value=values['exposure_batch']),
             ParameterValue(category=self.protocol_parameters["exposure_route"], value=values['exposure_route']),
             ParameterValue(category=self.protocol_parameters["operator"], value=values['operator'])
         ]
@@ -182,7 +182,7 @@ class Batch2ISA:
 
             parameter_values: dict = {
                 "collection_order": sample_info['collection_order'],
-                "exposure batch": self.data['general_info']['batch'],
+                "exposure_batch": self.data['general_info']['batch'],
                 "exposure_route": sample_info['exposure_route'],
                 "operator": sample_info['operator'],
             }

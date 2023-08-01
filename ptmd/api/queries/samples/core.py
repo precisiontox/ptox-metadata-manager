@@ -78,7 +78,7 @@ class SampleGenerator:
         exposure_info: DataFrame = file.parse("Exposure information").replace({nan: None}).replace({"NA": None})
         general_info["exposure_batch_startdate"] = general_info["exposure_batch_startdate"].astype(str)
         general_info["exposure_batch_enddate"] = general_info["exposure_batch_enddate"].astype(str)
-        exposure_info["Shipment identifier"] = exposure_info["Shipment identifier"].astype(str)
+        exposure_info["Shipment_identifier"] = exposure_info["Shipment_identifier"].astype(str)
         return {
             "general_info": general_info.to_dict(orient='records')[0],
             "exposure_info": exposure_info.to_dict(orient='records')
@@ -87,7 +87,7 @@ class SampleGenerator:
     def save_samples(self) -> None:
         """ Save the samples to the database. """
         for sample_data in self.data["exposure_info"]:
-            sample_id: str = sample_data["PrecisionTox short identifier"]
+            sample_id: str = sample_data["PrecisionTox_short_identifier"]
             compound_name: str = sample_data["compound_name"]
 
             if compound_name not in self.compounds:

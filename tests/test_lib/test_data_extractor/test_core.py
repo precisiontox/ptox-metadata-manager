@@ -17,7 +17,7 @@ class TestDataExtractor(TestCase):
             'compound_vehicle': 'DMSO',
             'timepoints': "[1, 2, 3]",
             'biosystem_name': 'H',
-            'exposure batch': "AA",
+            'exposure_batch': "AA",
             'partner_id': "UOX"
         }]
         data = extract_data_from_spreadsheet('test.xlsx')

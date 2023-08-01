@@ -193,7 +193,7 @@ class VerticalValidator:
         label: str = node['label']
         compound_name: str = node['data'].get('compound_name', None)
         replicate: int = node['data'].get('replicate', None)
-        timepoint: int = node['data'].get('timepoint (hours)', None)
+        timepoint: int = node['data'].get('timepoint_(hours)', None)
         dose: int = node['data'].get('dose_code', None)
 
         if compound_name:
@@ -203,13 +203,13 @@ class VerticalValidator:
 
             if timepoint not in self.timepoints and compound_name != 'EXTRACTION BLANK':
                 message = f"Timepoint {timepoint} is not in the list of timepoints {self.timepoints}."
-                self.validator.add_error(label, message, 'timepoint (hours)')
+                self.validator.add_error(label, message, 'timepoint_(hours)')
 
             if compound_name == 'EXTRACTION BLANK':
                 self.extraction_blanks += 1
                 if timepoint != 0:
                     message = "Extraction blank must have a timepoint of 0."
-                    self.validator.add_error(label, message, 'timepoint (hours)')
+                    self.validator.add_error(label, message, 'timepoint_(hours)')
 
             if compound_name in self.controls_keys:
                 if dose != 0:

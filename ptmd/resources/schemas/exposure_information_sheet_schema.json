@@ -46,7 +46,7 @@
         "type": "string",
         "description": "The operator."
     },
-    "PrecisionTox short identifier": {
+    "PrecisionTox_short_identifier": {
       "type": "string",
       "description": "The PrecisionTox short identifier.",
       "length": 9
@@ -66,7 +66,7 @@
       "description": "The timepoint level.",
       "pattern": "^TP[0-9]+$"
     },
-    "timepoint (hours)": {
+    "timepoint_(hours)": {
       "type": "number",
       "description": "The timepoint in hours.",
       "minimum": 0
@@ -81,11 +81,11 @@
     "compound_name",
     "dose_code",
     "exposure_route",
-    "PrecisionTox short identifier",
+    "PrecisionTox_short_identifier",
     "quantity_dead_during_exposure",
     "operator",
     "replicate",
     "timepoint_level",
-    "timepoint (hours)"
+    "timepoint_(hours)"
   ]
 }
