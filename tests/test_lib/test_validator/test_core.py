@@ -168,6 +168,8 @@ class TestVerticalValidator(TestCase):
         blank_node: dict = deepcopy(self.default_node)
         blank_node['data']['timepoint_(hours)'] = 8
         blank_node['data']['compound_name'] = "EXTRACTION BLANK"
+        blank_node['data']['collection_order'] = 10
+        blank_node['data']['box_id'] = "Box1"
 
         graph = VerticalValidator(self.general_information, validator)
         graph.add_node(self.default_node)
@@ -210,7 +212,6 @@ class TestVerticalValidator(TestCase):
         graph.add_node(self.default_node)
         graph.validate()
         self.assertFalse(validator.report['valid'])
-        print(validator.report['errors'])
         self.assertEqual(validator.report['errors'][self.organism][0]['message'],
                          "Replicate 1 is missing 1 timespoints(s).")
 

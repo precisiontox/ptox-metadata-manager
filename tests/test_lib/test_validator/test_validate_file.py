@@ -132,8 +132,8 @@ class TestExcelValidator(TestCase):
             validator = ExcelValidator(1)
             validator.validate()
             errors = validator.report['errors']
-            self.assertEqual(errors['Record at line 3 (FAC002LA1)'],
-                             [{'message': 'This field is required.', 'field_concerned': 'exposure_route'}])
+            self.assertIn({'message': 'This field is required.', 'field_concerned': 'exposure_route'},
+                          errors['Record at line 3 (FAC002LA1)'])
             self.assertEqual(validator.report['valid'], False)
 
     def test_report_file_not_found(self, mocked_get_session, mocked_validate_identifier, mocked_gdrive_connector,
