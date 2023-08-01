@@ -1,0 +1,18 @@
+The route to you change the current user password
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+definitions:
+  Test token:
+    type: boolean
+    description: True if the token is valid
+    example: True
+responses:
+  200:
+    description: The token is valid
+    schema:
+      $ref: '#/definitions/Test token'

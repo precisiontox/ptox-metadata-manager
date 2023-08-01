@@ -230,3 +230,11 @@ def delete_user(user_id: int) -> tuple[Response, int]:
     session.delete(user)  # type: ignore
     session.commit()
     return jsonify(msg=f"User {user_id} deleted"), 200
+
+
+def verify_token() -> tuple[Response, int]:
+    """ Verify if the token is valid
+
+    :return: tuple containing a JSON response and a status code
+    """
+    return jsonify(True), 200
