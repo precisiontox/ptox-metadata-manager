@@ -38,8 +38,7 @@ TIME_POINT_MAPPING: dict = {
 }
 SAMPLE_SHEET_EMPTY_COLUMNS: list[str] = [
     "sampleID_label",
-    "Shipment identifier",
-    "Label tube / identifier",
+    "Shipment_identifier",
     "box_id",
     "exposure_route",
     "operator",
@@ -48,8 +47,8 @@ SAMPLE_SHEET_EMPTY_COLUMNS: list[str] = [
     "collection_order",
     "box_row",
     "box_column",
-    "Mass including tube (mg)",
-    "Mass excluding tube (mg)",
+    "Mass_including_tube_(mg)",
+    "Mass_excluding_tube_(mg)",
     "observations_notes"
 ]
 SAMPLE_SHEET_COLUMNS: list[str] = [
@@ -58,13 +57,13 @@ SAMPLE_SHEET_COLUMNS: list[str] = [
     "compound_name",
     "dose_code",
     "timepoint_level",
-    "timepoint (hours)",
-    "PrecisionTox short identifier"
+    "timepoint_(hours)",
+    "PrecisionTox_short_identifier"
 ]
 GENERAL_SHEET_COLUMNS: list[str] = [
     "partner_id",
     "biosystem_name",
-    "exposure batch",
+    "exposure_batch",
     "control",
     "replicates",
     "blanks",

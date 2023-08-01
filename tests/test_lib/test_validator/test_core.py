@@ -62,13 +62,13 @@ mocked_session = MockSession()
 mocked_session_error = MockSessionError()
 mock_exposure_dataframe = DataFrame(columns=SAMPLE_SHEET_COLUMNS)
 mock_exposure_series = Series([
-    "qsd", "qsd", "qsd", "qsd", "qsd", "qsd", 12, 12, 1, "A", 1, None, None, None,
+    "qsd", "qsd", "qsd", "qsd", "qsd", 12, 12, 1, "A", 1, None, None, None,
     1, "Ethoprophos", "BMD10", "TP1", 4, "FAC002LA1"
 ], index=SAMPLE_SHEET_COLUMNS)
 mock_exposure_dataframe = concat([mock_exposure_dataframe, mock_exposure_series.to_frame().T],
                                  ignore_index=False, sort=False, copy=False)
 mock_exposure_series_error = Series([
-    "qsd", "qsd", "qsd", "qsd", None, "qsd", 12, 12, 1, "A", 1, None, None, None,
+    "qsd", "qsd", "qsd", None, "qsd", 12, 12, 1, "A", 1, None, None, None,
     1, "Ethoprophos", "BMD10", "TP1", 4, "FAC002LA1"
 ], index=SAMPLE_SHEET_COLUMNS)
 mock_exposure_dataframe_error = concat([mock_exposure_dataframe, mock_exposure_series_error.to_frame().T],
@@ -150,7 +150,7 @@ class TestVerticalValidator(TestCase):
             'data': {
                 "compound_name": self.organism,
                 "replicate": 1,
-                "timepoint (hours)": 4
+                "timepoint_(hours)": 4
             },
             'label': 'CP1'
         }
@@ -166,7 +166,7 @@ class TestVerticalValidator(TestCase):
         validator = MockValidator()
         self.general_information['blanks'] = 2
         blank_node: dict = deepcopy(self.default_node)
-        blank_node['data']['timepoint (hours)'] = 8
+        blank_node['data']['timepoint_(hours)'] = 8
         blank_node['data']['compound_name'] = "EXTRACTION BLANK"
 
         graph = VerticalValidator(self.general_information, validator)
@@ -182,7 +182,7 @@ class TestVerticalValidator(TestCase):
 
     def test_validate_timepoints_missing(self):
         validator = MockValidator()
-        self.general_information['timepoints'] = [4, 8]
+        self.general_information['timepoints'] = [0, 1]
         graph = VerticalValidator(self.general_information, validator)
         graph.add_node(self.default_node)
         graph.validate()
@@ -193,7 +193,7 @@ class TestVerticalValidator(TestCase):
     def test_validate_timepoints_too_many(self):
         validator = MockValidator()
         extra_node: dict = {**self.default_node}
-        extra_node['data']['timepoint (hours)'] = 8
+        extra_node['data']['timepoint_(hours)'] = 8
         self.general_information['timepoints'] = [4]
         graph = VerticalValidator(self.general_information, validator)
         graph.add_node(self.default_node)
@@ -210,6 +210,7 @@ class TestVerticalValidator(TestCase):
         graph.add_node(self.default_node)
         graph.validate()
         self.assertFalse(validator.report['valid'])
+        print(validator.report['errors'])
         self.assertEqual(validator.report['errors'][self.organism][0]['message'],
                          "Replicate 1 is missing 1 timespoints(s).")
 
@@ -234,6 +235,7 @@ class TestVerticalValidator(TestCase):
         control_node: dict = deepcopy(self.default_node)
         control_node['data']['compound_name'] = "CONTROL (DMSO)"
         control_node['data']['dose_code'] = 1
+        control_node['data']['timepoint_(hours)'] = 4
 
         graph = VerticalValidator(self.general_information, validator)
         graph.add_node(control_node)

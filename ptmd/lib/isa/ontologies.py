@@ -113,4 +113,4 @@ SPECIES: dict = {
     'Daphnia_magna': OntologyAnnotation(term_source=NCBI_TAXON, term='Daphnia magna', term_accession='NCBITaxon:35525'),
     'Drosophila_melanogaster': DROSOPHILA_OA,
 }
-TREATMENT_PARAMETERS = ["collection_order", "exposure batch", "exposure_route", "operator"]
+TREATMENT_PARAMETERS = ["collection_order", "exposure_batch", "exposure_route", "operator"]

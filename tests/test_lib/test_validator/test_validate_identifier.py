@@ -28,7 +28,7 @@ class ExcelValidatorMock:
             'label': 'test'
         }
         self.general_info: dict = {
-            'exposure batch': 'AC',
+            'exposure_batch': 'AC',
             'biosystem_name': 'test',
             'dose_code': 'BMD10',
             'compound_name': 'Compound 1',
@@ -52,7 +52,7 @@ class TestValidateIdentifier(TestCase):
         self.assertFalse(validator.report['valid'])
         expected_error = {
             'message': 'Record at line 2 (FAC002LA1) is duplicated with record at line 3',
-            'field_concerned': 'PrecisionTox short identifier'
+            'field_concerned': 'PrecisionTox_short_identifier'
         }
         self.assertEqual(validator.report['errors']['test'][0], expected_error)
 
@@ -93,11 +93,11 @@ class TestValidateIdentifier(TestCase):
 
     def test_validate_batch_error_wrong_batch_general_info(self):
         validator = ExcelValidatorMock()
-        validator.general_info['exposure batch'] = 'ABC'
+        validator.general_info['exposure_batch'] = 'ABC'
         validate_batch(validator)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'], "The batch 'ABC' is not valid.")
-        self.assertEqual(validator.report['errors']['test'][0]['field_concerned'], 'exposure batch')
+        self.assertEqual(validator.report['errors']['test'][0]['field_concerned'], 'exposure_batch')
 
     def test_validate_batch_error_wrong_batch_identifier(self):
         validator = ExcelValidatorMock()
