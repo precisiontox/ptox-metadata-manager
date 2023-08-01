@@ -118,10 +118,10 @@ def reset_pwd(token: str) -> tuple[Response, int]:
     return reset_password(token)
 
 
-# TODO: Add missing swagger for this route
 @app.route("/api/users/<user_id>/make_admin", methods=["GET"])
+@swag_from(path.join(USERS_DOC_PATH, 'make_admin.yml'))
 @jwt_required()
-def make_admin_(user_id: int) -> tuple[Response, int]:
+def make_admin(user_id: int) -> tuple[Response, int]:
     """ Route to make a user an admin. This is an admin only route
 
     :param user_id: the id of the user to make admin
@@ -131,6 +131,7 @@ def make_admin_(user_id: int) -> tuple[Response, int]:
 
 
 @app.route("/api/users/<user_id>/ban", methods=["GET"])
+@swag_from(path.join(USERS_DOC_PATH, 'ban_user.yml'))
 @jwt_required()
 def ban_user(user_id: int) -> tuple[Response, int]:
     """ Route to ban a user. This is an admin only route
@@ -142,6 +143,7 @@ def ban_user(user_id: int) -> tuple[Response, int]:
 
 
 @app.route("/api/users/<user_id>", methods=["DELETE"])
+@swag_from(path.join(USERS_DOC_PATH, 'delete_user.yml'))
 @jwt_required()
 def delete_user_(user_id: int) -> tuple[Response, int]:
     """ Route to delete a user. Admin or user only route
