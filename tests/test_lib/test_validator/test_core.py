@@ -168,6 +168,8 @@ class TestVerticalValidator(TestCase):
         blank_node: dict = deepcopy(self.default_node)
         blank_node['data']['timepoint_(hours)'] = 8
         blank_node['data']['compound_name'] = "EXTRACTION BLANK"
+        blank_node['data']['collection_order'] = 10
+        blank_node['data']['box_id'] = "Box1"
 
         graph = VerticalValidator(self.general_information, validator)
         graph.add_node(self.default_node)
@@ -210,7 +212,6 @@ class TestVerticalValidator(TestCase):
         graph.add_node(self.default_node)
         graph.validate()
         self.assertFalse(validator.report['valid'])
-        print(validator.report['errors'])
         self.assertEqual(validator.report['errors'][self.organism][0]['message'],
                          "Replicate 1 is missing 1 timespoints(s).")
 
@@ -242,3 +243,32 @@ class TestVerticalValidator(TestCase):
         graph.validate()
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['CP1'][0]['message'], "Controls must have a dose of 0.")
+
+    def test_validate_failed_box_id(self):
+        validator = MockValidator()
+        info = deepcopy(self.general_information)
+        info['replicates'] = 2
+        graph = VerticalValidator(info, validator)
+
+        node_1: dict = deepcopy(self.default_node)
+        node_1['data']['box_id'] = "Box1"
+        node_1['data']['box_column'] = 1
+        node_1['data']['box_row'] = 'A'
+
+        node_2: dict = deepcopy(self.default_node)
+        node_2['data']['replicate'] = 2
+        node_2['data']['box_id'] = "Box1"
+        node_2['data']['box_column'] = 1
+        node_2['data']['box_row'] = 'A'
+
+        graph.add_node(node_1)
+        graph.add_node(node_2)
+        graph.validate()
+        expected_error = {
+            'CP1': [
+                {'message': 'Box position Box1_A_1 is already used.', 'field_concerned': 'box_position'},
+                {'message': 'Collection order None is already used.', 'field_concerned': 'collection_order'}
+            ]
+        }
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors'], expected_error)

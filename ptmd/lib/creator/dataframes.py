@@ -75,12 +75,12 @@ def build_sample_dataframe(harvester: Any, chemicals_mapping: dict[str, str], or
                     dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
 
     # build the section containing the control conditions
-    for replicate in range(1, harvester.replicates4control + 1):
-        for tp in range(1, number_of_timepoints + 1):
-            timepoint_key = f'TP{tp}'
-            timepoint = TIME_POINT_MAPPING[timepoint_key] if timepoint_key in TIME_POINT_MAPPING else 'X'
-            timepoint_value = harvester.timepoints[tp - 1]
-            control_code = '999' if harvester.vehicle == 'DMSO' else '997'
+    for tp in range(1, number_of_timepoints + 1):
+        timepoint_key = f'TP{tp}'
+        timepoint = TIME_POINT_MAPPING[timepoint_key] if timepoint_key in TIME_POINT_MAPPING else 'X'
+        timepoint_value = harvester.timepoints[tp - 1]
+        control_code = '999' if harvester.vehicle == 'DMSO' else '997'
+        for replicate in range(1, harvester.replicates4control + 1):
             hash_id = '%s%s%sZ%s%s' % (organism_code, harvester.exposure_batch, control_code, timepoint, replicate)
             series = Series([*EMPTY_FIELDS_VALUES,
                              replicate, "CONTROL (%s)" % harvester.vehicle, 0, 'TP%s' % tp, timepoint_value, hash_id],

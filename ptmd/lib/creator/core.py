@@ -30,6 +30,10 @@ class DataframeCreator:
         self.__exposure_information_schema: dict = EXPOSURE_SCHEMA
         self.__user_input: dict = user_input
 
+        self.start_date: datetime = parse_date(user_input['start_date'])
+        self.end_date: datetime = parse_date(user_input['end_date'])
+        self.timepoints: list[int] = user_input['timepoints']
+
         self.validate()
 
         self.partner: str = user_input['partner']
@@ -38,9 +42,6 @@ class DataframeCreator:
         self.replicates4exposure: int = user_input['replicates4exposure']
         self.replicates4control: int = user_input['replicates4control']
         self.replicates_blank: int = user_input['replicates_blank']
-        self.start_date: datetime = parse_date(user_input['start_date'])
-        self.end_date: datetime = parse_date(user_input['end_date'])
-        self.timepoints: list[int] = user_input['timepoints']
         self.vehicle: str = user_input['vehicle']
         self.exposure_conditions: list[dict] = user_input['exposure']
         self.file_path: str = ''
@@ -63,6 +64,14 @@ class DataframeCreator:
         for error in errors:
             message: str = f"'{error.path[0]}' value {error.message}" if error.path else error.message
             raise ValidationError(message)
+        self.validate_timepoints_and_timeframe()
+
+    def validate_timepoints_and_timeframe(self) -> None:
+        """ Make sure the timepoints are not over extending the end date. """
+        for timepoint in self.timepoints:
+            breakpoint_: int = (self.end_date - self.start_date).days * 24 if self.end_date != self.start_date else 24
+            if timepoint > breakpoint_:
+                raise ValidationError(f"Timepoint {timepoint} is over extending the end date.")
 
     def get_array_of_unique_chemicals(self) -> list[str]:
         """ Get an array of unique chemicals from the exposure conditions.
