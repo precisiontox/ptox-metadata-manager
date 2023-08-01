@@ -390,8 +390,12 @@ class TestUserQueries(TestCase):
         mock_user.query.filter().first.return_value.id = 1
         mock_current_user.return_value.id = 2
         mock_current_user.return_value.role = "user"
-        headers = {'Authorization': f'Bearer {123}', **HEADERS}
         with app.test_client() as client:
-            response = client.delete('/api/users/2', headers=headers)
+            response = client.delete('/api/users/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json, {"msg": "Unauthorized"})
             self.assertEqual(response.status_code, 401)
+
+    def test_token(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        with app.test_client() as client:
+            response = client.get('/api/session', headers={'Authorization': f'Bearer {123}', **HEADERS})
+            self.assertEqual(response.status_code, 200)

@@ -13,7 +13,8 @@ from .users import (
     send_reset_email, reset_password,
     get_users,
     change_role,
-    delete_user
+    delete_user,
+    verify_token
 )
 from .files import (
     validate_file,

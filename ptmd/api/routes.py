@@ -19,7 +19,8 @@ from ptmd.api.queries import (
     convert_to_isa,
     send_reset_email, reset_password,
     change_role,
-    delete_user
+    delete_user,
+    verify_token
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH, SAMPLES_DOC_PATH
 
@@ -73,6 +74,17 @@ def modify_token() -> tuple[Response, int]:
 
     :return: the response and the status code"""
     return logout()
+
+
+@app.route("/api/session", methods=["GET"])
+@swag_from(path.join(USERS_DOC_PATH, 'test_token.yml'))
+@jwt_required()
+def test_token() -> tuple[Response, int]:
+    """ Route to test the user JWT
+
+    :return: the response and the status code
+    """
+    return verify_token()
 
 
 @app.route("/api/users/enable/<token>", methods=["GET"])
