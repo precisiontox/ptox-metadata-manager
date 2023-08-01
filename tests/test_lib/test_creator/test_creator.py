@@ -110,4 +110,3 @@ class TestFileCreator(TestCase):
             creator: DataframeCreator = DataframeCreator(data)
             creator.validate()
         self.assertEqual(str(context.exception), "Timepoint 30000000 is over extending the end date.")
-

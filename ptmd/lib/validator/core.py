@@ -99,7 +99,6 @@ class ExcelValidator:
             self.current_record = {'data': record, 'label': label}
 
             for error in errors:
-                has_errors = True
                 message: str = "This field is required." if "None is not of type" in error.message else error.message
                 field: str = error.message.split("'")[1] if not error.path else error.path[0]
                 self.add_error(label, message, field)
