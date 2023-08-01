@@ -36,8 +36,13 @@ class TestUser(TestCase):
             self.assertEqual(user.role, 'admin')
 
     def test_user_admin(self):
+        organisation = Organisation(name='123', gdrive_id='1')
+        organisation.files = []
+        organisation.id = 2
         user = User(username='test', password='test', email='your@email.com', role='admin')
+        user.organisation = organisation
         self.assertEqual(user.role, 'admin')
+        self.assertEqual(dict(user)['files'], [])
 
     @patch('ptmd.database.queries.users.create_access_token', return_value='OK')
     @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)

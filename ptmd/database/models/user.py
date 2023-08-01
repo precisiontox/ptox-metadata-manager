@@ -61,11 +61,14 @@ class User(Base):
 
         :return: The iterator.
         """
+        files: list[dict] = [dict(file) for file in self.files]
+        if self.organisation:
+            files = [dict(file) for file in self.organisation.files]
         user: dict = {
             "id": self.id,
             "username": self.username,
             "organisation": self.organisation.name if self.organisation else None,
-            "files": [dict(file) for file in self.files],
+            "files": files,
             "role": self.role
         }
         for key, value in user.items():
