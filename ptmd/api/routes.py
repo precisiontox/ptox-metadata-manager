@@ -18,7 +18,8 @@ from ptmd.api.queries import (
     ship_data, receive_data,
     convert_to_isa,
     send_reset_email, reset_password,
-    change_role
+    change_role,
+    delete_user
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH, SAMPLES_DOC_PATH
 
@@ -117,6 +118,7 @@ def reset_pwd(token: str) -> tuple[Response, int]:
     return reset_password(token)
 
 
+# TODO: Add missing swagger for this route
 @app.route("/api/users/<user_id>/make_admin", methods=["GET"])
 @jwt_required()
 def make_admin_(user_id: int) -> tuple[Response, int]:
@@ -126,6 +128,28 @@ def make_admin_(user_id: int) -> tuple[Response, int]:
     :return: the response and the status code
     """
     return change_role(user_id=user_id, role='admin')
+
+
+@app.route("/api/users/<user_id>/ban", methods=["GET"])
+@jwt_required()
+def ban_user(user_id: int) -> tuple[Response, int]:
+    """ Route to ban a user. This is an admin only route
+
+    :param user_id: the id of the user to ban
+    :return: the response and the status code
+    """
+    return change_role(user_id=user_id, role='banned')
+
+
+@app.route("/api/users/<user_id>", methods=["DELETE"])
+@jwt_required()
+def delete_user_(user_id: int) -> tuple[Response, int]:
+    """ Route to delete a user. Admin or user only route
+
+    :param user_id: the id of the user to delete
+    :return: the response and the status code
+    """
+    return delete_user(user_id)
 
 
 ###########################################################
