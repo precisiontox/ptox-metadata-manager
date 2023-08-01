@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from pandas import DataFrame, Series, concat
 
-from ptmd.lib.validator.core import ExternalExcelValidator, VerticalValidator
+from ptmd.lib.validator.core import ExternalExcelValidator, VerticalValidator, ExcelValidator
 from ptmd.const import SAMPLE_SHEET_COLUMNS, GENERAL_SHEET_COLUMNS
 
 
@@ -242,3 +242,32 @@ class TestVerticalValidator(TestCase):
         graph.validate()
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['CP1'][0]['message'], "Controls must have a dose of 0.")
+
+    def test_validate_failed_box_id(self):
+        validator = MockValidator()
+        info = deepcopy(self.general_information)
+        info['replicates'] = 2
+        graph = VerticalValidator(info, validator)
+
+        node_1: dict = deepcopy(self.default_node)
+        node_1['data']['box_id'] = "Box1"
+        node_1['data']['box_column'] = 1
+        node_1['data']['box_row'] = 'A'
+
+        node_2: dict = deepcopy(self.default_node)
+        node_2['data']['replicate'] = 2
+        node_2['data']['box_id'] = "Box1"
+        node_2['data']['box_column'] = 1
+        node_2['data']['box_row'] = 'A'
+
+        graph.add_node(node_1)
+        graph.add_node(node_2)
+        graph.validate()
+        expected_error = {
+            'CP1': [
+                {'message': 'Box position Box1_A_1 is already used.', 'field_concerned': 'box_position'},
+                {'message': 'Collection order None is already used.', 'field_concerned': 'collection_order'}
+            ]
+        }
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors'], expected_error)

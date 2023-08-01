@@ -90,14 +90,16 @@ class ExcelValidator:
         self.__load_data()
         validator: JSONValidator = JSONValidator(self.__schema)
         self.report['valid'] = True
-        graph = VerticalValidator(self.general_info, self)
+        graph: VerticalValidator = VerticalValidator(self.general_info, self)
 
         for record_index, record in enumerate(self.exposure_data):
             ptx_id: str = record[PTX_ID_LABEL]
             label: str = f"Record at line {record_index + 2} ({ptx_id})"
             errors: Generator = validator.iter_errors(record)
             self.current_record = {'data': record, 'label': label}
+
             for error in errors:
+                has_errors = True
                 message: str = "This field is required." if "None is not of type" in error.message else error.message
                 field: str = error.message.split("'")[1] if not error.path else error.path[0]
                 self.add_error(label, message, field)
@@ -183,6 +185,9 @@ class VerticalValidator:
         self.compounds: dict = {}
         self.extraction_blanks: int = 0
 
+        self.box_positions: list[str] = []
+        self.collection_order: list[int] = []
+
     def add_node(self, node: dict) -> None:
         """ Add the node and validates it.
 
@@ -195,8 +200,24 @@ class VerticalValidator:
         replicate: int = node['data'].get('replicate', None)
         timepoint: int = node['data'].get('timepoint_(hours)', None)
         dose: int = node['data'].get('dose_code', None)
+        box_position: str = (f"{node['data'].get('box_id')}"
+                             f"_{node['data'].get('box_row')}"
+                             f"_{node['data'].get('box_column')}")
+        collection_order: int = node['data'].get('collection_order')
 
         if compound_name:
+            if box_position in self.box_positions:
+                message = f"Box position {box_position} is already used."
+                self.validator.add_error(label, message, 'box_position')
+            else:
+                self.box_positions.append(box_position)
+
+            if collection_order in self.collection_order:
+                message = f"Collection order {collection_order} is already used."
+                self.validator.add_error(label, message, 'collection_order')
+            else:
+                self.collection_order.append(collection_order)
+
             if replicate > self.replicates:
                 message = f"Replicate {replicate} is greater than the number of replicates {self.replicates}."
                 self.validator.add_error(label, message, 'replicate')
