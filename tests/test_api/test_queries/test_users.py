@@ -334,3 +334,64 @@ class TestUserQueries(TestCase):
             response = client.get('/api/users/2/make_admin', headers=headers)
             self.assertEqual(response.json, {'msg': 'Invalid role'})
             self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.session')
+    @patch('ptmd.api.queries.users.get_current_user')
+    def test_ban_success(self, mock_current_user, mock_session, mock_user,
+                         mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
+        mock_get_current_user_utils.return_value.role = 'admin'
+        mock_user.query.filter().return_value = MockedUser()
+        mock_current_user.return_value = MockedUser()
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.get('/api/users/2/ban', headers=headers)
+            self.assertEqual(response.json, {"msg": "User 2 role has been changed to banned"})
+            self.assertEqual(response.status_code, 200)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.session')
+    @patch('ptmd.api.queries.users.get_current_user')
+    def test_delete_user_success(self, mock_current_user, mock_session, mock_user,
+                                 mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
+        mock_get_current_user_utils.return_value.role = 'admin'
+
+        mocked_user: MockedUser = MockedUser()
+        mocked_user.id = 1
+        mocked_user.role = 'admin'
+
+        mock_user.query.filter.first().return_value = mocked_user
+        mock_current_user.return_value = mocked_user
+
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.delete('/api/users/2', headers=headers)
+            self.assertEqual(response.json, {"msg": "User 2 deleted"})
+            self.assertEqual(response.status_code, 200)
+            mock_session.delete.assert_called_with(mock_user.query.filter().first.return_value)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.session')
+    @patch('ptmd.api.queries.users.get_current_user')
+    def test_delete_user_failed_404(self, mock_current_user, mock_session, mock_user,
+                                    mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
+        mock_user.query.filter().first.return_value = None
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.delete('/api/users/2', headers=headers)
+            self.assertEqual(response.json, {"msg": "User not found"})
+            self.assertEqual(response.status_code, 404)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.session')
+    @patch('ptmd.api.queries.users.get_current_user')
+    def test_delete_user_failed_401(self, mock_current_user, mock_session, mock_user,
+                                    mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
+        mock_user.query.filter().first.return_value.id = 1
+        mock_current_user.return_value.id = 2
+        mock_current_user.return_value.role = "user"
+        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        with app.test_client() as client:
+            response = client.delete('/api/users/2', headers=headers)
+            self.assertEqual(response.json, {"msg": "Unauthorized"})
+            self.assertEqual(response.status_code, 401)

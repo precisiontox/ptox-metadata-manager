@@ -213,3 +213,20 @@ def change_role(user_id: int, role: str) -> tuple[Response, int]:
         return jsonify(msg=f"User {user_id} role has been changed to {role}"), 200
     except ValueError:
         return jsonify(msg="Invalid role"), 400
+
+
+def delete_user(user_id: int) -> tuple[Response, int]:
+    """ Delete a user. Admin or self only
+
+    :param user_id: ID of the user to delete
+    :return: tuple containing a JSON response and a status code
+    """
+    current_user: User = get_current_user()
+    user: User = User.query.filter(User.id == user_id).first()
+    if not user:
+        return jsonify(msg="User not found"), 404
+    if current_user.role != 'admin' and user.id != current_user.id:
+        return jsonify(msg="Unauthorized"), 401
+    session.delete(user)  # type: ignore
+    session.commit()
+    return jsonify(msg=f"User {user_id} deleted"), 200

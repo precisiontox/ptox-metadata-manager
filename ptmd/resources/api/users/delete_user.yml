@@ -1,0 +1,29 @@
+The route to you change the current user password
+---
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+    description: The JWT token
+  - name: user_id
+    in: path
+    required: true
+    type: integer
+    description: The user id
+definitions:
+  Delete User:
+    type: string
+    description: message to confirm the user deletion
+    example: User 2 deleted
+responses:
+  200:
+    description: The user data with that JWT token
+    properties:
+      changed:
+        type: boolean
+        description: True if the password was changed
+  401:
+    description: The JWT token is missing or invalid
+    schema:
+      $ref: '#/definitions/Missing Bearer Response'
