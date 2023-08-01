@@ -36,18 +36,18 @@ CHEMICAL_MAPPING: dict = {
 class TestFileCreator(TestCase):
 
     def test_error_partner(self):
-        data: dict = {}
+        data: dict = {'start_date': '2020-01-01', 'end_date': '2020-01-01', 'timepoints': [1, 2, 3]}
         with self.assertRaises(ValidationError) as context:
             DataframeCreator(data)
         self.assertEqual("'partner' is a required property", str(context.exception))
 
-        data = {"partner": "ABC"}
+        data["partner"] = "ABC"
         with self.assertRaises(ValidationError) as context:
             DataframeCreator(data)
         self.assertEqual(f"'partner' value 'ABC' is not one of {ALLOWED_PARTNERS}",
                          str(context.exception))
 
-        data = {"partner": 1}
+        data["partner"] = 1
         with self.assertRaises(ValidationError) as context:
             DataframeCreator(data)
         self.assertEqual("'partner' value 1 is not of type 'string'",
@@ -96,3 +96,18 @@ class TestFileCreator(TestCase):
         with self.assertRaises(ValueError) as context:
             creator.to_dataframe()
         self.assertEqual("Organism H not found in the database.", str(context.exception))
+
+    @patch('ptmd.lib.creator.core.get_chemical_code_mapping', return_value=CHEMICAL_MAPPING)
+    @patch('ptmd.lib.creator.core.get_organism_code', return_value='H')
+    @patch('ptmd.lib.creator.core.get_allowed_organisms', return_value=['H'])
+    def test_overextending_timeframe(self, mock_chemical_mapping, mock_organism_code, mock_allowed_organisms):
+        data = deepcopy(VALID_INPUT)
+        data['exposure'] = [{"chemicals": ["chemical1", "chemical1", "chemical2"], "dose": 0}]
+        data['start_date'] = '2020-01-01'
+        data['end_date'] = '2020-01-01'
+        data['timepoints'] = [1, 2, 30000000]
+        with self.assertRaises(ValidationError) as context:
+            creator: DataframeCreator = DataframeCreator(data)
+            creator.validate()
+        self.assertEqual(str(context.exception), "Timepoint 30000000 is over extending the end date.")
+
