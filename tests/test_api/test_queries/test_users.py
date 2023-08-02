@@ -11,10 +11,16 @@ from ptmd.api import app
 HEADERS = {'Content-Type': 'application/json'}
 
 
+class MockedFile:
+    def __init__(self):
+        self.author = 'author'
+
+
 class MockedUser:
     def __init__(self) -> None:
         self.role = "enabled"
         self.id = 2
+        self.files = [MockedFile()]
 
     def set_role(self, role):
         self.role = role
@@ -357,10 +363,10 @@ class TestUserQueries(TestCase):
         mock_get_current_user_utils.return_value.role = 'admin'
 
         mocked_user: MockedUser = MockedUser()
-        mocked_user.id = 1
+        mocked_user.id = 3
         mocked_user.role = 'admin'
 
-        mock_user.query.filter.first().return_value = mocked_user
+        mock_user.query.filter().first.return_value = mocked_user
         mock_current_user.return_value = mocked_user
 
         headers = {'Authorization': f'Bearer {123}', **HEADERS}
@@ -387,13 +393,26 @@ class TestUserQueries(TestCase):
     @patch('ptmd.api.queries.users.get_current_user')
     def test_delete_user_failed_401(self, mock_current_user, mock_session, mock_user,
                                     mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
-        mock_user.query.filter().first.return_value.id = 1
-        mock_current_user.return_value.id = 2
+        mock_user.query.filter().first.return_value.id = 3
+        mock_current_user.return_value.id = 5
         mock_current_user.return_value.role = "user"
         with app.test_client() as client:
             response = client.delete('/api/users/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json, {"msg": "Unauthorized"})
             self.assertEqual(response.status_code, 401)
+
+    @patch('ptmd.api.queries.users.User')
+    @patch('ptmd.api.queries.users.session')
+    @patch('ptmd.api.queries.users.get_current_user')
+    def test_delete_user_failed_400(self, mock_current_user, mock_session, mock_user,
+                                    mock_get_current_user_utils, mock_verify_jwt, mock_verify_in_request):
+        mock_user.query.filter().first.return_value.id = 1
+        mock_current_user.return_value.id = 1
+        mock_current_user.return_value.role = "user"
+        with app.test_client() as client:
+            response = client.delete('/api/users/1', headers={'Authorization': f'Bearer {123}', **HEADERS})
+            self.assertEqual(response.json, {"msg": "Cannot delete super user"})
+            self.assertEqual(response.status_code, 400)
 
     def test_token(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
         with app.test_client() as client:
