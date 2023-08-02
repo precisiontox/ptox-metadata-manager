@@ -6,6 +6,7 @@ A file represents an identifier pointing to a specific Google Drive file.
 from __future__ import annotations
 
 from typing import Generator
+from datetime import datetime
 
 from flask_jwt_extended import get_current_user
 
@@ -34,6 +35,8 @@ class File(Base):
     :param doses: List of doses.
     :param chemicals: List of chemicals.
     :param timepoints: List of timepoints.
+    :param start_date: Start date of the experiment.
+    :param end_date: End date of the experiment.
     """
     __tablename__: str = 'file'
     file_id: int = db.Column(db.Integer, primary_key=True)
@@ -48,6 +51,12 @@ class File(Base):
     # Shipping status
     shipped: bool = db.Column(db.Boolean, nullable=False, default=False)
     received: bool = db.Column(db.Boolean, nullable=False, default=False)
+
+    # Dates
+    start_date: datetime = db.Column(db.DateTime, nullable=False)
+    end_date: datetime = db.Column(db.DateTime, nullable=False)
+    ship_date: datetime = db.Column(db.DateTime, nullable=True)
+    receive_date: datetime = db.Column(db.DateTime, nullable=True)
 
     # Relationships
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=False)
@@ -77,6 +86,8 @@ class File(Base):
             user_id: int,
             organism_name: str,
             vehicle_name: str,
+            start_date: str,
+            end_date: str,
             doses: list | None = None,
             chemicals: list | None = None,
             timepoints: list | None = None
@@ -98,6 +109,9 @@ class File(Base):
         self.doses = doses if doses else []
         self.timepoints = timepoints if timepoints else []
 
+        self.start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        self.end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
     def __iter__(self) -> Generator:
         """ Iterator for the object. Used to serialize the object as a dictionary. """
         output: dict = {
@@ -111,6 +125,11 @@ class File(Base):
 
             'shipped': self.shipped,
             'received': self.received,
+
+            'start_date': self.start_date.strftime('%Y-%m-%d'),
+            'end_date': self.end_date.strftime('%Y-%m-%d'),
+            'shipment_date': self.ship_date.strftime('%Y-%m-%d') if self.ship_date else None,
+            'receive_date': self.receive_date.strftime('%Y-%m-%d') if self.receive_date else None,
 
             'organisation': self.organisation.name if self.organisation else None,
             'author': self.author.username if self.author else None,
@@ -142,19 +161,28 @@ class File(Base):
             session.delete(self)  # type: ignore
             session.commit()
 
-    def shipment_was_received(self) -> None:
+    def shipment_was_received(self, at: str | None = None) -> None:
         """ Update the shipment status of the file. This method is called when the shipment is received.
+
+        :param at: the date the shipment was received
         """
         user: User = get_current_user()
         if user.role != 'admin':
             raise PermissionError(f"You don't have permission to update to receive shipment for file {self.file_id}.")
         if not self.shipped:
             raise ValueError(f"File {self.file_id} has not been shipped yet.")
+        received_at: datetime = self.__validate_time(at, 'received')
+        if received_at < self.ship_date:
+            raise ValueError(f"File {self.file_id} cannot be received before it was shipped.")
         self.received = True
+        self.receive_date = received_at
         session.commit()
 
-    def ship_samples(self) -> None:
-        """ Ship the samples to the user. """
+    def ship_samples(self, at: str | None = None) -> None:
+        """ Ship the samples to the user.
+
+        :param at: the date the samples were shipped
+        """
         user: User = get_current_user()
         if user != self.author and user.role != 'admin':
             raise PermissionError(f"You don't have permission to ship file {self.file_id}.")
@@ -162,5 +190,26 @@ class File(Base):
             raise ValueError(f"File {self.file_id} has not been validated yet or has failed validation.")
         if self.shipped:
             raise ValueError(f"File {self.file_id} has already been shipped.")
+        shipped_at: datetime = self.__validate_time(at, 'shipped')
         self.shipped = True
+        self.ship_date = shipped_at
         session.commit()
+
+    def __validate_time(self, at: str | None, field: str) -> datetime:
+        """ Validate the time of the shipment or reception of the file to make sure it is after the start and end date
+        of the collection steps.
+
+        :@param at: the date the samples were shipped
+        :@param field: the field to be validated
+        :@return: the date the samples were shipped
+
+        :@raise ValueError: if the date is before the start or end date of the collection steps
+        """
+        start_date: datetime = datetime.strptime(self.start_date.strftime('%Y-%m-%d'), '%Y-%m-%d')
+        end_date: datetime = datetime.strptime(self.end_date.strftime('%Y-%m-%d'), '%Y-%m-%d')
+        shipped_at: datetime = datetime.strptime(at, '%Y-%m-%d') if at else datetime.now()
+        if shipped_at < start_date:
+            raise ValueError(f"File {self.file_id} cannot be {field} before the start date of the experiment.")
+        if shipped_at < end_date:
+            raise ValueError(f"File {self.file_id} cannot be {field} before the end date of the experiment.")
+        return shipped_at

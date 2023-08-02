@@ -6,7 +6,10 @@ from ptmd.database.queries.files import create_files, prepare_files_data, extrac
 USER_ID = 1
 ORGANISATION_NAME = 'JDHSKJFHDFHUERY_Aedes_aegypti_AA.xlsx'
 DRIVE_ID = '1'
-EXTRA_DATA = {'replicates': 1, 'controls': 1, 'blanks': 1, 'vehicle_name': 'DMSO'}
+EXTRA_DATA = {
+    'replicates': 1, 'controls': 1, 'blanks': 1, 'vehicle_name': 'DMSO',
+    'start_date': '2020-01-01', 'end_date': '2020-01-01'
+}
 PREPARED_DATA = {
     'gdrive_id': DRIVE_ID,
     'name': ORGANISATION_NAME,

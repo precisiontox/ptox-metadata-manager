@@ -18,7 +18,9 @@ class TestDataExtractor(TestCase):
             'timepoints': "[1, 2, 3]",
             'biosystem_name': 'H',
             'exposure_batch': "AA",
-            'partner_id': "UOX"
+            'partner_id': "UOX",
+            'exposure_batch_startdate': "2021-01-01",
+            'exposure_batch_enddate': "2021-01-01"
         }]
         data = extract_data_from_spreadsheet('test.xlsx')
         self.assertEqual(data, {
@@ -30,7 +32,9 @@ class TestDataExtractor(TestCase):
             'timepoints': [1, 2, 3],
             'batch': 'AA',
             'organisation_name': 'UOX',
-            'organism_name': 'H'
+            'organism_name': 'H',
+            'start_date': '2021-01-01',
+            'end_date': '2021-01-01'
         })
         mock_chemicals.assert_called_once()
         mock_tp.assert_called_once()

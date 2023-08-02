@@ -1,6 +1,8 @@
 from unittest import TestCase
 from unittest.mock import patch, mock_open
 
+from datetime import datetime
+
 from ptmd.database import File, Dose, Timepoint
 
 
@@ -14,7 +16,9 @@ DATA = {
     'replicates': 1,
     'controls': 1,
     'blanks': 1,
-    'vehicle_name': 'test'
+    'vehicle_name': 'test',
+    'start_date': '2020-01-01',
+    'end_date': '2020-01-02',
 }
 
 
@@ -46,7 +50,11 @@ class TestFile(TestCase):
             'timepoints': [],
             'validated': None,
             'shipped': None,
-            'received': None
+            'received': None,
+            'start_date': '2020-01-01',
+            'end_date': '2020-01-02',
+            'receive_date': None,
+            'shipment_date': None
         })
 
     @patch('ptmd.database.models.file.Organisation')
@@ -140,6 +148,31 @@ class TestFile(TestCase):
     @patch('ptmd.database.models.file.Organism')
     @patch('ptmd.database.models.file.Chemical')
     @patch('ptmd.database.models.file.get_current_user')
+    def test_receive_shipment_error_wrong_date(self, mock_user, mock_chemical, mock_organism, mock_organisation):
+        mock_user.return_value.role = 'admin'
+        mock_organisation.query.filter_by().first().organisation_id = 1
+        mock_organism.query.filter_by().first().organism_id = 1
+        mock_chemical.query.filter_by().first().chemical_id = 1
+        file = File(**DATA)
+        file.file_id = 1
+        file.shipped = True
+        file.ship_date = datetime.strptime("2023-08-02", '%Y-%m-%d')
+        with self.assertRaises(ValueError) as context:
+            file.shipment_was_received("2023-08-01")
+        self.assertEqual(str(context.exception), "File 1 cannot be received before it was shipped.")
+
+        with self.assertRaises(ValueError) as context:
+            file.shipment_was_received("2019-01-01")
+        self.assertEqual(str(context.exception), "File 1 cannot be received before the start date of the experiment.")
+
+        with self.assertRaises(ValueError) as context:
+            file.shipment_was_received("2020-01-01")
+        self.assertEqual(str(context.exception), "File 1 cannot be received before the end date of the experiment.")
+
+    @patch('ptmd.database.models.file.Organisation')
+    @patch('ptmd.database.models.file.Organism')
+    @patch('ptmd.database.models.file.Chemical')
+    @patch('ptmd.database.models.file.get_current_user')
     @patch('ptmd.database.models.file.session')
     def test_receive_shipment_success(self, mock_session, mock_user, mock_chemical, mock_organism, mock_organisation):
         mock_user.return_value.role = 'admin'
@@ -147,6 +180,7 @@ class TestFile(TestCase):
         mock_organism.query.filter_by().first().organism_id = 1
         mock_chemical.query.filter_by().first().chemical_id = 1
         file = File(**DATA)
+        file.ship_date = datetime.now()
         file.shipped = True
         file.shipment_was_received()
         self.assertTrue(file.received)

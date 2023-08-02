@@ -14,7 +14,9 @@ DATA = {
     'replicates': 1,
     'controls': 1,
     'blanks': 1,
-    'vehicle_name': 'test'
+    'vehicle_name': 'test',
+    'start_date': '2020-01-01',
+    'end_date': '2020-01-01',
 }
 
 
@@ -60,5 +62,9 @@ class TestDose(TestCase):
             'timepoints': [],
             'validated': None,
             'received': None,
-            'shipped': None
+            'shipped': None,
+            'start_date': '2020-01-01',
+            'end_date': '2020-01-01',
+            'shipment_date': None,
+            'receive_date': None,
         })

@@ -50,7 +50,8 @@ class TestSamples(TestCase):
         organisation = Organisation(name='test', longname='test')
         mock_organisation.query.filter_by().first.return_value = organisation
         file = File(gdrive_id='test', name='test', batch='test', replicates=1, controls=1, blanks=1,
-                    organisation_name="org", user_id=1, organism_name='test', vehicle_name="vehicle")
+                    organisation_name="org", user_id=1, organism_name='test', vehicle_name="vehicle",
+                    start_date='2021-01-01', end_date='2021-01-01')
         file.organism = Organism(ptox_biosystem_name='test', scientific_name='test', ptox_biosystem_code='test')
         file.organisation = organisation
         file.vehicle = Chemical(common_name='test', chemical_id=1)

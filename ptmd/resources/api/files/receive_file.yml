@@ -11,6 +11,11 @@ parameters:
     required: true
     type: string
     description: The ID of the file to receive
+  - name: at
+    in: body
+    type: string
+    description: the time at which the file was received
+    example: "2021-01-25"
 definitions:
   Receive Samples Response:
     type: object

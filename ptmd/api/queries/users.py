@@ -225,8 +225,13 @@ def delete_user(user_id: int) -> tuple[Response, int]:
     user: User = User.query.filter(User.id == user_id).first()
     if not user:
         return jsonify(msg="User not found"), 404
+    if user.id == 1:
+        return jsonify(msg="Cannot delete super user"), 400
     if current_user.role != 'admin' and user.id != current_user.id:
         return jsonify(msg="Unauthorized"), 401
+    admin: User = User.query.filter(User.id == 1).first()
+    for file in user.files:
+        file.author = admin
     session.delete(user)  # type: ignore
     session.commit()
     return jsonify(msg=f"User {user_id} deleted"), 200
