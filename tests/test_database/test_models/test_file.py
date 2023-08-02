@@ -14,7 +14,9 @@ DATA = {
     'replicates': 1,
     'controls': 1,
     'blanks': 1,
-    'vehicle_name': 'test'
+    'vehicle_name': 'test',
+    'start_date': '2020-01-01',
+    'end_date': '2020-01-01',
 }
 
 
@@ -46,7 +48,9 @@ class TestFile(TestCase):
             'timepoints': [],
             'validated': None,
             'shipped': None,
-            'received': None
+            'received': None,
+            'start_date': '2020-01-01',
+            'end_date': '2020-01-01'
         })
 
     @patch('ptmd.database.models.file.Organisation')

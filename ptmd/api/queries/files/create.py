@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from os import path
+from datetime import datetime
 
 from flask import request, Response, jsonify
 from flask_jwt_extended import get_current_user
@@ -24,13 +25,14 @@ class CreateGDriveFile:
 
     def __init__(self) -> None:
         """ Constructor of the class. Contains the user input. """
+        now: str = datetime.now().strftime("%Y-%m-%d")
         self.data: dict = {
             "partner": request.json.get("partner", None),
             "organism": request.json.get("organism", None),
             "exposure_batch": request.json.get("exposure_batch", None),
             "replicates_blank": request.json.get("replicate_blank", None),
-            "start_date": request.json.get("start_date", None),
-            "end_date": request.json.get("end_date", None),
+            "start_date": request.json.get("start_date", now),
+            "end_date": request.json.get("end_date", now),
             "exposure": request.json.get("exposure_conditions", None),
             "replicates4control": request.json.get("replicate4control", None),
             "replicates4exposure": request.json.get("replicate4exposure", None),
@@ -61,6 +63,7 @@ class CreateGDriveFile:
         dataframes_generator.delete_file()
         if not response:
             raise Exception("An error occurred while uploading the file to the Google Drive.")
+
         db_file: File = File(gdrive_id=response['id'],
                              name=response['title'],
                              organisation_name=self.data['partner'],
@@ -72,7 +75,9 @@ class CreateGDriveFile:
                              blanks=self.data['replicates_blank'],
                              vehicle_name=self.data['vehicle'],
                              chemicals=chemicals,
-                             timepoints=timepoints)
+                             timepoints=timepoints,
+                             start_date=self.data['start_date'],
+                             end_date=self.data['end_date'])
         session.add(db_file)
         session.commit()
         return {**dict(db_file), 'file_url': response['alternateLink']}

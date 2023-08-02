@@ -6,6 +6,7 @@ A file represents an identifier pointing to a specific Google Drive file.
 from __future__ import annotations
 
 from typing import Generator
+from datetime import datetime
 
 from flask_jwt_extended import get_current_user
 
@@ -34,6 +35,8 @@ class File(Base):
     :param doses: List of doses.
     :param chemicals: List of chemicals.
     :param timepoints: List of timepoints.
+    :param start_date: Start date of the experiment.
+    :param end_date: End date of the experiment.
     """
     __tablename__: str = 'file'
     file_id: int = db.Column(db.Integer, primary_key=True)
@@ -48,6 +51,12 @@ class File(Base):
     # Shipping status
     shipped: bool = db.Column(db.Boolean, nullable=False, default=False)
     received: bool = db.Column(db.Boolean, nullable=False, default=False)
+
+    # Dates
+    start_date: datetime = db.Column(db.DateTime, nullable=False)
+    end_date: datetime = db.Column(db.DateTime, nullable=False)
+    # send_date: datetime = db.Column(db.DateTime, nullable=True)
+    # receive_date: datetime = db.Column(db.DateTime, nullable=True)
 
     # Relationships
     organisation_id: int = db.Column(db.Integer, db.ForeignKey('organisation.organisation_id'), nullable=False)
@@ -77,6 +86,8 @@ class File(Base):
             user_id: int,
             organism_name: str,
             vehicle_name: str,
+            start_date: str,
+            end_date: str,
             doses: list | None = None,
             chemicals: list | None = None,
             timepoints: list | None = None
@@ -98,6 +109,9 @@ class File(Base):
         self.doses = doses if doses else []
         self.timepoints = timepoints if timepoints else []
 
+        self.start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        self.end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
     def __iter__(self) -> Generator:
         """ Iterator for the object. Used to serialize the object as a dictionary. """
         output: dict = {
@@ -111,6 +125,9 @@ class File(Base):
 
             'shipped': self.shipped,
             'received': self.received,
+
+            'start_date': self.start_date.strftime('%Y-%m-%d'),
+            'end_date': self.end_date.strftime('%Y-%m-%d'),
 
             'organisation': self.organisation.name if self.organisation else None,
             'author': self.author.username if self.author else None,

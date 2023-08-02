@@ -77,7 +77,9 @@ class TestIsa(TestCase):
             vehicle_name='water',
             doses=[],
             chemicals=[],
-            timepoints=[]
+            timepoints=[],
+            start_date='2021-01-01',
+            end_date='2021-01-01'
         )
         file.received = True
         file.organism = organism

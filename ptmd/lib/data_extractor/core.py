@@ -31,4 +31,6 @@ def extract_data_from_spreadsheet(filepath: str) -> dict | None:
         'organism_name': general_information['biosystem_name'],
         'batch': general_information['exposure_batch'],
         'organisation_name': general_information['partner_id'],
+        'start_date': general_information['exposure_batch_startdate'],
+        'end_date': general_information['exposure_batch_enddate']
     }
