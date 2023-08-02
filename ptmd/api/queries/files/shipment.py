@@ -2,7 +2,7 @@
 
 @author: D. Batista (Terazus)
 """
-from flask import jsonify, Response
+from flask import jsonify, Response, request
 
 from ptmd.database.models import File
 from ptmd.api.queries.utils import check_role
@@ -24,12 +24,12 @@ def ship_data(file_id: int) -> tuple[Response, int]:
     if not file:
         return jsonify({'message': f'File {file_id} not found.'}), 404
     try:
-        file.ship_samples()
+        file.ship_samples(at=request.json.get('at', None))
         connector: GoogleDriveConnector = GoogleDriveConnector()
         connector.lock_file(file.gdrive_id)
         return jsonify({'message': f'File {file_id} shipped successfully.'}), 200
-    except PermissionError as e:
-        return jsonify({'message': str(e)}), 403
+    except PermissionError:
+        return jsonify({'message': f'File {file_id} could not be locked but has been sent anyway'}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
 
@@ -47,7 +47,7 @@ def receive_data(file_id: int) -> tuple[Response, int]:
     if not file:
         return jsonify({'message': f'File {file_id} not found.'}), 404
     try:
-        file.shipment_was_received()
+        file.shipment_was_received(at=request.json.get('at', None))
         save_samples(file_id)
         return jsonify({'message': f'File {file_id} received successfully.'}), 200
     except PermissionError as e:

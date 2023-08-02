@@ -264,7 +264,7 @@ def delete_file_(file_id: int) -> tuple[Response, int]:
     return delete_file(file_id)
 
 
-@app.route('/api/files/<file_id>/ship', methods=['GET'])
+@app.route('/api/files/<file_id>/ship', methods=['POST'])
 @swag_from(path.join(FILES_DOC_PATH, 'ship_file.yml'))
 @jwt_required()
 def ship_file(file_id: int) -> tuple[Response, int]:
@@ -275,7 +275,7 @@ def ship_file(file_id: int) -> tuple[Response, int]:
     return ship_data(file_id)
 
 
-@app.route('/api/files/<file_id>/receive', methods=['GET'])
+@app.route('/api/files/<file_id>/receive', methods=['POST'])
 @swag_from(path.join(FILES_DOC_PATH, 'receive_file.yml'))
 @jwt_required()
 def receive_file(file_id: int) -> tuple[Response, int]:

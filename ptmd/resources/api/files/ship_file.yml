@@ -11,6 +11,11 @@ parameters:
     required: true
     type: string
     description: The ID of the file to send
+  - name: at
+    in: body
+    type: string
+    description: the time at which the file was sent
+    example: "2021-01-25"
 definitions:
   Ship Samples Response:
     type: object

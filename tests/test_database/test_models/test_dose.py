@@ -64,5 +64,7 @@ class TestDose(TestCase):
             'received': None,
             'shipped': None,
             'start_date': '2020-01-01',
-            'end_date': '2020-01-01'
+            'end_date': '2020-01-01',
+            'shipment_date': None,
+            'receive_date': None,
         })
