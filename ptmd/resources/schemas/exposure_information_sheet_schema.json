@@ -46,7 +46,7 @@
         "type": "string",
         "description": "The operator."
     },
-    "PrecisionTox_short_identifier": {
+    "precisionTox_short_identifier": {
       "type": "string",
       "description": "The PrecisionTox short identifier.",
       "length": 9
@@ -81,7 +81,7 @@
     "compound_name",
     "dose_code",
     "exposure_route",
-    "PrecisionTox_short_identifier",
+    "precisionTox_short_identifier",
     "quantity_dead_during_exposure",
     "operator",
     "replicate",

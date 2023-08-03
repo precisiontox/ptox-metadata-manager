@@ -9,11 +9,11 @@ from ptmd.api.queries.samples.core import SampleGenerator, save_samples
 HEADERS = {'Content-Type': 'application/json', 'Authorization': 'Bearer 123'}
 SAMPLES = [
     {
-        "PrecisionTox_short_identifier": "A",
+        "precisionTox_short_identifier": "A",
         "compound_name": "test",
     },
     {
-        "PrecisionTox_short_identifier": "B",
+        "precisionTox_short_identifier": "B",
         "compound_name": "CONTROL_test1",
     }
 ]

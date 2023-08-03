@@ -52,7 +52,7 @@ class TestValidateIdentifier(TestCase):
         self.assertFalse(validator.report['valid'])
         expected_error = {
             'message': 'Record at line 2 (FAC002LA1) is duplicated with record at line 3',
-            'field_concerned': 'PrecisionTox_short_identifier'
+            'field_concerned': 'precisionTox_short_identifier'
         }
         self.assertEqual(validator.report['errors']['test'][0], expected_error)
 
