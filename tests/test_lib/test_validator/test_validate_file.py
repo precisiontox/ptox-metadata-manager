@@ -87,14 +87,16 @@ class MockExcelFileSuccess:
 
 mock_exposure_dataframe = DataFrame(columns=SAMPLE_SHEET_COLUMNS)
 mock_exposure_series = Series([
-    "qsd", "qsd", "qsd", "qsd", "qsd", 12, 12, 1, "A", 1, None, None, None,
-    1, "Ethoprophos", "BMD10", "TP1", 4, "FAC002LA1"
+    "FAC002LA1", "PTX002", "sampleid_label", "shipment_identifier", "operator",
+    12, 1, 4, "box_id", "A", 1, "route", 10, 8, "Notes",
+    1, "Ethoprophos", "BMD10", "TP1", 4
 ], index=SAMPLE_SHEET_COLUMNS)
 mock_exposure_dataframe = concat([mock_exposure_dataframe, mock_exposure_series.to_frame().T],
                                  ignore_index=False, sort=False, copy=False)
 mock_exposure_series_error = Series([
-    "qsd", "qsd", "qsd", None, "qsd", 12, 12, 1, "A", 1, None, None, None,
-    1, "Ethoprophos", "BMD10", "TP1", 4, "FAC002LA1"
+    "FAC002LA1", "PTX002", "sampleid_label", "shipment_identifier",
+    "operator", None, "qsd", 12, 12, 1, "A", 1, None, None, None,
+    1, "Ethoprophos", "BMD10", "TP1", 4
 ], index=SAMPLE_SHEET_COLUMNS)
 mock_exposure_dataframe_error = concat([mock_exposure_dataframe, mock_exposure_series_error.to_frame().T],
                                        ignore_index=False, sort=False, copy=False)
@@ -132,7 +134,7 @@ class TestExcelValidator(TestCase):
             validator = ExcelValidator(1)
             validator.validate()
             errors = validator.report['errors']
-            self.assertIn({'message': 'This field is required.', 'field_concerned': 'exposure_route'},
+            self.assertIn({'message': "'A' is not of type 'number'", 'field_concerned': 'box_column'},
                           errors['Record at line 3 (FAC002LA1)'])
             self.assertEqual(validator.report['valid'], False)
 

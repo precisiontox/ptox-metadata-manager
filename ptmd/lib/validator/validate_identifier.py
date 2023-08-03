@@ -7,8 +7,16 @@ from typing import Any
 from re import match
 
 from ptmd.database import Organism, Chemical
-from ptmd.const import ALLOWED_EXPOSURE_BATCH, DOSE_MAPPING, TIME_POINT_MAPPING
-from .const import PTX_ID_LABEL, BATCH_LABEL, COMPOUND_LABEL, DOSE_LABEL, TIMEPOINT_LABEL
+from ptmd.const import (
+    ALLOWED_EXPOSURE_BATCH,
+    DOSE_MAPPING,
+    TIME_POINT_MAPPING,
+    PTX_ID_LABEL,
+    BATCH_LABEL,
+    COMPOUND_NAME_LABEL,
+    DOSE_LABEL,
+    TIMEPOINT_LABEL
+)
 
 
 INV_DOSE_MAPPING: dict = {v: k for k, v in DOSE_MAPPING.items()}
@@ -98,20 +106,29 @@ def validate_compound(validator: Any) -> None:
 
     :param validator: The ExcelValidator for which to run the identifier validation.
     """
-    compound_code: int = int(validator.current_record['data'][PTX_ID_LABEL][3:6])
-    compound_reference: str = validator.current_record['data'][COMPOUND_LABEL]
-    if compound_code < 1 or compound_code > 999:
+    compound_code: str = validator.current_record['data']['compound_hash']
+    compound_hash_reference: str = f'PTX{validator.current_record["data"][PTX_ID_LABEL][3:6]}'
+
+    if compound_code != compound_hash_reference:
         validator.add_error(validator.current_record['label'],
-                            f"The identifier doesn't contain a valid compound code '{compound_code}'.",
+                            f"The compound hash {compound_code} doesn't match the reference identifier "
+                            f"{compound_hash_reference}.",
+                            PTX_ID_LABEL)
+
+    compound_code_reference: int = int(validator.current_record['data'][PTX_ID_LABEL][3:6])
+    compound_reference: str = validator.current_record['data'][COMPOUND_NAME_LABEL]
+    if compound_code_reference < 1 or compound_code_reference > 999:
+        validator.add_error(validator.current_record['label'],
+                            f"The identifier doesn't contain a valid compound code '{compound_code_reference}'.",
                             PTX_ID_LABEL)
     elif compound_reference:
         if 'CONTROL' not in compound_reference and 'EXTRACTION BLANK' not in compound_reference:
-            validate_replicates_compound(validator, compound_reference, compound_code)
+            validate_replicates_compound(validator, compound_reference, compound_code_reference)
         elif 'CONTROL' in compound_reference:
-            validate_controls_compound(validator, compound_reference, compound_code)
-        elif 'EXTRACTION BLANK' in compound_reference and compound_code != 998:
+            validate_controls_compound(validator, compound_reference, compound_code_reference)
+        elif 'EXTRACTION BLANK' in compound_reference and compound_code_reference != 998:
             validator.add_error(validator.current_record['label'],
-                                f"The identifier compound should be 998 but got {compound_code}.",
+                                f"The identifier compound should be 998 but got {compound_code_reference}.",
                                 PTX_ID_LABEL)
 
 
@@ -127,7 +144,7 @@ def validate_replicates_compound(validator: Any, compound_name: str, code: int) 
         if not compound:
             validator.add_error(validator.current_record['label'],
                                 f"The identifier doesn't contain a valid compound code '{code}'.",
-                                COMPOUND_LABEL)
+                                COMPOUND_NAME_LABEL)
         elif compound.ptx_code != code:
             msg: str = "The identifier %s compound doesn't match the compound %s (%s)" % (
                 code, compound_name, compound.ptx_code

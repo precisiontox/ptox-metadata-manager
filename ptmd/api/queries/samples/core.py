@@ -17,6 +17,7 @@ from ptmd.config import session, Base
 from ptmd.lib.gdrive import GoogleDriveConnector
 from ptmd.database.models import File, User, Sample, Chemical
 from ptmd.api.queries.utils import check_role
+from ptmd.const import PTX_ID_LABEL
 
 
 class SampleGenerator:
@@ -87,7 +88,7 @@ class SampleGenerator:
     def save_samples(self) -> None:
         """ Save the samples to the database. """
         for sample_data in self.data["exposure_info"]:
-            sample_id: str = sample_data["precisionTox_short_identifier"]
+            sample_id: str = sample_data[PTX_ID_LABEL]
             compound_name: str = sample_data["compound_name"]
 
             if compound_name not in self.compounds:
