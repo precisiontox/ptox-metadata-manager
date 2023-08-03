@@ -62,13 +62,13 @@ mocked_session = MockSession()
 mocked_session_error = MockSessionError()
 mock_exposure_dataframe = DataFrame(columns=SAMPLE_SHEET_COLUMNS)
 mock_exposure_series = Series([
-     "FAC002LA1", "PTX001", "qsd", "qsd", "qsd", "qsd", "qsd", 12, 12, 1, "A", 1, None, None, None,
+    "FAC002LA1", "PTX001", "qsd", "qsd", "qsd", "qsd", "qsd", 12, 12, 1, "A", 1, None, None, None,
     1, "Ethoprophos", "BMD10", "TP1", 4
 ], index=SAMPLE_SHEET_COLUMNS)
 mock_exposure_dataframe = concat([mock_exposure_dataframe, mock_exposure_series.to_frame().T],
                                  ignore_index=False, sort=False, copy=False)
 mock_exposure_series_error = Series([
-     "FAC002LA1", "PTX001", "qsd", "qsd", "qsd", None, "qsd", 12, 12, 1, "A", 1, None, None, None,
+    "FAC002LA1", "PTX001", "qsd", "qsd", "qsd", None, "qsd", 12, 12, 1, "A", 1, None, None, None,
     1, "Ethoprophos", "BMD10", "TP1", 4
 ], index=SAMPLE_SHEET_COLUMNS)
 mock_exposure_dataframe_error = concat([mock_exposure_dataframe, mock_exposure_series_error.to_frame().T],
