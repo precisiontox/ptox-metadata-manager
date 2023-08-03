@@ -11,6 +11,7 @@ from isatools.model import (
     Comment
 )
 
+from ptmd.const import PTX_ID_LABEL
 from ptmd.database.models import File
 from ptmd.lib.isa.ontologies import (
     ONTOLOGY_SOURCES,
@@ -154,8 +155,8 @@ class Batch2ISA:
         """
         compound: str = info['compound'] if type(info['compound']) == str else info['compound']['common_name']
         sample: Sample = Sample(
-            id_=f"#sample/{info['PrecisionTox_short_identifier']}",
-            name=info['PrecisionTox_short_identifier'],
+            id_=f"#sample/{info[PTX_ID_LABEL]}",
+            name=info[PTX_ID_LABEL],
             comments=info['comments'],
             derives_from=[info['source']],
             factor_values=self.create_factor_values(
@@ -201,7 +202,7 @@ class Batch2ISA:
                 }, study)
 
             elif type(sample_info['compound']) == str and 'CONTROL' in sample_info['compound']:
-                source = self.create_source(sample_identifier=sample_info['PrecisionTox_short_identifier'])
+                source = self.create_source(sample_identifier=sample_info[PTX_ID_LABEL])
                 study.sources.append(source)
                 sample = self.create_sample({
                     **sample_info,
@@ -213,7 +214,7 @@ class Batch2ISA:
                 }, study)
 
             else:
-                source = self.create_source(sample_identifier=sample_info['PrecisionTox_short_identifier'])
+                source = self.create_source(sample_identifier=sample_info[PTX_ID_LABEL])
                 study.sources.append(source)
                 sample = self.create_sample({
                     **sample_info,

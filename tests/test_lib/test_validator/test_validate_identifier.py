@@ -10,7 +10,7 @@ from ptmd.lib.validator.validate_identifier import (
     validate_timepoints,
     validate_replicate,
 )
-from ptmd.lib.validator.const import PTX_ID_LABEL, COMPOUND_LABEL, DOSE_LABEL, TIMEPOINT_LABEL
+from ptmd.const import PTX_ID_LABEL, COMPOUND_NAME_LABEL, DOSE_LABEL, TIMEPOINT_LABEL
 
 
 class ExcelValidatorMock:
@@ -20,6 +20,7 @@ class ExcelValidatorMock:
         self.current_record: dict = {
             'data': {
                 PTX_ID_LABEL: 'FAC002LA1',
+                'compound_hash': 'PTX002',
                 "compound_name": "Compound 1",
                 "dose_code": "BMD10",
                 "timepoint_level": "TP1",
@@ -52,7 +53,7 @@ class TestValidateIdentifier(TestCase):
         self.assertFalse(validator.report['valid'])
         expected_error = {
             'message': 'Record at line 2 (FAC002LA1) is duplicated with record at line 3',
-            'field_concerned': 'PrecisionTox_short_identifier'
+            'field_concerned': PTX_ID_LABEL
         }
         self.assertEqual(validator.report['errors']['test'][0], expected_error)
 
@@ -119,6 +120,7 @@ class TestValidateIdentifier(TestCase):
 
     def test_validate_compound_error_too_low(self):
         validator = ExcelValidatorMock()
+        validator.current_record['data']['compound_hash'] = 'PTX-01'
         validator.current_record['data'][PTX_ID_LABEL] = 'FBC-01LA1'
         validate_compound(validator)
         self.assertFalse(validator.report['valid'])
@@ -129,6 +131,7 @@ class TestValidateIdentifier(TestCase):
     def test_validate_compound_replicates(self, mock_chemical):
         mock_chemical.query.filter().first.return_value.ptx_code = '2'
         validator = ExcelValidatorMock()
+        validator.current_record['data']['compound_hash'] = 'PTX003'
         validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
         validate_compound(validator)
         self.assertFalse(validator.report['valid'])
@@ -138,32 +141,43 @@ class TestValidateIdentifier(TestCase):
     def test_validate_compound_replicates_error_unknown(self):
         validator = ExcelValidatorMock()
         validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
+        validator.current_record['data']['compound_hash'] = 'PTX003'
         validate_compound(validator)
         self.assertFalse(validator.report['valid'])
         self.assertIn("Error Working outside of application context.", validator.report['errors']['test'][0]['message'])
+
+    def test_validate_compound_error_wrong_compound_hash(self):
+        validator = ExcelValidatorMock()
+        validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
+        validator.current_record['data']['compound_hash'] = 'PTX004'
+        validate_compound(validator)
+        self.assertFalse(validator.report['valid'])
+        msg = validator.report['errors']['test'][0]['message']
+        self.assertIn("The compound hash PTX004 doesn't match the reference identifier PTX003.", msg)
 
     @patch('ptmd.lib.validator.validate_identifier.Chemical')
     def test_validate_compound_error_no_compound(self, mock_chemical):
         mock_chemical.query.filter().first.return_value = None
         validator = ExcelValidatorMock()
-        validator.current_record['data'][PTX_ID_LABEL] = 'FBC003LA1'
+        validator.current_record['data']['compound_hash'] = 'PTX002'
+        validator.current_record['data'][PTX_ID_LABEL] = 'FBC002LA1'
         validate_compound(validator)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],
-                         "The identifier doesn't contain a valid compound code '3'.")
+                         "The identifier doesn't contain a valid compound code '2'.")
 
     @patch('ptmd.lib.validator.validate_identifier.Chemical')
     def test_validate_compound_controls(self, mock_chemical):
         mock_chemical.query.filter().first.return_value.ptx_code = '2'
         validator = ExcelValidatorMock()
-        validator.current_record['data'][COMPOUND_LABEL] = 'CONTROL (DMSO)'
+        validator.current_record['data'][COMPOUND_NAME_LABEL] = 'CONTROL (DMSO)'
         validate_compound(validator)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],
                          "The identifier compound should be 999 but got 2.")
 
         validator = ExcelValidatorMock()
-        validator.current_record['data'][COMPOUND_LABEL] = 'CONTROL (WATER)'
+        validator.current_record['data'][COMPOUND_NAME_LABEL] = 'CONTROL (WATER)'
         validate_compound(validator)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],
@@ -171,7 +185,7 @@ class TestValidateIdentifier(TestCase):
 
     def test_validate_compound_blanks(self):
         validator = ExcelValidatorMock()
-        validator.current_record['data'][COMPOUND_LABEL] = 'EXTRACTION BLANK'
+        validator.current_record['data'][COMPOUND_NAME_LABEL] = 'EXTRACTION BLANK'
         validate_compound(validator)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],

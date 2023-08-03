@@ -7,69 +7,152 @@
     "amount_replaced_before_collection": {
       "type": "number",
       "description": "The amount replaced before collection.",
-      "minimum": 0
+      "minimum": 0,
+      "_role": "user",
+      "_order": 5
     },
     "box_column": {
       "type": "number",
       "description": "The box column.",
-      "minimum": 0
+      "minimum": 0,
+      "_role": "user",
+      "_order": 9
     },
     "box_id": {
       "type": "string",
-      "description": "The box identifier."
+      "description": "The box identifier.",
+      "_role": "user",
+      "_order": 7
     },
     "box_row": {
       "type": "string",
       "description": "The box row.",
       "pattern": "^[A-Z]$",
-      "maxLength": 1
+      "maxLength": 1,
+      "_role": "user",
+      "_order": 8
     },
     "collection_order": {
       "type": "number",
       "description": "The collection order.",
-      "minimum": 0
-    },
-    "compound_name": {
-      "type": "string",
-      "description": "The compound name."
-    },
-    "dose_code": {
-        "type": ["string", "integer"],
-        "description": "The dose code.",
-        "enum": ["0", "BMD10", "BMD25", "10mg/L", 0]
+      "minimum": 0,
+      "_role": "user",
+      "_order": 6
     },
     "exposure_route": {
-        "type": "string",
-        "description": "The exposure route."
+      "type": "string",
+      "description": "The exposure route.",
+      "_role": "user",
+      "_order": 10
+    },
+    "mass_including_tube_(mg)": {
+      "description": "The mass including tube in mg.",
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "string",
+          "enum": ["NA", "N/A", "na", "n/a"]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "_role": "user",
+      "_order": 11
+    },
+    "mass_excluding_tube_(mg)": {
+      "description": "The mass excluding tube in mg.",
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "string",
+          "enum": ["NA", "N/A", "na", "n/a"]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "_role": "user",
+      "_order": 12
+    },
+    "observations_notes": {
+      "type": ["string", "null"],
+      "description": "Free text comment field.",
+      "_role": "user",
+      "_order": 13
     },
     "operator": {
-        "type": "string",
-        "description": "The operator."
-    },
-    "PrecisionTox_short_identifier": {
       "type": "string",
-      "description": "The PrecisionTox short identifier.",
-      "length": 9
+      "description": "The operator.",
+      "_role": "user",
+      "_order": 3
     },
     "quantity_dead_during_exposure": {
         "type": "number",
         "description": "The quantity of dead animals during exposure.",
-        "minimum": 0
+        "minimum": 0,
+        "_role": "user",
+        "_order": 4
+    },
+    "sampleid_label": {
+        "type": "string",
+        "description": "The internal identifier of the sample.",
+        "_role": "user",
+        "_order": 1
+    },
+    "shipment_identifier": {
+        "type": "string",
+        "description": "The identifier of the shipment.",
+        "_role": "user",
+        "_order": 2
+    },
+
+    "compound_name": {
+      "type": "string",
+      "description": "The compound name.",
+      "_role": "admin"
+    },
+    "compound_hash": {
+      "type": "string",
+      "description": "The compound name.",
+      "_role": "admin",
+      "pattern": "^PTX[001-999]{3}$"
+    },
+    "dose_code": {
+      "type": ["string", "integer"],
+      "description": "The dose code.",
+      "enum": ["0", "BMD10", "BMD25", "10mg/L", 0],
+      "_role": "admin"
+    },
+    "precisiontox_short_identifier": {
+      "type": "string",
+      "description": "The PrecisionTox short identifier.",
+      "length": 9,
+      "_role": "admin"
     },
     "replicate": {
-        "type": "number",
-        "description": "The replicate.",
-        "minimum": 1
+      "type": "number",
+      "description": "The replicate.",
+      "minimum": 1,
+      "_role": "admin"
     },
     "timepoint_level": {
       "type": "string",
       "description": "The timepoint level.",
-      "pattern": "^TP[0-9]+$"
+      "pattern": "^TP[0-9]+$",
+      "_role": "admin"
     },
     "timepoint_(hours)": {
       "type": "number",
       "description": "The timepoint in hours.",
-      "minimum": 0
+      "minimum": 0,
+      "_role": "admin"
     }
   },
   "required": [
@@ -78,12 +161,14 @@
     "box_id",
     "box_row",
     "collection_order",
-    "compound_name",
-    "dose_code",
     "exposure_route",
-    "PrecisionTox_short_identifier",
     "quantity_dead_during_exposure",
     "operator",
+
+    "compound_name",
+    "compound_hash",
+    "dose_code",
+    "precisiontox_short_identifier",
     "replicate",
     "timepoint_level",
     "timepoint_(hours)"

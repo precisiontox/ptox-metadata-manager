@@ -7,29 +7,29 @@ from ptmd.lib.isa import convert_file_to_isa
 from ptmd.database.models import File, Organism, Sample, Organisation, Chemical
 
 
-SAMPLE_DATA = {"sampleID_label": "DAD100LA1", "Shipment_identifier": "2023-06-29",
+SAMPLE_DATA = {"sampleid_label": "DAD100LA1", "shipment_identifier": "2023-06-29",
                "Label_tube_/_identifier": "DAD100LA1", "box_id": "Box1", "exposure_route": "medium",
                "operator": "MJones", "quantity_dead_during_exposure": 0, "amount_replaced_before_collection": 0,
-               "collection_order": 1, "box_row": "A", "box_column": 1, "Mass_including_tube_(mg)": None,
-               "Mass_excluding_tube_(mg)": None, "observations_notes": "Note", "replicate": 1,
+               "collection_order": 1, "box_row": "A", "box_column": 1, "mass_including_tube_(mg)": None,
+               "mass_excluding_tube_(mg)": None, "observations_notes": "Note", "replicate": 1,
                "dose_code": "BMD10", "timepoint_level": "TP1", "timepoint_(hours)": 4,
-               "PrecisionTox_short_identifier": "DAD100LA1",
+               "precisiontox_short_identifier": "DAD100LA1",
                "compound": {"common_name": "Cytosine arabinoside", "cas": "147-94-4", "formula": "C9H13N3O5",
                             "ptx_code": "PTX100", "chemical_id": 102}}
-BLANK_SAMPLE_DATA = {"sampleID_label": "DAD998ZS2", "Shipment_identifier": "2023-06-29",
+BLANK_SAMPLE_DATA = {"sampleid_label": "DAD998ZS2", "shipment_identifier": "2023-06-29",
                      "Label_tube_/_identifier": "DAD998ZS2", "box_id": "Box1",
                      "exposure_route": "medium", "operator": "MJones", "quantity_dead_during_exposure": 0,
                      "amount_replaced_before_collection": 0, "collection_order": 49, "box_row": "F",
-                     "box_column": 5, "Mass_including_tube_(mg)": None, "Mass_excluding_tube_(mg)": None,
+                     "box_column": 5, "mass_including_tube_(mg)": None, "mass_excluding_tube_(mg)": None,
                      "observations_notes": None, "replicate": 2, "dose_code": "0", "timepoint_level": "TP0",
-                     "timepoint_(hours)": 0, "PrecisionTox_short_identifier": "DAD998ZS2",
+                     "timepoint_(hours)": 0, "precisiontox_short_identifier": "DAD998ZS2",
                      "compound": "EXTRACTION BLANK"}
-CONTROL_SAMPLE_DATA = {"sampleID_label": "DAD997ZA4", "Shipment_identifier": "2023-06-29",
+CONTROL_SAMPLE_DATA = {"sampleid_label": "DAD997ZA4", "shipment_identifier": "2023-06-29",
                        "Label_tube_/_identifier": "DAD997ZA4", "box_id": "Box1", "exposure_route": "medium",
                        "operator": "MJones", "quantity_dead_during_exposure": 0, "amount_replaced_before_collection": 0,
-                       "collection_order": 45, "box_row": "F", "box_column": 1, "Mass_including_tube_(mg)": None,
-                       "Mass_excluding_tube_(mg)": None, "observations_notes": None, "replicate": 4, "dose_code": 0,
-                       "timepoint_level": "TP1", "timepoint_(hours)": 4, "PrecisionTox_short_identifier": "DAD997ZA4",
+                       "collection_order": 45, "box_row": "F", "box_column": 1, "mass_including_tube_(mg)": None,
+                       "mass_excluding_tube_(mg)": None, "observations_notes": None, "replicate": 4, "dose_code": 0,
+                       "timepoint_level": "TP1", "timepoint_(hours)": 4, "precisiontox_short_identifier": "DAD997ZA4",
                        "compound": "CONTROL (Water)"}
 
 

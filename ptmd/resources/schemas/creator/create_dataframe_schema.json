@@ -50,12 +50,13 @@
       },
       "timepoints": {
           "type": "array",
+          "uniqueItems": true,
           "description": "The timepoints represent a list of timepoints in hours.",
           "items": {
               "type": "number",
-              "minimum": 0
+              "minimum": 1
           },
-          "minItems": 0,
+          "minItems": 1,
           "maxItems": 10
       },
       "time point zero": {

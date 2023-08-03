@@ -33,7 +33,10 @@ def validate_file(file_id: int | str) -> tuple[Response, int]:
             code = 406
             message = "File validation failed."
             errors = validator.report['errors']
-        return jsonify({"message": message, "id": file_id, "errors": errors}), code
+        return (
+            jsonify({"message": message, "id": file_id, "errors": errors, 'gdrive': validator.file['gdrive_id']}),
+            code
+        )
     except Exception as e:
         error: dict = e.__dict__
         error_msg = error['error']['errors'][0]['message'] if error else str(e)

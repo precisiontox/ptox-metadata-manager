@@ -11,6 +11,7 @@ HEADERS = {'Content-Type': 'application/json'}
 class MockedValidator:
     def __init__(self, file_id):
         self.report = {'valid': True, 'errors': []}
+        self.file = {'gdrive_id': file_id}
 
     def validate(self):
         pass
@@ -19,6 +20,7 @@ class MockedValidator:
 class MockedValidatorFailed:
     def __init__(self, file_id):
         self.report = {'valid': False, 'errors': ['error']}
+        self.file = {'gdrive_id': file_id}
 
     def validate(self):
         pass

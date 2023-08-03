@@ -4,13 +4,35 @@
 """
 from collections import namedtuple
 
-from .schema_loaders import INPUT_SCHEMA, EXPOSURE_SCHEMA
+from .schema_loaders import INPUT_SCHEMA, EXPOSURE_SCHEMA, EXPOSURE_INFORMATION_SCHEMA
+from .labels import (
+    PTX_ID_LABEL, DOSE_LABEL, TIMEPOINT_LABEL,
+    COMPOUND_NAME_LABEL, COMPOUND_HASH_LABEL,
+    BATCH_LABEL
+)
+
+
+def extract_empty_columns() -> list[str]:
+    """ Extracts the empty columns from the sample sheet.
+
+    :return: The empty columns.
+    """
+    fields_map: dict = {}
+    fields: list = []
+    for field, schema in EXPOSURE_INFORMATION_SCHEMA['properties'].items():
+        if schema['_role'] == "user":
+            fields_map[schema['_order']] = field
+
+    for i in range(1, len(fields_map) + 1):
+        fields.append(fields_map[i])
+    return fields
+
 
 ReplicateBlankRange: namedtuple = namedtuple('ReplicateBlankRange', ['min', 'max'])
 
 ALLOWED_PARTNERS: list[str] = INPUT_SCHEMA['properties']['partner']['enum']
-ALLOWED_EXPOSURE_BATCH: str = INPUT_SCHEMA['properties']['exposure_batch']['pattern']
-EXPOSURE_BATCH_MAX_LENGTH: int = INPUT_SCHEMA['properties']['exposure_batch']['maxLength']
+ALLOWED_EXPOSURE_BATCH: str = INPUT_SCHEMA['properties'][BATCH_LABEL]['pattern']
+EXPOSURE_BATCH_MAX_LENGTH: int = INPUT_SCHEMA['properties'][BATCH_LABEL]['maxLength']
 REPLICATES_EXPOSURE_MIN: int = INPUT_SCHEMA['properties']['replicates4exposure']['minimum']
 REPLICATES_CONTROL_MIN: int = INPUT_SCHEMA['properties']['replicates4control']['minimum']
 ALLOWED_DOSE_VALUES: list[str] = EXPOSURE_SCHEMA['properties']['dose']['enum']
@@ -36,34 +58,24 @@ TIME_POINT_MAPPING: dict = {
     "TP4": "D",
     "TP5": "E",
 }
-SAMPLE_SHEET_EMPTY_COLUMNS: list[str] = [
-    "sampleID_label",
-    "Shipment_identifier",
-    "box_id",
-    "exposure_route",
-    "operator",
-    "quantity_dead_during_exposure",
-    "amount_replaced_before_collection",
-    "collection_order",
-    "box_row",
-    "box_column",
-    "Mass_including_tube_(mg)",
-    "Mass_excluding_tube_(mg)",
-    "observations_notes"
-]
+
+SAMPLE_SHEET_EMPTY_COLUMNS: list[str] = extract_empty_columns()
+
+
 SAMPLE_SHEET_COLUMNS: list[str] = [
+    PTX_ID_LABEL,
+    COMPOUND_HASH_LABEL,
     *SAMPLE_SHEET_EMPTY_COLUMNS,
     "replicate",
-    "compound_name",
-    "dose_code",
-    "timepoint_level",
-    "timepoint_(hours)",
-    "PrecisionTox_short_identifier"
+    COMPOUND_NAME_LABEL,
+    DOSE_LABEL,
+    TIMEPOINT_LABEL,
+    "timepoint_(hours)"
 ]
 GENERAL_SHEET_COLUMNS: list[str] = [
     "partner_id",
     "biosystem_name",
-    "exposure_batch",
+    BATCH_LABEL,
     "control",
     "replicates",
     "blanks",
