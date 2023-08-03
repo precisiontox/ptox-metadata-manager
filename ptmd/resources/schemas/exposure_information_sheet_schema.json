@@ -166,6 +166,7 @@
     "operator",
 
     "compound_name",
+    "compound_hash",
     "dose_code",
     "precisiontox_short_identifier",
     "replicate",
