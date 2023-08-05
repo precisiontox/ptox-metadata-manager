@@ -1,6 +1,4 @@
 """ Excel submodule that contains the save function
-
- 
 """
 
 from pandas import DataFrame, ExcelWriter
