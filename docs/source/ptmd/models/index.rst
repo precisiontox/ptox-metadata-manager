@@ -35,9 +35,9 @@ Database Model
     :inherited-members:
 
 
--------------------
- Organism (species)
--------------------
+--------------------
+ Organisms (species)
+--------------------
 .. automodule:: ptmd.database.models.organism
     :members:
     :undoc-members:

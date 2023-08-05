@@ -215,7 +215,7 @@ shipping date and the "Received" status.
 Accessing samples by identifier
 --------------------------------------
 Once the administrators at Birmingham receive the samples, they will mark the file has received through the admin interface.
-This will extract the samples data from the file and store them in the database and make them available through the
+This will extract the samples metadata from the spreadsheet, store them in the database and make them available through the
 Rest API. Login in the ReST API will provide an JSON Web Token (jwt) that you can use to authenticate yourself.
 Once logged in, you will be able to access these samples by identifiers using the following endpoint:
 
