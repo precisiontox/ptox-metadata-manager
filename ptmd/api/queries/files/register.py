@@ -1,7 +1,5 @@
 """ Module to register an already existing file from an external Google Drive. Requires the file to
 be 'readable by everyone with the link'. Will create an entry in the database.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

@@ -1,6 +1,4 @@
 """ A module to get the user input and create the corresponding Excel file in the application's Google Drive.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

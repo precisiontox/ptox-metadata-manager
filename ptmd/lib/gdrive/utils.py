@@ -1,6 +1,4 @@
 """ A small utitlise to check if a given directory already exists in the drive.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

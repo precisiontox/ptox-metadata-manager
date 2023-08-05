@@ -1,6 +1,4 @@
-""" This module implements the Timepoint SQLAlchemy model.
-
-@author: D. Batista (Terazus)
+""" This module implements the Timepoint database model. Each timepoint contains a label, a value and a unit.
 """
 from typing import Generator
 

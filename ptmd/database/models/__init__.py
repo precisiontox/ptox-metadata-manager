@@ -1,6 +1,4 @@
 """ This module contains all the database models.
-
-@author: D. Batista (Terazus)
 """
 from .organisation import Organisation
 from .user import User

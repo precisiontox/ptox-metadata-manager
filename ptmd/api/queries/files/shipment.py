@@ -1,6 +1,4 @@
 """ Methods to ship and receive the samples
-
-@author: D. Batista (Terazus)
 """
 from flask import jsonify, Response, request
 

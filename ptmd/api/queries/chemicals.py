@@ -1,6 +1,4 @@
 """ This module contains queries for chemicals.
-
-@author: D. Batista (Terazus)
 """
 
 from typing import Generator

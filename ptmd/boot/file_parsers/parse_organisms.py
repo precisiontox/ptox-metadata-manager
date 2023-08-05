@@ -1,6 +1,4 @@
 """ A module to parse organisms from json file.
-
-@Author: D. Batista (Terazus)
 """
 from json import load
 

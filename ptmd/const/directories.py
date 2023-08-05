@@ -1,6 +1,4 @@
 """ This module provide constants related to directories used in the ptmd package.
-
-@author: D. Batista (Terazus)
 """
 
 from os import path

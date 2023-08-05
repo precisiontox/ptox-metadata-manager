@@ -1,6 +1,4 @@
-""" This module contains the organism creator.
-
-@author: D. Batista (Terazus)
+""" This module contains the organism model. This table represent the species that are used in the project.
 """
 from ptmd.config import Base, db
 
@@ -10,7 +8,7 @@ class Organism(Base):
 
     :param ptox_biosystem_name: pretox biosystem name
     :param scientific_name: scientific name
-    :ptox_biosystem_code: pretox biosystem code
+    :param ptox_biosystem_code: pretox biosystem code
     """
     __tablename__: str = 'organism'
     organism_id: int = db.Column(db.Integer, primary_key=True)

@@ -1,6 +1,4 @@
 """ This module contains the relationships tables.
-
-@author: D. Batista (Terazus)
 """
 
 from ptmd.config import Table, db, Base

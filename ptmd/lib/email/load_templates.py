@@ -1,6 +1,4 @@
 """ Module to load the email templates
-
-@author: D. Batista (Terazus)
 """
 from os import path
 from typing import Any

@@ -1,6 +1,4 @@
 """ The core module of the creator package. Takes the user input, validates them and creates the dataframes.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

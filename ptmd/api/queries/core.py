@@ -6,8 +6,6 @@ It includes:
     - get_organisms to get the organisms from the database
     - get_chemicals to get the chemicals from the database
     - change_password to change the password of the current user
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 from flask import jsonify, Response

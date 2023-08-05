@@ -1,6 +1,4 @@
-""" This module contains the user creator.
-
-@author: D. Batista (Terazus)
+""" This module contains the user database model.
 """
 from __future__ import annotations
 from typing import Generator

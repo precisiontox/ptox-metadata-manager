@@ -1,6 +1,4 @@
 """ This module contains all queries related to organisations.
-
-@author: D. Batista (Terazus)
 """
 from ptmd.config import session
 from ptmd.logger import LOGGER

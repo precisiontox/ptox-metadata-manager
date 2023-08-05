@@ -1,6 +1,4 @@
 """ This module contains the search queries for the database.
-
-@author: D. Batista (Terazus)
 """
 
 from __future__ import annotations

@@ -1,6 +1,4 @@
 """ Excel submodule that contains the styling functions. Consumes the format functions outputs.
-
-@author: D. Batista (Terazus)
 """
 
 from typing import Any

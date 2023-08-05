@@ -1,6 +1,4 @@
 """ This module provide constants for the ptmd package.
-
-@author: D. Batista (Terazus)
 """
 from .directories import (
     ROOT_PATH,

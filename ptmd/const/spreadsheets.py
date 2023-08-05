@@ -1,6 +1,4 @@
 """ This module provide constants related to the generation and validation of spreadsheets.
-
-@author: D. Batista (Terazus)
 """
 from collections import namedtuple
 

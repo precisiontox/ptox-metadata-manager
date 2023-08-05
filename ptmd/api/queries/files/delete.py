@@ -1,6 +1,4 @@
 """ This module contains the endpoint to delete files
-
-@author: D. Batista (Terazus)
 """
 
 from flask import jsonify, Response

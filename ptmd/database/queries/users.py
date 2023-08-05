@@ -1,6 +1,4 @@
 """ This module contains all queries related to users.
-
-@author: D. Batista (Terazus)
 """
 
 from datetime import timedelta, datetime

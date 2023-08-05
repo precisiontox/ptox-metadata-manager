@@ -1,6 +1,4 @@
 """ This module contains the API routes
-
-@author: D. Batista (Terazus)
 """
 from os import path
 

@@ -3,8 +3,6 @@
 - change password
 - get the current user
 - create a new user
-
-@author: D. Batista (Terazus)
 """
 from json import loads
 

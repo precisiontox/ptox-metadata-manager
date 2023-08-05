@@ -1,6 +1,4 @@
 """ This file handles the route that validates a google drive file.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

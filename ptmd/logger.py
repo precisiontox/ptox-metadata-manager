@@ -1,6 +1,4 @@
 """ Small module to make the logger easy to import
-
-@author: D. Batista (Terazus)
 """
 
 from logging import getLogger, basicConfig, DEBUG

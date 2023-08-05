@@ -1,6 +1,4 @@
 """ This module is responsible for sending the account activation email.
-
-@author: D. Batista (Terazus)
 """
 from typing import Any
 
