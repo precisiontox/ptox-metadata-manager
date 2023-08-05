@@ -1,6 +1,4 @@
 """ This module loads data from JSONs and stores them as constants.
-
-@Author: D. Batista (Terazus)
 """
 
 from json import loads

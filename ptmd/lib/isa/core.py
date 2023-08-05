@@ -1,6 +1,4 @@
 """ This module contains the core functionality for converting a batch of PTMD data to ISA-Tab format.
-
-@author: D. Batista (Terazus)
 """
 
 from __future__ import annotations

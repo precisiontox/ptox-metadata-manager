@@ -1,6 +1,4 @@
-""" This module contains the Sample database schema.
-
-@author: D. Batista (Terazus)
+""" This module contains the Sample database model. The data is stored a JSON string in the 'data' column.
 """
 from __future__ import annotations
 

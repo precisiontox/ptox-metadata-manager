@@ -1,6 +1,4 @@
 """ Module to save samples to database.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

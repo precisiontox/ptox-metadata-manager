@@ -1,6 +1,4 @@
 """ This module contains the dose table.
-
-@author: D. Batista (Terazus)
 """
 from typing import Generator
 

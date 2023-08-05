@@ -1,6 +1,5 @@
-""" This module contains the Chemical database creator.
-
-@author: D. Batista (Terazus)
+""" This module contains the Chemical database model. Chemicals represent the stimuli that the collected samples are
+exposed to.
 """
 from typing import Generator
 

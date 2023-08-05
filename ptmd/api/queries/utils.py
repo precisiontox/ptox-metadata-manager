@@ -1,7 +1,5 @@
 """ Utility functions for querying. Contains a decorator to check if the user is admin before executing the
 decorated function.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 from functools import wraps

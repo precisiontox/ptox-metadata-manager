@@ -1,6 +1,4 @@
 """ A module to extract data from spreadsheets.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

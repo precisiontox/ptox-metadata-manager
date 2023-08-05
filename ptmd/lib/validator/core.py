@@ -1,6 +1,4 @@
 """ The core of the validator.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

@@ -1,6 +1,4 @@
 """ This module contains all the queries run by the API endpoints.
-
-@author: D. Batista (Terazus)
 """
 
 from .core import get_organisms, get_chemicals, get_organisations

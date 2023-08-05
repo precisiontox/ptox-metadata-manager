@@ -1,7 +1,6 @@
-""" This module contains the File database creator.
-A file represents an identifier pointing to a specific Google Drive file.
-
-@author: D. Batista (Terazus)
+""" This module contains the File database model. A file represents a pointer to an Excel file stored on Google Drive.
+The file table contains general information about the exposure and collection, such as the number of replicates,
+controls, blanks, the organism, the vehicle, etc.
 """
 from __future__ import annotations
 

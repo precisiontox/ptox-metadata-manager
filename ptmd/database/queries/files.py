@@ -1,6 +1,4 @@
 """ This module contains the database queries for the File table.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

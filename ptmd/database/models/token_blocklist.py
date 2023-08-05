@@ -1,4 +1,4 @@
-""" Token block list model used to store expired JWT
+""" This module contains the Token block list database model. It is used to store expired JWT.
 """
 from datetime import datetime, timezone
 

@@ -11,7 +11,8 @@ release = '0.0.1'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx_rtd_dark_mode'
+    'sphinx_rtd_dark_mode',
+    'sphinx_mdinclude'
 ]
 templates_path = ['_templates']
 exclude_patterns = []

@@ -1,6 +1,4 @@
 """ Module to created spreadsheets from the HarvesterInput, style and save them to disk.
-
-@author: D. Batista (Terazus)
 """
 from typing import Any
 

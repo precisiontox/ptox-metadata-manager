@@ -1,6 +1,4 @@
 """ This module contains the constants for the gdrive client.
-
-@author: D. Batista (Terazus)
 """
 from os import path
 

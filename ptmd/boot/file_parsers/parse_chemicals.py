@@ -1,6 +1,4 @@
 """ A module to parse chemicals from XLSX file.
-
-@Author: D. Batista (Terazus)
 """
 from __future__ import annotations
 

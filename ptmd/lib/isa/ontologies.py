@@ -1,6 +1,4 @@
 """ Ontology annotations and sources to create the ISA investigations.
-
-@author: D. Batista (Terazus)
 """
 
 from isatools.model import OntologyAnnotation, OntologySource

@@ -1,6 +1,4 @@
 """ This module contains the main initializer of the application.
-
-@author: D. Batista (Terazus)
 """
 from ptmd.config import app, engine
 from ptmd.const import ADMIN_EMAIL, ADMIN_USERNAME, ADMIN_PASSWORD

@@ -1,6 +1,4 @@
 """ Module for converting a file to ISA format.
-
-@author: D. Batista (Terazus)
 """
 from ptmd.database.models import File
 
