@@ -1,6 +1,4 @@
 """ This module contains the database seeder.
-
-@Author: D. Batista (Terazus)
 """
 
 from ptmd.logger import LOGGER

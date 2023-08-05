@@ -1,6 +1,4 @@
-""" Thus file contains the Token model.
-
-@Author: D. Batista (Terazus)
+""" This module contains the Token database model. It is used to store account creation and password reset tokens.
 """
 from typing import Any
 from datetime import datetime, timedelta

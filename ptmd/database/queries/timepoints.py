@@ -1,6 +1,4 @@
 """ This module contains all queries related to timepoints.
-
-@author: D. Batista (Terazus)
 """
 from ptmd.config import session
 from ptmd.database.models import Timepoint

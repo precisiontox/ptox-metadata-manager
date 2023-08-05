@@ -1,6 +1,4 @@
 """ This module contains utility function for the email module.
-
-@author: D. Batista (Terazus)
 """
 
 from yaml import safe_load

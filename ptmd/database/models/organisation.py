@@ -1,6 +1,4 @@
-""" This module contains the organisation creator.
-
-@author: D. Batista (Terazus)
+""" This module contains the organisation table. This table represent the consortium partners.
 """
 from typing import Any
 

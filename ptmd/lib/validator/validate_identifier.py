@@ -1,6 +1,4 @@
 """ Validate the identifier of the current ExcelValidator
-
-@author: D. Batista (Terazus)
 """
 from typing import Any
 

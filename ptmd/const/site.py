@@ -1,6 +1,4 @@
 """ This module provide constants related to the site and default admin user
-
-@author: D. Batista (Terazus)
 """
 from .directories import DOT_ENV_CONFIG
 

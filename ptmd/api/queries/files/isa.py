@@ -1,6 +1,4 @@
 """ ISA-Tab conversion endpoint
-
-@author: D. Batista (Terazus)
 """
 
 from flask import jsonify, Response

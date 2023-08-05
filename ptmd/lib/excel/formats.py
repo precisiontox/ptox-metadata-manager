@@ -1,6 +1,4 @@
 """ Excel submodule containing ExcelWriter formats.
-
-@author: D. Batista (Terazus)
 """
 from pandas import ExcelWriter
 from xlsxwriter.workbook import Format

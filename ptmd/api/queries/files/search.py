@@ -1,6 +1,4 @@
 """ This module contains the endpoint for searching for files in the database
-
-@author: D. Batista (Terazus)
 """
 
 from __future__ import annotations

@@ -1,6 +1,4 @@
 """ This module provide constants related to labels used in spreadsheets.
-
-@author: D. Batista (Terazus)
 """
 
 PTX_ID_LABEL: str = "precisiontox_short_identifier"

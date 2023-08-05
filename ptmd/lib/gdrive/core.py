@@ -1,7 +1,5 @@
 """ This module provides the core functions necessary to connect to a google drive, create the necessary directorie
 and upload the files to the drive.
-
-@author: D. Batista (Terazus)
 """
 from __future__ import annotations
 
