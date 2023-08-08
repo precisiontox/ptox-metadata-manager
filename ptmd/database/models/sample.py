@@ -59,4 +59,3 @@ class Sample(Base):
             } if type(data['compound']) == dict else None,
             'timepoint_hours': data['timepoint_(hours)'],
         }.items()
-
