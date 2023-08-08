@@ -53,11 +53,12 @@ class TestIsa(TestCase):
     @patch('ptmd.database.models.file.Organism')
     @patch('ptmd.database.models.file.Organisation')
     @patch('ptmd.database.models.chemical.get_current_user', return_value=None)
-    def test_converter_success(self, mock_user, mock_organisation, mock_organism, mock_chemical, mock_file):
+    @patch('ptmd.database.models.sample.get_current_user')
+    def test_converter_success(self, mock_get_current_user_sample, mock_get_current_user_chemical,
+                               mock_organisation, mock_organism, mock_chemical, mock_file):
         mock_organisation.query.filter_by().first.return_value.organisation_id = 1
         mock_organism.query.filter_by().first.return_value.organism_id = 1
         mock_chemical.query.filter_by().first.return_value.chemical_id = 1
-
         organism = Organism(ptox_biosystem_name='Danio_rerio', scientific_name='Danio_rerio', ptox_biosystem_code='AC')
         organisation = Organisation(longname='org', name='org')
         chemical = Chemical(common_name='foo', cas='bar', formula='AC', ptx_code=1)
