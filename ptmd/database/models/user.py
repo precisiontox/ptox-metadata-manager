@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import Generator
 
 from passlib.hash import bcrypt
-
 from ptmd.config import Base, db, session
 from ptmd.const import ROLES
 from ptmd.database.models.token import Token
@@ -59,14 +58,16 @@ class User(Base):
 
         :return: The iterator.
         """
-        files: list[dict] = [dict(file) for file in self.files]
+        user_files: list[dict] = [dict(file) for file in self.files]
         if self.organisation:
-            files = [dict(file) for file in self.organisation.files]
+            for file in [dict(file) for file in self.organisation.files]:
+                if file not in user_files:
+                    user_files.append(file)
         user: dict = {
             "id": self.id,
             "username": self.username,
             "organisation": self.organisation.name if self.organisation else None,
-            "files": files,
+            "files": user_files,
             "role": self.role
         }
         for key, value in user.items():

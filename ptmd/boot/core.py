@@ -18,11 +18,9 @@ DEFAULT_USER: dict = {
 }
 
 
-def initialize():
+def initialize() -> None:
     """ Initialize the application. This will create the directories on Google Drive and the database
     with seeding for partners, chemicals, organisms, organisations, files and the default admin user.
-
-    :return: A tuple containing the organisations and users from the database.
     """
     LOGGER.info('Initializing the application')
     create_config_file()

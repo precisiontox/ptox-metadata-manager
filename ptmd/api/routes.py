@@ -300,7 +300,7 @@ def file_to_isa(file_id: int) -> tuple[Response, int]:
 ###########################################################
 @app.route('/api/samples/<sample_id>', methods=['GET'])
 @swag_from(path.join(SAMPLES_DOC_PATH, 'get_sample.yml'))
-@jwt_required()
+@jwt_required(optional=True)
 def get_sample_(sample_id: str) -> tuple[Response, int]:
     """ Get a sample by its id
 

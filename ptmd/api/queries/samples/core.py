@@ -127,7 +127,6 @@ def save_samples(file_id: int) -> tuple[Response, int]:
     return jsonify({"samples": sample_generator.generate_samples()}), 200
 
 
-@check_role(role='user')
 def get_sample(sample_id: str) -> tuple[Response, int]:
     """ Get a sample from the database.
 
