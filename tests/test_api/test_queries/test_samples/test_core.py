@@ -45,16 +45,13 @@ class TestSamples(TestCase):
     @patch('ptmd.database.models.file.Organism')
     @patch('ptmd.database.models.file.Organisation')
     @patch('ptmd.database.models.chemical.get_current_user')
-    def test_get_sample_success(self, mock_chemical_user, mock_organisation, mock_organism, mock_chemical,
+    @patch('ptmd.database.models.sample.get_current_user')
+    def test_get_sample_success(self, mock_get_current_user, mock_chemical_user, mock_organisation,
+                                mock_organism, mock_chemical,
                                 mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
         organisation = Organisation(name='test', longname='test')
         mock_organisation.query.filter_by().first.return_value = organisation
-        file = File(gdrive_id='test', name='test', batch='test', replicates=1, controls=1, blanks=1,
-                    organisation_name="org", user_id=1, organism_name='test', vehicle_name="vehicle",
-                    start_date='2021-01-01', end_date='2021-01-01')
-        file.organism = Organism(ptox_biosystem_name='test', scientific_name='test', ptox_biosystem_code='test')
-        file.organisation = organisation
-        file.vehicle = Chemical(common_name='test', chemical_id=1)
+        file = self.get_file(organisation)
         sample = Sample(sample_id="ABC", data={'test': 'test'}, file_id=1)
         sample.file = file
 
@@ -71,6 +68,45 @@ class TestSamples(TestCase):
                 'formula': None,
                 'ptx_code': 'PTXNone'
             }
+        }
+        with patch('ptmd.api.queries.samples.core.Sample') as mock_sample:
+            mock_sample.query.filter().first.return_value = sample
+            mock_user().id = 1
+            mock_chemical_user().role = 'admin'
+            mock_chemical_user().id = 1
+            mock_user().role = 'admin'
+            with app.test_client() as client:
+                response = client.get('/api/samples/1', headers=HEADERS)
+                self.assertEqual(response.json, {'sample': expected})
+                self.assertEqual(response.status_code, 200)
+
+    @patch('ptmd.database.models.file.Chemical')
+    @patch('ptmd.database.models.file.Organism')
+    @patch('ptmd.database.models.file.Organisation')
+    @patch('ptmd.database.models.chemical.get_current_user')
+    @patch('ptmd.database.models.sample.get_current_user')
+    def test_get_sample_success_public(self, mock_get_current_user, mock_chemical_user, mock_organisation,
+                                       mock_organism, mock_chemical,
+                                       mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
+        organisation = Organisation(name='test', longname='test')
+        mock_organisation.query.filter_by().first.return_value = organisation
+        mock_get_current_user.return_value = None
+        file = self.get_file(organisation)
+        sample_data = {
+            'replicate': 1, 'dose_code': 'A',
+            'compound': {'ptx_code': 'PTXNone', 'common_name': 'test'},
+            'timepoint_(hours)': 1
+        }
+        sample = Sample(sample_id="ABC", data=sample_data, file_id=1)
+        sample.file = file
+        expected = {
+            'batch': 'test',
+            'compound': {'name': 'test', 'ptox_id': 'PTXNone'},
+            'dose': 'A',
+            'ptox_id': 'ABC',
+            'replicate': 1,
+            'timepoint_hours': 1,
+            'vehicle': 'test'
         }
         with patch('ptmd.api.queries.samples.core.Sample') as mock_sample:
             mock_sample.query.filter().first.return_value = sample
@@ -108,6 +144,16 @@ class TestSamples(TestCase):
                     'total': 0
                 })
                 self.assertEqual(response.status_code, 200)
+
+    @staticmethod
+    def get_file(organisation):
+        file = File(gdrive_id='test', name='test', batch='test', replicates=1, controls=1, blanks=1,
+                    organisation_name="org", user_id=1, organism_name='test', vehicle_name="vehicle",
+                    start_date='2021-01-01', end_date='2021-01-01')
+        file.organism = Organism(ptox_biosystem_name='test', scientific_name='test', ptox_biosystem_code='test')
+        file.organisation = organisation
+        file.vehicle = Chemical(common_name='test', chemical_id=1)
+        return file
 
 
 class TestSampleGenerator(TestCase):

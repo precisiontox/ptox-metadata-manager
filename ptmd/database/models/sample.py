@@ -2,10 +2,13 @@
 """
 from __future__ import annotations
 
+from flask_jwt_extended import get_current_user
+
 from typing import Generator
 from json import dumps as json_dumps, loads as json_loads
 
 from ptmd.config import Base, db
+from ptmd.database.models.user import User
 
 
 class Sample(Base):
@@ -35,13 +38,24 @@ class Sample(Base):
 
         :return: The iterator.
         """
-        sample: dict = {
-            **json_loads(self.data),
+        data: dict = json_loads(self.data)
+        current_user: User = get_current_user()
+        yield from {
+            **data,
             'organism': self.file.organism.ptox_biosystem_name,
             'organisation': self.file.organisation.longname,
             'batch': self.file.batch,
             'vehicle': dict(self.file.vehicle),
             'google_file': self.file.gdrive_id
-        }
-        for key, value in sample.items():
-            yield key, value
+        }.items() if current_user else {
+            'ptox_id': self.sample_id,
+            'batch': self.file.batch,
+            'vehicle': self.file.vehicle.common_name,
+            'replicate': data['replicate'],
+            'dose': data['dose_code'],
+            'compound': {
+                'ptox_id': data['compound']['ptx_code'],
+                'name': data['compound']['common_name'],
+            } if type(data['compound']) == dict else None,
+            'timepoint_hours': data['timepoint_(hours)'],
+        }.items()
