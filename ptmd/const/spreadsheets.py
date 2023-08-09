@@ -1,7 +1,5 @@
 """ This module provide constants related to the generation and validation of spreadsheets.
 """
-from collections import namedtuple
-
 from .schema_loaders import INPUT_SCHEMA, EXPOSURE_SCHEMA, EXPOSURE_INFORMATION_SCHEMA
 from .labels import (
     PTX_ID_LABEL, DOSE_LABEL, TIMEPOINT_LABEL,
@@ -11,7 +9,7 @@ from .labels import (
 
 
 def extract_empty_columns() -> list[str]:
-    """ Extracts the empty columns from the sample sheet.
+    """ Extracts the empty columns from the schema.
 
     :return: The empty columns.
     """
@@ -26,21 +24,10 @@ def extract_empty_columns() -> list[str]:
     return fields
 
 
-ReplicateBlankRange: namedtuple = namedtuple('ReplicateBlankRange', ['min', 'max'])
-
+BASE_IDENTIFIER: str = 'PTX'
 ALLOWED_PARTNERS: list[str] = INPUT_SCHEMA['properties']['partner']['enum']
 ALLOWED_EXPOSURE_BATCH: str = INPUT_SCHEMA['properties'][BATCH_LABEL]['pattern']
-EXPOSURE_BATCH_MAX_LENGTH: int = INPUT_SCHEMA['properties'][BATCH_LABEL]['maxLength']
-REPLICATES_EXPOSURE_MIN: int = INPUT_SCHEMA['properties']['replicates4exposure']['minimum']
-REPLICATES_CONTROL_MIN: int = INPUT_SCHEMA['properties']['replicates4control']['minimum']
 ALLOWED_DOSE_VALUES: list[str] = EXPOSURE_SCHEMA['properties']['dose']['enum']
-ALLOWED_VEHICLES: list[str] = INPUT_SCHEMA['properties']['vehicle']['enum']
-TIMEPOINTS_MIN: int = INPUT_SCHEMA['properties']['timepoints']['items']['minimum']
-REPLICATES_BLANK_RANGE: ReplicateBlankRange = ReplicateBlankRange(
-    INPUT_SCHEMA['properties']['replicates_blank']['minimum'],
-    INPUT_SCHEMA['properties']['replicates_blank']['maximum']
-)
-
 DOSE_MAPPING: dict = {
     0: "Z",
     '0': "Z",
@@ -56,10 +43,7 @@ TIME_POINT_MAPPING: dict = {
     "TP4": "D",
     "TP5": "E",
 }
-
 SAMPLE_SHEET_EMPTY_COLUMNS: list[str] = extract_empty_columns()
-
-
 SAMPLE_SHEET_COLUMNS: list[str] = [
     PTX_ID_LABEL,
     COMPOUND_HASH_LABEL,

@@ -13,7 +13,8 @@ from ptmd.const import (
     BATCH_LABEL,
     COMPOUND_NAME_LABEL,
     DOSE_LABEL,
-    TIMEPOINT_LABEL
+    TIMEPOINT_LABEL,
+    BASE_IDENTIFIER
 )
 
 
@@ -105,7 +106,7 @@ def validate_compound(validator: Any) -> None:
     :param validator: The ExcelValidator for which to run the identifier validation.
     """
     compound_code: str = validator.current_record['data']['compound_hash']
-    compound_hash_reference: str = f'PTX{validator.current_record["data"][PTX_ID_LABEL][3:6]}'
+    compound_hash_reference: str = f'{BASE_IDENTIFIER}{validator.current_record["data"][PTX_ID_LABEL][3:6]}'
 
     if compound_code != compound_hash_reference:
         validator.add_error(validator.current_record['label'],

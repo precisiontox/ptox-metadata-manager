@@ -8,7 +8,7 @@ from flask import jsonify, request, Response
 from sqlalchemy.exc import IntegrityError
 from jsonschema import Draft4Validator as JSONValidator, RefResolver, ValidationError
 
-from ptmd.const import CREATE_CHEMICAL_SCHEMA_PATH, CREATE_CHEMICALS_SCHEMA_PATH
+from ptmd.const import CREATE_CHEMICAL_SCHEMA_PATH, CREATE_CHEMICALS_SCHEMA_PATH, BASE_IDENTIFIER
 from ptmd.config import session
 from ptmd.api.queries.utils import check_role
 from ptmd.database.models import Chemical
@@ -24,7 +24,7 @@ def create_chemicals() -> tuple[Response, int]:
     try:
         validate_chemicals(chemicals)
         for chemical in chemicals:
-            chemical['ptx_code'] = int(chemical['ptx_code'].replace('PTX', ''))
+            chemical['ptx_code'] = int(chemical['ptx_code'].replace(BASE_IDENTIFIER, ''))
         chemicals_from_db: list[Chemical] = [Chemical(**chemical) for chemical in chemicals]
         session.add_all(chemicals_from_db)
         session.commit()
@@ -69,7 +69,7 @@ def get_chemical(ptx_code: str) -> tuple[Response, int]:
     :param ptx_code: the ptx_code of the chemical
     :return: tuple of response and status code
     """
-    chemical_id = int(ptx_code.replace('PTX', ''))
+    chemical_id = int(ptx_code.replace(BASE_IDENTIFIER, ''))
     chemical: Chemical = Chemical.query.filter(Chemical.chemical_id == chemical_id).first()
     if not chemical:
         return jsonify({'message': 'Chemical not found.'}), 404

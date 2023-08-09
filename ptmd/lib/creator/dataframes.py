@@ -8,7 +8,7 @@ from ptmd.const import (
     GENERAL_SHEET_COLUMNS, SAMPLE_SHEET_COLUMNS,
     DOSE_MAPPING, TIME_POINT_MAPPING,
     EMPTY_FIELDS_VALUES,
-    BLANK_CODE
+    BLANK_CODE, BASE_IDENTIFIER
 )
 
 
@@ -64,7 +64,7 @@ def build_sample_dataframe(harvester: Any, chemicals_mapping: dict[str, str], or
                                                 dose_code, timepoint, replicate)
                     series = Series([
                         hash_id,
-                        f'PTX{chemical_code}',
+                        BASE_IDENTIFIER + chemical_code,
                         *EMPTY_FIELDS_VALUES,
                         replicate,
                         chemical,
@@ -82,7 +82,7 @@ def build_sample_dataframe(harvester: Any, chemicals_mapping: dict[str, str], or
         control_code = '999' if harvester.vehicle == 'DMSO' else '997'
         for replicate in range(1, harvester.replicates4control + 1):
             hash_id = '%s%s%sZ%s%s' % (organism_code, harvester.exposure_batch, control_code, timepoint, replicate)
-            series = Series([hash_id, f'PTX{control_code}', *EMPTY_FIELDS_VALUES,
+            series = Series([hash_id, BASE_IDENTIFIER + control_code, *EMPTY_FIELDS_VALUES,
                              replicate, "CONTROL (%s)" % harvester.vehicle, 0, 'TP%s' % tp, timepoint_value],
                             index=dataframe.columns)
             dataframe = pd_concat([dataframe, series.to_frame().T], ignore_index=False, sort=False, copy=False)
@@ -110,7 +110,7 @@ def add_blanks_to_sample_dataframe(
     """
     for blank in range(1, replicate_blank + 1):
         hash_id = '%s%s%sZS%s' % (organism_code, exposure_batch, BLANK_CODE, blank)
-        series = Series([hash_id, f'PTX{BLANK_CODE}', *EMPTY_FIELDS_VALUES, blank, 'EXTRACTION BLANK', "0", 'TP0', 0],
+        series = Series([hash_id, f'{BASE_IDENTIFIER}{BLANK_CODE}', *EMPTY_FIELDS_VALUES, blank, 'EXTRACTION BLANK', "0", 'TP0', 0],
                         index=sample_df.columns)
         sample_df = pd_concat([sample_df, series.to_frame().T], ignore_index=False, sort=False, copy=False)
     return sample_df
