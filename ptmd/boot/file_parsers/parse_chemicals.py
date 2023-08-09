@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pandas import read_excel, DataFrame
 
-from ptmd.const import CHEMICALS_FILEPATH
+from ptmd.const import CHEMICALS_FILEPATH, BASE_IDENTIFIER
 
 
 def parse_chemicals() -> list[dict]:
@@ -19,7 +19,7 @@ def parse_chemicals() -> list[dict]:
     for compound in chemicals_dataframe.itertuples():
         chemicals.append({
             'common_name': compound.Compound.replace('"', ''),
-            'ptx_code': int(compound._2.replace('"', '').replace('PTX', '')),
+            'ptx_code': int(compound._2.replace('"', '').replace(BASE_IDENTIFIER, '')),
             'formula': compound.Formula.replace('"', ''),
             'cas': compound._5.replace('"', '').split('\n')[0]
         })
