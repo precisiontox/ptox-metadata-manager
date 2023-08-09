@@ -6,6 +6,7 @@ from typing import Generator
 from flask_jwt_extended import get_current_user
 from sqlalchemy import Column
 
+from ptmd.const import BASE_IDENTIFIER
 from ptmd.config import Base, db
 from ptmd.database.models.user import User
 from ptmd.database.models.relationship import files_chemicals
@@ -34,7 +35,7 @@ class Chemical(Base):
             'common_name': self.common_name,
             'cas': self.cas,
             'formula': self.formula,
-            'ptx_code': 'PTX' + str(self.ptx_code).rjust(3, '0')
+            'ptx_code': BASE_IDENTIFIER + str(self.ptx_code).rjust(3, '0')
         }
         current_user: User = get_current_user()
         if current_user and current_user.role != 'banned':
