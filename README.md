@@ -52,7 +52,9 @@ Users producing samples are invited to fill a form based on an experimental desi
 It generates Excel files containing the metadata about sample exposition and collection divided into
 two sheets:
 - a first sheet containing specific information about the samples. This includes which replicates are exposed 
-to which compound, at which dose and after how long they were collected, as well as unique identifiers for each sample.
+to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique 
+identifier for each exposed replicate, each controls and each empty tubes based on a following pattern:
+``organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code``.
 - a second sheet containing general information about the experiment, like the organisation, the species, the start 
 and end date, etc.
 
