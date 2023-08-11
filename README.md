@@ -62,12 +62,13 @@ The spreadsheets are then uploaded to a shared Google Drive folder and opened fo
 tool keeps track of the files uploaded to Google Drive, can import external files, and validates the 
 content of the spreadsheets. This validation steps are mandatory before the files and boxes can be shipped.
 <br>
-Once marked as shipped, the file is locked and cannot be edited anymore. Users from the receiving partner can then mark the
-file as received and generate a standardised version of the file using the ISA-JSON format. This file can be imported 
-into the ISA-tools suite, merged with metadata from metabolomics and transcriptomics, and deposited to public repositories 
-such as ``MetaboLights`` and ``ArrayExpress``. Finally, the samples are registered in the database
-and exposed through a REST endpoint. This allows users to search them and retrieve their metadata through both
-programmatic and web interfaces.
+Once marked as **shipped**, the file is locked and cannot be edited anymore. Upon receiving the physical sample boxes, users
+from the receiving partner can then mark file as **received**. The tool will generate a standardised version of the file 
+using the ``ISA-JSON`` format which can be imported into the ``ISA-tools`` suite, merged with metadata from metabolomics and 
+transcriptomics, and deposited to public repositories such as ``MetaboLights`` and ``ArrayExpress``. 
+Finally, the samples are registered in the database and exposed through a REST endpoint. This allows users to search
+them and retrieve their metadata through both programmatic and web interfaces while providing stable, persistent 
+and unique identifiers.
 
 
 ### Components:
