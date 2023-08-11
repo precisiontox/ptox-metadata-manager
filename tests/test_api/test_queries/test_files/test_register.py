@@ -19,11 +19,14 @@ class MockGoogleDrive:
     def upload_file(self, *args, **kwargs):
         return {'id': 123}
 
+
 class MockGoogleDriveError(MockGoogleDrive):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
     def upload_file(self, *args, **kwargs):
         return None
+
 
 HEADERS = {'Content-Type': 'application/json'}
 
