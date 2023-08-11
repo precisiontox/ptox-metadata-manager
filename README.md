@@ -70,6 +70,8 @@ Finally, the samples are registered in the database and exposed through a REST e
 them and retrieve their metadata through both programmatic and web interfaces while providing stable, persistent 
 and unique identifiers.
 
+<img src="./docs/source/_static/img/user_story.png" alt="Licence Badge" style="max-width:700px; margin:auto; display:block;"/>
+
 
 ### Components:
 
