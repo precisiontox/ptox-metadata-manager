@@ -48,12 +48,14 @@ to a central partner who splits them for *RNAseq* and *mass-spectrometry*. The t
 any error, can be used to find physical samples in the shipped boxes and that the experimental results can be produced in
 a FAIR and publishable way.
 <br>
-Users producing samples are invited to fill a form based on an experimental design defined by the consotirum. 
-It generates Excel spreadsheet stubs containing the metadata about sample exposition and collection. 
-The sheets contain a unique identifier for each sample, general information about the experiment (the organisation, 
-the start and end date, the species, etc.), and more specific information about which replicate is exposed to which 
-compound, at which dose and at after how long it's been collected.
-<br>
+Users producing samples are invited to fill a form based on an experimental design defined by the consortium. 
+It generates Excel files containing the metadata about sample exposition and collection divided into
+two sheets:
+- a first sheet containing specific information about the samples. This includes which replicates are exposed 
+to which compound, at which dose and after how long they were collected, as well as unique identifiers for each sample.
+- a second sheet containing general information about the experiment, like the organisation, the species, the start 
+and end date, etc.
+
 The spreadsheets are then uploaded to a shared Google Drive folder and opened for editing for when users hit the lab. The 
 tool keeps track of the files uploaded to Google Drive, can import external files, and validates the 
 content of the spreadsheets. This validation steps are mandatory before the files and boxes can be shipped.
