@@ -37,7 +37,7 @@ def register_gdrive_file() -> tuple[Response, int]:
 
         filepath: str = connector.download_file(file_id, filename.replace('.xlsx', f'_{uuid4()}.xlsx'))
         extra_data: dict | None = extract_data_from_spreadsheet(filepath)
-        remove(filepath)
+
         if extra_data is None:
             raise ValueError(f"File '{file_id}' does not contain the required data.")
 
@@ -45,8 +45,14 @@ def register_gdrive_file() -> tuple[Response, int]:
                                       .filter(Organisation.name == extra_data['organisation_name'])
                                       .first())
         del extra_data['organisation_name']
+        file_data: dict[str, str] | None = connector.upload_file(
+            directory_id=organisation.gdrive_id, file_path=filepath, title=filename
+        )
+        remove(filepath)
+        if not file_data:
+            raise ValueError(f"File '{file_id}' could not be uploaded.")
 
-        file: File = File(gdrive_id=file_id,
+        file: File = File(gdrive_id=file_data['id'],
                           name=filename,
                           organisation_name=organisation.name,
                           user_id=get_current_user().id,
