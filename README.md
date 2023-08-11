@@ -41,7 +41,7 @@
 </p>
 
 ### Objectives
-The precision toxicology metadata manager is a tool created to help the Precision Toxicology partners producing 
+The precision toxicology metadata manager is a tool created to help the consortium partners producing 
 data to create, find, validate and share metadata about samples they collect in the lab. The idea behind the tool is to 
 operate before the sample are exposed to specific compounds and are then collected. These samples are meant to be shipped
 to a central partner who splits them for *RNAseq* and *mass-spectrometry*. The tool ensures that metadata do not contain 
