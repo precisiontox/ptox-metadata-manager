@@ -78,8 +78,8 @@ with ``mypy``, code quality is surveyed by ``Codacy`` and styles are enforced by
 continuous integration pipeline.
 <br> <br>
 The application source code is contained in the ``ptmd`` directory and divided as such:
-- The ``api`` directory contains the flask application exposing the REST API. It includes routes definitions and the 
-  ``JWT`` authentication logic.
+- The ``api`` directory contains the flask application exposing the REST API. It includes routes definitions, the 
+  JSON Web Token authentication logic and the validation of user inputs through JSON Schema.
 - The ``boot`` directory contains the code responsible for booting the application, like seeding the initial data into 
 the database.
 - The ``const`` directory contains the constants used throughout the application.
