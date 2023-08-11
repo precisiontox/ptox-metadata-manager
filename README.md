@@ -49,7 +49,7 @@ any error, can be used to find physical samples in the shipped boxes and that th
 a FAIR and publishable way.
 <br>
 Users producing samples are invited to fill a form based on an experimental design defined by the consotirum. 
-It generates a spreadsheet stub containing the metadata regarding the sample exposition and collection steps. 
+It generates Excel spreadsheet stubs containing the metadata about sample exposition and collection. 
 The sheets contain a unique identifier for each sample, general information about the experiment (the organisation, 
 the start and end date, the species, etc.), and more specific information about which replicate is exposed to which 
 compound, at which dose and at after how long it's been collected.
