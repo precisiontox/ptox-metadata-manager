@@ -169,7 +169,9 @@ Once the API is booted go to http://localhost:5000/apidocs to see the Swagger do
 ## Database schema
 <img src="./database.png" alt="Licence Badge"/>
 
-## Testing
+
+## Development
+### Testing
 You will need the development dependencies installed to run the tests.
 ```shell
 coverage run -m unittest discover -s tests/
@@ -177,7 +179,7 @@ coverage report -m
 ```
 
 
-## Verify and generate the documentation
+### Verify and generate the documentation
 You will need the development dependencies installed to generate the documentation.
 For Unix based systems:
 ```shell
@@ -193,7 +195,7 @@ docstr-coverage ptmd/ --fail-under=100
 ```
 
 
-## Verify type hints
+### Verify type hints
 You will need the development dependencies installed to verify the type hints.
 ```shell
 mypy --config-file=./mypy.ini
