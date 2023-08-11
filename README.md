@@ -7,8 +7,8 @@
   <a href="https://coveralls.io/github/precisiontox/ptox-metadata-manager?branch=main" target="_blank" rel="noopener noreferrer">
     <img src="https://coveralls.io/repos/github/precisiontox/ptox-metadata-manager/badge.svg?branch=terazus-badges" alt="Coverage Report Badge" /> 
   </a>
-  <a href="https://www.codacy.com/gh/precisiontox/ptox-metadata-manager/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=precisiontox/ptox-metadata-manager&amp;utm_campaign=Badge_Grade" target="_blank" rel="noopener noreferrer">
-    <img src="https://app.codacy.com/project/badge/Grade/1503dc8bf33c40bbb474ec328ba90219" alt="Code Quality Badge" /> 
+  <a href="https://app.codacy.com/gh/precisiontox/ptox-metadata-manager/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
+    <img src="https://app.codacy.com/project/badge/Grade/1503dc8bf33c40bbb474ec328ba90219"/>
   </a>
   <a>
    <img src="https://camo.githubusercontent.com/d101bf45a713753a714d0cd41b86cd92fbcda60c63f32f48c611e63b5df2e656/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7374617475732d616c7068612d6f72616e6765" alt="Status Badge" />
@@ -33,15 +33,76 @@
 
 
 ## Introduction
-The precision toxicology metadata manager is a tool to manage metadata for the precision toxicology project. 
-It is a web application that allows users to create study designs from a very simple form and generates a metadata
-excel stub saved in Google Drive. This repository contains the source code for the API.
-
 <p align="center">
   <a href="https://www.youtube.com/watch?v=XWItfWplwT0&hd=1">
-    <img src="https://i9.ytimg.com/vi/XWItfWplwT0/mqdefault.jpg?v=647f85e1&sqp=CIihiaYG&rs=AOn4CLBAb6msZyCnaP0gYMADwzNniivEpw" alt="Tool presentation">
+    <img src="https://i9.ytimg.com/vi/XWItfWplwT0/mqdefault.jpg?v=647f85e1&sqp=CIihiaYG&rs=AOn4CLBAb6msZyCnaP0gYMADwzNniivEpw"
+        alt="Click to view the tool presentation video on youtube">
   </a>
 </p>
+
+### Objectives
+The precision toxicology metadata manager is a tool created to help the consortium partners producing 
+data to create, find, validate and share metadata about samples they collect in the lab. The idea behind the tool is to 
+operate before the sample are exposed to specific compounds and are then collected. These samples are meant to be shipped
+to a central partner who splits them for *RNAseq* and *mass-spectrometry*. The tool ensures that metadata do not contain 
+any error, can be used to find physical samples in the shipped boxes and that the experimental results can be produced in
+a FAIR and publishable way.
+<br>
+Users producing samples are invited to fill a form based on an experimental design defined by the consortium. 
+It generates Excel files containing the metadata about sample exposition and collection divided into
+two sheets:
+- a first sheet containing specific information about the samples. This includes which replicates are exposed 
+to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique 
+identifier for each exposed replicate, each controls and each empty tubes based on a following pattern:
+``organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code``.
+- a second sheet containing general information about the experiment, like the organisation, the species, the start 
+and end date, etc.
+
+The spreadsheets are then uploaded to a shared Google Drive folder and opened for editing for when users hit the lab. The 
+tool keeps track of the files uploaded to Google Drive, can import external files, and validates the 
+content of the spreadsheets. This validation steps are mandatory before the files and boxes can be shipped.
+<br>
+Once marked as **shipped**, the file is locked and cannot be edited anymore. Upon receiving the physical sample boxes, users
+from the receiving partner can then mark file as **received**. The tool will generate a standardised version of the file 
+using the ``ISA-JSON`` format which can be imported into the ``ISA-tools`` suite, merged with metadata from metabolomics and 
+transcriptomics, and deposited to public repositories such as ``MetaboLights`` and ``ArrayExpress``. 
+Finally, the samples are registered in the database and exposed through a REST endpoint. This allows users to search
+them and retrieve their metadata through both programmatic and web interfaces while providing stable, persistent 
+and unique identifiers.
+
+<img src="./docs/source/_static/img/user_story.png" alt="Licence Badge" style="max-width:700px; margin:auto; display:block;"/>
+
+
+### Components:
+
+#### The Backend API
+It is hosted in this repository. It contains a Flask application exposing a REST API and is plugged to a relational
+database through SQLAlchemy. It is responsible for authentication, all functionalities logic and the persistence of 
+(meta)-data. It provides a Swagger documentation accessible at https://pretox.isa-tools.org/apidocs. The documentation 
+describes the API usage and provides a way to run queries through a web UI. The code is documented using ``docstrings`` 
+and the documentation is available on ``readthedocs``. The application is entirely unit-tested, typehints are checked 
+with ``mypy``, code quality is surveyed by ``Codacy`` and styles are enforced by ``flake8``, all as part of  the 
+continuous integration pipeline.
+<br> <br>
+The application source code is contained in the ``ptmd`` directory and divided as such:
+- The ``api`` directory contains the flask application exposing the REST API. It includes routes definitions, the 
+  JSON Web Token authentication logic and the validation of user inputs through JSON Schema.
+- The ``boot`` directory contains the code responsible for booting the application, like seeding the initial data into 
+the database.
+- The ``const`` directory contains the constants used throughout the application.
+- The ``database`` directory contains the database models and complex queries. Interactions with the database is mostly
+defined as methods of the model classes.
+- The ``lib`` directory contains the code responsible for the business logic, like the interactions with the spreadsheets
+and the Google Drive API, sending emails and generating ISA-JSON files.
+- The ``resources`` directory contains the assets used by the application, like JSON schemas, swagger yaml files, data
+files for organisations and chemicals, etc.
+
+Tests are contained in the ``tests`` directory and divided mirroring the application exact structure. They require no 
+data files and no interaction with the database to be executed.
+
+#### The frontend client
+A NuxtJS web application accessible at https://ptmm.netlify.app. It is responsible for the user interface and the
+communication with the API.
 
 
 ## Getting started
@@ -115,7 +176,10 @@ Once the API is booted go to http://localhost:5000/apidocs to see the Swagger do
 ## Database schema
 <img src="./database.png" alt="Licence Badge"/>
 
-## Testing
+
+## Development
+
+### Testing
 You will need the development dependencies installed to run the tests.
 ```shell
 coverage run -m unittest discover -s tests/
@@ -123,7 +187,7 @@ coverage report -m
 ```
 
 
-## Verify and generate the documentation
+### Verify and generate the documentation
 You will need the development dependencies installed to generate the documentation.
 For Unix based systems:
 ```shell
@@ -139,7 +203,7 @@ docstr-coverage ptmd/ --fail-under=100
 ```
 
 
-## Verify type hints
+### Verify type hints
 You will need the development dependencies installed to verify the type hints.
 ```shell
 mypy --config-file=./mypy.ini
