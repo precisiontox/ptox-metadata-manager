@@ -47,7 +47,7 @@ The tool ensures that metadata do not contain any error, can be used to find phy
 a FAIR and publishable way.
 <br>
 Consortium partners producing samples are invited to fill a form based on an experimental design defined by the consortium. 
-The form generates workbook files containing metadata about sample exposition and collection divided into
+The form generates excel files containing metadata about sample exposition and collection divided into
 two sheets:
 - a first sheet containing specific information about the samples. This includes which replicates are exposed 
 to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique 
