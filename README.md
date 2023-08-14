@@ -39,43 +39,54 @@
 </p>
 
 ### Objectives
-The precision toxicology metadata manager is a tool created to help the consortium partners producing 
+The precision toxicology metadata manager is a tool created to help consortium partners  of the [PrecisionTox](https://precisiontox.org/) who produce 
 data to create, find, validate and share metadata about samples they collect in the lab. The idea behind the tool is to 
-operate before the sample are exposed to specific compounds and are then collected. These samples are meant to be shipped
-to a central partner who splits them for *RNAseq* and *mass-spectrometry*. The tool ensures that metadata do not contain 
-any error, can be used to find physical samples in the shipped boxes and that the experimental results can be produced in
+operate at planning stage, before organisms are even exposed to compounds and samples are collected. These samples are meant to be shipped
+to a central partner who will perform material extractions for *RNAseq* and *mass-spectrometry* data acquisitions.
+The tool ensures that metadata do not contain any error, can be used to find physical samples in the boxes shipped to the core facility and that the experimental results can be produced in
 a FAIR and publishable way.
 <br>
-Users producing samples are invited to fill a form based on an experimental design defined by the consortium. 
-It generates Excel files containing the metadata about sample exposition and collection divided into
+Consortium partners producing samples are invited to fill a form based on an experimental design defined by the consortium. 
+The form generates workbook files containing metadata about sample exposition and collection divided into
 two sheets:
 - a first sheet containing specific information about the samples. This includes which replicates are exposed 
 to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique 
-identifier for each exposed replicate, each controls and each empty tubes based on a following pattern:
+identifier for each exposed replicate, each control and each empty tube based on a following pattern:
 ``organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code``.
-- a second sheet containing general information about the experiment, like the organisation, the species, the start 
+- a second sheet containing general information about the experiment, such as the organisation, the species, the start 
 and end date, etc.
 
 The spreadsheets are then uploaded to a shared Google Drive folder and opened for editing for when users hit the lab. The 
-tool keeps track of the files uploaded to Google Drive, can import external files, and validates the 
-content of the spreadsheets. This validation steps are mandatory before the files and boxes can be shipped.
+tool keeps track of the files uploaded to Google Drive, can import external files, and can validate the 
+content of the spreadsheets. These validation steps are mandatory and must be performed before the files and boxes can be shipped.
 <br>
-Once marked as **shipped**, the file is locked and cannot be edited anymore. Upon receiving the physical sample boxes, users
-from the receiving partner can then mark file as **received**. The tool will generate a standardised version of the file 
-using the ``ISA-JSON`` format which can be imported into the ``ISA-tools`` suite, merged with metadata from metabolomics and 
-transcriptomics, and deposited to public repositories such as ``MetaboLights`` and ``ArrayExpress``. 
-Finally, the samples are registered in the database and exposed through a REST endpoint. This allows users to search
-them and retrieve their metadata through both programmatic and web interfaces while providing stable, persistent 
-and unique identifiers.
+
+Once marked as **shipped**, the file is locked and cannot be edited anymore.
+
+Upon receiving the physical sample boxes, users from the receiving partner can then mark file as **received**.
+
+The tool will generate a standardised version of the file 
+using the ``ISA-JSON`` format, which can be imported into the ``ISA-tools`` suite, merged with metadata from metabolomics and 
+transcriptomics, and deposited to public repositories such as EMBL-EBI [MetaboLights](https://www.ebi.ac.uk/metabolights/) and [ArrayExpress](https://www.ebi.ac.uk/biostudies/arrayexpress) repositories. 
+
+Finally, the sample metadata are registered in a purpose-built database and be requested through a RESTful endpoint. 
+This allows users to search and retrieve sample metadata through both programmatic and web interfaces while providing stable, persistent 
+and unique identifiers for each record.
 
 <img src="./docs/source/_static/img/user_story.png" alt="Metadata pipeline for sample exposure and collection" style="max-width:700px; margin:auto; display:block;"/>
 
 
 ### Components:
 
-#### The Backend API
-It is hosted in this repository. It contains a Flask application exposing a REST API and is plugged to a relational
-database through SQLAlchemy. It is responsible for authentication, all functionalities logic and the persistence of 
+#### The frontend client
+A NuxtJS web application accessible at https://ptmm.netlify.app. 
+It is responsible for the user interface and the communication with the API.
+
+#### The backend API
+It is hosted in this repository. It contains a [Flask](https://flask.palletsprojects.com/en/2.3.x/) application exposing a REST API and is plugged to a relational
+database through [SQLAlchemy](https://www.sqlalchemy.org/). 
+
+It is responsible for authentication, all functionalities logic and the persistence of 
 (meta)-data. It provides a Swagger documentation accessible at https://pretox.isa-tools.org/apidocs. The documentation 
 describes the API usage and provides a way to run queries through a web UI. The code is documented using ``docstrings`` 
 and the documentation is available on ``readthedocs``. The application is entirely unit-tested, typehints are checked 
@@ -98,9 +109,6 @@ files for organisations and chemicals, etc.
 Tests are contained in the ``tests`` directory and divided mirroring the application exact structure. They require no 
 data files and no interaction with the database to be executed.
 
-#### The frontend client
-A NuxtJS web application accessible at https://ptmm.netlify.app. It is responsible for the user interface and the
-communication with the API.
 
 
 ## Getting started
