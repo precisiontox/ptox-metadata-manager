@@ -10,9 +10,7 @@
   <a href="https://app.codacy.com/gh/precisiontox/ptox-metadata-manager/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
     <img src="https://app.codacy.com/project/badge/Grade/1503dc8bf33c40bbb474ec328ba90219"/>
   </a>
-  <a>
-   <img src="https://camo.githubusercontent.com/d101bf45a713753a714d0cd41b86cd92fbcda60c63f32f48c611e63b5df2e656/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7374617475732d616c7068612d6f72616e6765" alt="Status Badge" />
-  </a>
+  <img src="https://camo.githubusercontent.com/d101bf45a713753a714d0cd41b86cd92fbcda60c63f32f48c611e63b5df2e656/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7374617475732d616c7068612d6f72616e6765" alt="Status Badge" />
   <a href="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs_badge.svg" target="_blank" rel="noopener noreferrer">
     <img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs_badge.svg" alt="Docstring Coverage Badge"/>
   </a>
@@ -34,8 +32,8 @@
 
 ## Introduction
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=XWItfWplwT0&hd=1">
-    <img src="https://i9.ytimg.com/vi/XWItfWplwT0/mqdefault.jpg?v=647f85e1&sqp=CIihiaYG&rs=AOn4CLBAb6msZyCnaP0gYMADwzNniivEpw"
+  <a href="https://www.youtube.com/watch?v=XWItfWplwT0&hd=1" target="_blank">
+    <img src="./docs/source/_static/img/video_thumbnail.jpg"
         alt="Click to view the tool presentation video on youtube">
   </a>
 </p>
@@ -70,7 +68,7 @@ Finally, the samples are registered in the database and exposed through a REST e
 them and retrieve their metadata through both programmatic and web interfaces while providing stable, persistent 
 and unique identifiers.
 
-<img src="./docs/source/_static/img/user_story.png" alt="Licence Badge" style="max-width:700px; margin:auto; display:block;"/>
+<img src="./docs/source/_static/img/user_story.png" alt="Metadata pipeline for sample exposure and collection" style="max-width:700px; margin:auto; display:block;"/>
 
 
 ### Components:
@@ -173,8 +171,8 @@ python -m app
 
 Once the API is booted go to http://localhost:5000/apidocs to see the Swagger documentation.
 
-## Database schema
-<img src="./database.png" alt="Licence Badge"/>
+## Database: Entity Relationship Diagram (ERD)
+<img src="./docs/source/_static/img/database.png" alt="Database Entity Relationship Diagram (ERD)"/>
 
 
 ## Development
