@@ -2,7 +2,7 @@
 """
 from typing import Any
 
-from flask_jwt_extended import get_current_user
+from ptmd.database.utils import get_current_user
 
 from ptmd.config import Base, db
 

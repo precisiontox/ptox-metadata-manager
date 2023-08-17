@@ -1,13 +1,15 @@
 """ This module contains the Chemical database model. Chemicals represent the stimuli that the collected samples are
 exposed to.
 """
+from __future__ import annotations
+
 from typing import Generator
 
-from flask_jwt_extended import get_current_user
 from sqlalchemy import Column
 
 from ptmd.const import BASE_IDENTIFIER
 from ptmd.config import Base, db
+from ptmd.database.utils import get_current_user
 from ptmd.database.models.user import User
 from ptmd.database.models.relationship import files_chemicals
 
@@ -37,7 +39,7 @@ class Chemical(Base):
             'formula': self.formula,
             'ptx_code': BASE_IDENTIFIER + str(self.ptx_code).rjust(3, '0')
         }
-        current_user: User = get_current_user()
+        current_user: User | None = get_current_user()
         if current_user and current_user.role != 'banned':
             chemical['chemical_id'] = self.chemical_id
         for key, value in chemical.items():
