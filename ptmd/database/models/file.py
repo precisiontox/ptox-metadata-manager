@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Generator
 from datetime import datetime
 
-from flask_jwt_extended import get_current_user
+from ptmd.database.utils import get_current_user
 
 from ptmd.config import Base, db, session
 from ptmd.lib.gdrive import GoogleDriveConnector
@@ -146,8 +146,8 @@ class File(Base):
 
     def remove(self) -> None:
         """ Remove the file from the database. """
-        current_user: User = get_current_user()
-        if current_user != self.author and current_user.role != 'admin':
+        current_user: User | None = get_current_user()
+        if not current_user or (current_user != self.author and current_user.role != 'admin'):
             raise PermissionError(f"You don't have permission to delete file {self.file_id}.")
 
         try:
@@ -165,8 +165,8 @@ class File(Base):
 
         :param at: the date the shipment was received
         """
-        user: User = get_current_user()
-        if user.role != 'admin':
+        user: User | None = get_current_user()
+        if not user or user.role != 'admin':
             raise PermissionError(f"You don't have permission to update to receive shipment for file {self.file_id}.")
         if not self.shipped:
             raise ValueError(f"File {self.file_id} has not been shipped yet.")
@@ -182,8 +182,8 @@ class File(Base):
 
         :param at: the date the samples were shipped
         """
-        user: User = get_current_user()
-        if user != self.author and user.role != 'admin':
+        user: User | None = get_current_user()
+        if not user or (user != self.author and user.role != 'admin'):
             raise PermissionError(f"You don't have permission to ship file {self.file_id}.")
         if self.validated != 'success':
             raise ValueError(f"File {self.file_id} has not been validated yet or has failed validation.")

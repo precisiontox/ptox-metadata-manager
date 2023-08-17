@@ -2,7 +2,7 @@
 """
 from __future__ import annotations
 
-from flask_jwt_extended import get_current_user
+from ptmd.database.utils import get_current_user
 
 from typing import Generator
 from json import dumps as json_dumps, loads as json_loads
@@ -39,7 +39,7 @@ class Sample(Base):
         :return: The iterator.
         """
         data: dict = json_loads(self.data)
-        current_user: User = get_current_user()
+        current_user: User | None = get_current_user()
         yield from {
             **data,
             'organism': self.file.organism.ptox_biosystem_name,
