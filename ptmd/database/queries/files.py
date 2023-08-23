@@ -28,8 +28,7 @@ def prepare_files_data(files_data: dict) -> list[dict]:
             for file_data in organisation_files:
                 organism_name, batch = extract_values_from_title(file_data['title'])
                 connector: GoogleDriveConnector = GoogleDriveConnector()
-                file_name: str = file_data['title'].replace('.xlsx', f'_{uuid4()}.xlsx')
-                file_path: str = connector.download_file(file_data['id'], file_name)
+                file_path: str = connector.download_file(file_data['id'], file_data['title'])
                 data: dict | None = extract_data_from_spreadsheet(file_path)
                 if data:
                     files.append({

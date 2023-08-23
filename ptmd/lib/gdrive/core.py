@@ -4,6 +4,7 @@ and upload the files to the drive.
 from __future__ import annotations
 
 from os import path
+from uuid import uuid4
 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive, GoogleDriveFile
@@ -131,7 +132,7 @@ class GoogleDriveConnector:
         :param filename: The name of file to be downloaded.
         """
         file = self.google_drive.CreateFile({'id': file_id})
-        file_path = path.join(DOWNLOAD_DIRECTORY_PATH, filename)
+        file_path = path.join(DOWNLOAD_DIRECTORY_PATH, filename.replace('.xlsx', f'_{uuid4()}.xlsx'))
         file.GetContentFile(file_path)
         return file_path
 

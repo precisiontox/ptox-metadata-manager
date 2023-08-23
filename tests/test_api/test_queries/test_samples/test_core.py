@@ -239,7 +239,7 @@ class TestSampleGenerator(TestCase):
         mock_get_data.assert_called_once()
         self.assertEqual(mock_session.add.call_count, 0)
 
-    @patch('ptmd.api.queries.samples.core.SampleGenerator.get_file')
+    @patch('ptmd.api.queries.samples.core.SampleGenerator.get_shipped_file')
     @patch('ptmd.api.queries.samples.core.GoogleDriveConnector')
     @patch('ptmd.api.queries.samples.core.ExcelFile')
     def test_get_data(self, mock_excel, mock_drive, mock_get_file):
