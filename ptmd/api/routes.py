@@ -18,7 +18,9 @@ from ptmd.api.queries import (
     send_reset_email, reset_password,
     change_role,
     delete_user,
-    verify_token
+    verify_token,
+    batch_validation,
+    update_batch
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH, SAMPLES_DOC_PATH
 
@@ -293,6 +295,25 @@ def file_to_isa(file_id: int) -> tuple[Response, int]:
     :param file_id: the id of the file to convert
     """
     return convert_to_isa(file_id)
+
+
+@app.route('/api/batch/<batch_code>/validate', methods=['GET'])
+@jwt_required()
+def validate_batch(batch_code: str) -> tuple[Response, int]:
+    """ Validate a batch code
+
+    :param batch_code: the batch code to validate
+    """
+    return batch_validation(batch_code)
+
+
+@app.route('/api/files/<file_id>/batch', methods=['GET'])
+def update_file_batch(file_id):
+    """ Update the batch code of the file
+
+    :param file_id: the id of the file to update
+    """
+    return update_batch(file_id)
 
 
 ###########################################################

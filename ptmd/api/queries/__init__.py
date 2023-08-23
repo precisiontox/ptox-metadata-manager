@@ -22,7 +22,9 @@ from .files import (
     search_files_in_database,
     delete_file,
     ship_data, receive_data,
-    convert_to_isa
+    convert_to_isa,
+    batch_validation,
+    update_batch
 )
 from .samples import save_samples, get_sample, get_samples
 from .chemicals import create_chemicals, get_chemical

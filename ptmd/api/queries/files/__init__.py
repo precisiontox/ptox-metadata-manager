@@ -10,3 +10,5 @@ from .search import search_files_in_database
 from .delete import delete_file
 from .shipment import ship_data, receive_data
 from .isa import convert_to_isa
+from .validate_batch import batch_validation
+from .update import update_batch
