@@ -60,7 +60,9 @@ def mock_jwt_required(*args, **kwargs):
 @patch('ptmd.api.queries.files.create.create_timepoints_hours',
        return_value=[Timepoint(value=3, unit='hours', label='TP1')])
 class TestCreateFile(TestCase):
-    def test_create_gdrive_file(self,
+
+    @patch('ptmd.api.queries.files.create.get_shipped_file', return_value=False)
+    def test_create_gdrive_file(self, mock_get_shipped_file,
                                 mock_timepoints, mock_chemical,
                                 mock_user, mock_jwt_1, mock_organism, mock_file_chem,
                                 mock_organisation_1, mock_organisation_2,
@@ -99,7 +101,9 @@ class TestCreateFile(TestCase):
                                    data=dumps(data))
             self.assertEqual(response.json['data']['file_url'], 'a')
 
+    @patch('ptmd.api.queries.files.create.get_shipped_file', return_value=False)
     def test_create_gdrive_error(self,
+                                 mock_get_shipped_file,
                                  mock_timepoints, mock_chemical,
                                  mock_user, mock_jwt_1, mock_organism, mock_file_chem, mock_organisation_1,
                                  mock_organisation_2,
