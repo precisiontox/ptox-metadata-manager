@@ -22,13 +22,13 @@ class TestShipments(TestCase):
             self.assertEqual(response.json, {'message': 'File 1 not found.'})
             self.assertEqual(response.status_code, 404)
 
-    @patch('ptmd.api.queries.files.shipment.File')
+    @patch('ptmd.api.queries.files.shipment.validate_batch')
     def test_ship_error_403(self, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
         class FileMock:
             def ship_samples(self, at):
                 raise PermissionError('You do not have permission to perform this action.')
 
-        mock_file.query.filter_by().first.return_value = FileMock()
+        mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
         with app.test_client() as client:
@@ -36,13 +36,13 @@ class TestShipments(TestCase):
             self.assertEqual(response.json, {'message': 'File 1 could not be locked but has been sent anyway'})
             self.assertEqual(response.status_code, 200)
 
-    @patch('ptmd.api.queries.files.shipment.File')
+    @patch('ptmd.api.queries.files.shipment.validate_batch')
     def test_ship_error_400(self, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
         class FileMock:
             def ship_samples(self, at):
                 raise ValueError('A value error.')
 
-        mock_file.query.filter_by().first.return_value = FileMock()
+        mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
         with app.test_client() as client:
@@ -50,7 +50,7 @@ class TestShipments(TestCase):
             self.assertEqual(response.json, {'message': 'A value error.'})
             self.assertEqual(response.status_code, 400)
 
-    @patch('ptmd.api.queries.files.shipment.File')
+    @patch('ptmd.api.queries.files.shipment.validate_batch')
     @patch('ptmd.api.queries.files.shipment.GoogleDriveConnector')
     def test_ship_success(self, mock_drive, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
         class FileMock:
@@ -59,7 +59,7 @@ class TestShipments(TestCase):
 
             def ship_samples(self, at):
                 pass
-        mock_file.query.filter_by().first.return_value = FileMock()
+        mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
         with app.test_client() as client:
@@ -78,13 +78,13 @@ class TestShipments(TestCase):
             self.assertEqual(response.json, {'message': 'File 1 not found.'})
             self.assertEqual(response.status_code, 404)
 
-    @patch('ptmd.api.queries.files.shipment.File')
+    @patch('ptmd.api.queries.files.shipment.validate_batch')
     def test_receive_data_error_403(self, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
         class FileMock:
             def shipment_was_received(self, at):
                 raise PermissionError('You do not have permission to perform this action.')
 
-        mock_file.query.filter_by().first.return_value = FileMock()
+        mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
         with app.test_client() as client:
@@ -92,13 +92,13 @@ class TestShipments(TestCase):
             self.assertEqual(response.json, {'message': 'You do not have permission to perform this action.'})
             self.assertEqual(response.status_code, 403)
 
-    @patch('ptmd.api.queries.files.shipment.File')
+    @patch('ptmd.api.queries.files.shipment.validate_batch')
     def test_receive_data_error_400(self, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
         class FileMock:
             def shipment_was_received(self, at):
                 raise ValueError('A value error.')
 
-        mock_file.query.filter_by().first.return_value = FileMock()
+        mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
         with app.test_client() as client:
@@ -106,7 +106,7 @@ class TestShipments(TestCase):
             self.assertEqual(response.json, {'message': 'A value error.'})
             self.assertEqual(response.status_code, 400)
 
-    @patch('ptmd.api.queries.files.shipment.File')
+    @patch('ptmd.api.queries.files.shipment.validate_batch')
     @patch('ptmd.api.queries.files.shipment.save_samples')
     def test_receive_data_success(self, mock_save, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
         class FileMock:
@@ -116,7 +116,7 @@ class TestShipments(TestCase):
             def shipment_was_received(self, at):
                 pass
 
-        mock_file.query.filter_by().first.return_value = FileMock()
+        mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
         with app.test_client() as client:

@@ -145,7 +145,9 @@ class TestGoogleDriveConnector(TestCase):
         gdrive_connector = GoogleDriveConnector()
         file_id = "123"
         file_metadata = gdrive_connector.download_file(file_id=file_id, filename='test.xlsx')
-        self.assertIn('test.xlsx', file_metadata)
+        self.assertNotIn('test.xlsx', file_metadata)
+        self.assertIn('test_', file_metadata)
+        self.assertIn('.xlsx', file_metadata)
 
 
 @patch('ptmd.lib.gdrive.core.GoogleAuth')
@@ -162,6 +164,13 @@ class TestUploader(TestCase):
         gdrive_connector = GoogleDriveConnector()
         file_metadata = gdrive_connector.upload_file(file_path=self.xlsx_file, directory_id="123")
         self.assertEqual(content_exist_mock.return_value, file_metadata)
+
+    @patch('ptmd.lib.gdrive.core.get_file_information', return_value={'id': '1234'})
+    def test_update_file(self, content_exist_mock, google_drive_mock, google_auth_mock):
+        google_drive_mock.CreateFile().return_value = FileMock()
+        gdrive_connector = GoogleDriveConnector()
+        file_metadata = gdrive_connector.update_file(file_id="1", file_path=self.xlsx_file, title="test")
+        self.assertEqual(file_metadata, "1")
 
     def test_upload_file_no_file(self, google_drive_mock, google_auth_mock):
         google_drive_mock.CreateFile().return_value = None

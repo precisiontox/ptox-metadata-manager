@@ -239,17 +239,25 @@ class TestSampleGenerator(TestCase):
         mock_get_data.assert_called_once()
         self.assertEqual(mock_session.add.call_count, 0)
 
-    @patch('ptmd.api.queries.samples.core.SampleGenerator.get_shipped_file')
     @patch('ptmd.api.queries.samples.core.GoogleDriveConnector')
     @patch('ptmd.api.queries.samples.core.ExcelFile')
-    def test_get_data(self, mock_excel, mock_drive, mock_get_file):
+    @patch('ptmd.api.queries.samples.core.File')
+    @patch('ptmd.api.queries.samples.core.get_current_user')
+    def test_get_data(self, mock_user, mock_file, mock_excel, mock_drive):
         class MockFile:
             def __init__(self):
+                self.validated = 'success'
                 self.gdrive_id = '123'
+                self.author = "user"
+                self.name = "test.xlsx"
+
+        mock_user().role = 'admin'
+        mock_file.query.filter().first.return_value = MockFile()
 
         mock_drive().download_file.return_value = "filepath"
         mock_excel().parse().replace().replace().to_dict.return_value = []
         mock_excel().parse().replace().to_dict().__getitem__.return_value = []
+
         generator = SampleGenerator(file_id=1)
         generator.filename = "test.xlsx"
         generator.file = MockFile()

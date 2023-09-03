@@ -9,12 +9,10 @@ from flask import jsonify, Response, request
 from flask_jwt_extended import get_current_user
 
 from ptmd.config import session
-from ptmd.database import Organisation, File
-from ptmd.lib.gdrive import GoogleDriveConnector
+from ptmd.database import Organisation, File, get_shipped_file
+from ptmd.lib import BatchUpdater, GoogleDriveConnector
 from ptmd.lib.data_extractor import extract_data_from_spreadsheet
 from ptmd.api.queries.utils import check_role
-from ptmd.api.queries.files.validate_batch import get_shipped_file
-from ptmd.api.queries.files.update import modify_batch_in_file
 
 
 @check_role(role='enabled')
@@ -48,17 +46,10 @@ def register_gdrive_file() -> tuple[Response, int]:
 
         if batch_used:
             new_batch: str = request.json.get('new_batch', None)
-
-            if not new_batch:
-                remove(filepath)
-                return jsonify({"message": f"Batch already used with {species}"}), 412
-            else:
-                if get_shipped_file(species, new_batch):
-                    remove(filepath)
-                    return jsonify({"message": f"Batch already used with {species}"}), 412
-
-            old_batch: str = modify_batch_in_file(filepath, new_batch)
-            filename = filename.replace(old_batch, new_batch)
+            new_filename: tuple[Response, int] | str = change_batch(new_batch, species, filepath, filename)
+            if isinstance(new_filename, tuple):
+                return new_filename
+            filename = new_filename
             extra_data['batch'] = new_batch
 
         organisation: Organisation = (Organisation.query
@@ -82,3 +73,24 @@ def register_gdrive_file() -> tuple[Response, int]:
         return jsonify({"message": msg, "file": dict(file)}), 201
     except Exception as e:
         return jsonify({"message": str(e)}), 400
+
+
+def change_batch(new_batch: str, species: str, filepath: str, filename: str) -> tuple[Response, int] | str:
+    """ Function to change the batch of a file if the batch is already used.
+
+    :param new_batch: new batch to use
+    :param species: species of the file
+    :param filepath: path to the file
+    :param filename: name of the file
+    :return: new filename if the batch was changed, otherwise a tuple containing a JSON response and a status code
+    """
+    if not new_batch:
+        remove(filepath)
+        return jsonify({"message": f"Batch already used with {species}"}), 412
+    else:
+        if get_shipped_file(species, new_batch):
+            remove(filepath)
+            return jsonify({"message": f"Batch already used with {species}"}), 412
+    batch_updater: BatchUpdater = BatchUpdater(batch=new_batch, filepath=filepath)
+    filename = filename.replace(batch_updater.old_batch, new_batch)
+    return filename

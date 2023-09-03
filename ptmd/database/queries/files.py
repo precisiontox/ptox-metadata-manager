@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from os import remove
-from uuid import uuid4
 
 from ptmd.logger import LOGGER
-from ptmd.database import User, Organisation, File
+from ptmd.database import User, Organisation, File, Organism
 from ptmd.config import session
 from ptmd.lib.gdrive import GoogleDriveConnector
 from ptmd.lib.data_extractor import extract_data_from_spreadsheet
@@ -75,3 +74,17 @@ def create_files(files_data: dict) -> list[File]:
     session.add_all(files)
     session.commit()
     return files
+
+
+def get_shipped_file(species: str, batch: str) -> File | None:
+    """ This function return the first received file with the given batch and species if it exists or None
+
+    :param species: the species of the file
+    :param batch: the batch of the file
+    :return: the first received file with the given batch and species if it exists or None
+    """
+    return File.query.join(Organism).filter(
+            Organism.ptox_biosystem_name == species,
+            File.batch == batch,
+            File.received != 0
+    ).first()

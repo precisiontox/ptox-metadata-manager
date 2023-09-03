@@ -11,7 +11,7 @@ from ptmd.api.queries import (
     login as login_user, change_password, get_me, logout, enable_account, validate_account, get_users,
     get_organisms, get_organisations,
     get_chemicals, create_chemicals, get_chemical,
-    create_gdrive_file, create_user, validate_file,  register_gdrive_file, search_files_in_database, delete_file,
+    create_gdrive_file, create_user, validate_file, register_gdrive_file, search_files_in_database, delete_file,
     get_sample, get_samples,
     ship_data, receive_data,
     convert_to_isa,
@@ -20,7 +20,7 @@ from ptmd.api.queries import (
     delete_user,
     verify_token,
     batch_validation,
-    update_batch
+    update_file_batch
 )
 from ptmd.api.const import SWAGGER_DATA_PATH, FILES_DOC_PATH, USERS_DOC_PATH, CHEMICALS_DOC_PATH, SAMPLES_DOC_PATH
 
@@ -308,12 +308,13 @@ def validate_batch(batch_code: str) -> tuple[Response, int]:
 
 
 @app.route('/api/files/<file_id>/batch', methods=['GET'])
-def update_file_batch(file_id):
+@jwt_required()
+def update_file_batch_(file_id):
     """ Update the batch code of the file
 
     :param file_id: the id of the file to update
     """
-    return update_batch(file_id)
+    return update_file_batch(file_id)
 
 
 ###########################################################
