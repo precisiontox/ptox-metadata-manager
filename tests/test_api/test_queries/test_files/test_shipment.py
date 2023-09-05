@@ -2,6 +2,8 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from ptmd.api import app
+from ptmd.api.queries.files.shipment import validate_batch
+from ptmd.lib import BatchError
 
 
 HEADERS = {'Content-Type': 'application/json', 'Authorization': 'Bearer 123'}
@@ -124,3 +126,32 @@ class TestShipments(TestCase):
             self.assertEqual(response.json, {'message': 'File 1 received successfully.'})
             self.assertEqual(response.status_code, 200)
             mock_save.assert_called_once_with("1")
+
+
+class TestBatchValidator(TestCase):
+
+    @patch('ptmd.api.queries.files.shipment.File')
+    @patch('ptmd.api.queries.files.shipment.get_shipped_file', return_value=False)
+    @patch('ptmd.api.queries.files.shipment.BatchUpdater')
+    def test_success(self, mock_batch_updater, mock_shipped, mock_file):
+        mock_batch_updater().file = 1
+        mock_file.query.filter_by().first.return_value.organism.ptox_biosystem_name = 'test'
+        self.assertEqual(validate_batch(1, "BB"), 1)
+        self.assertEqual(validate_batch(1), mock_file.query.filter_by().first.return_value)
+
+    @patch('ptmd.api.queries.files.shipment.File')
+    def test_failed_404(self, mock_file):
+        mock_file.query.filter_by().first.return_value = None
+        with self.assertRaises(BatchError) as context:
+            validate_batch(1, 'AA')
+        self.assertEqual(context.exception.code, 404)
+        self.assertEqual(context.exception.message, 'File 1 not found.')
+
+    @patch('ptmd.api.queries.files.shipment.File')
+    @patch('ptmd.api.queries.files.shipment.get_shipped_file', return_value=True)
+    def test_failed_412(self, mock_shipped, mock_file):
+        mock_file.query.filter_by().first.return_value.organism.ptox_biosystem_name = 'test'
+        with self.assertRaises(BatchError) as context:
+            validate_batch(1)
+        self.assertEqual(context.exception.code, 412)
+        self.assertEqual(context.exception.message, 'Batch already used with test')
