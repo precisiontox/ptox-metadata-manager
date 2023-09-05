@@ -70,7 +70,7 @@ def get_chemical(ptx_code: str) -> tuple[Response, int]:
     :return: tuple of response and status code
     """
     chemical_id = int(ptx_code.replace(BASE_IDENTIFIER, ''))
-    chemical: Chemical = Chemical.query.filter(Chemical.chemical_id == chemical_id).first()
+    chemical: Chemical = Chemical.query.filter(Chemical.ptx_code == chemical_id).first()
     if not chemical:
         return jsonify({'message': 'Chemical not found.'}), 404
     return jsonify(msg=dict(chemical)), 200
