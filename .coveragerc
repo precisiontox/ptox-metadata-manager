@@ -9,5 +9,4 @@ omit =
 [report]
 exclude_lines =
     if __name__ == "__main__":
-exclude_also =
     def get_shipped_file
