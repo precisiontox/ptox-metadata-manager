@@ -178,7 +178,6 @@ class Batch2ISA:
         for sample_info in self.data['exposure_info']:
             sample: Sample
             source: Source = self.blank_source
-            print(sample_info)
             parameter_values: dict = {
                 "collection_order": sample_info['collection_order'],
                 "exposure_batch": self.data['general_info']['batch'],

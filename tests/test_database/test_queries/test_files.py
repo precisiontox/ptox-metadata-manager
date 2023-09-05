@@ -32,9 +32,8 @@ class TestFilesQueries(TestCase):
     @patch('ptmd.database.queries.files.Organisation')
     @patch('ptmd.database.queries.files.GoogleDriveConnector')
     @patch('ptmd.database.queries.files.remove')
-    @patch('ptmd.database.queries.files.uuid4', return_value='uuid')
     @patch('ptmd.database.queries.files.extract_data_from_spreadsheet', return_value=EXTRA_DATA)
-    def test_prepare_files_data(self, mock_extra_data, mock_uuid, mock_rm, mock_gdrive, mock_organisation, mock_user):
+    def test_prepare_files_data(self, mock_extra_data, mock_rm, mock_gdrive, mock_organisation, mock_user):
         mock_organisation.query.filter_by.return_value.first.return_value.name = 'KIT'
         mock_user.query.first.return_value.id = USER_ID
         mock_gdrive.return_value.download_file.return_value = 'path'
@@ -42,8 +41,7 @@ class TestFilesQueries(TestCase):
         prepared_files = prepare_files_data(DATA)
         self.assertEqual(prepared_files, [PREPARED_DATA])
         mock_rm.assert_called_once_with('path')
-        expected_name = f"{ORGANISATION_NAME.replace('.xlsx', '_uuid.xlsx')}"
-        mock_gdrive.return_value.download_file.assert_called_once_with(DRIVE_ID, expected_name)
+        mock_gdrive.return_value.download_file.assert_called_once_with(DRIVE_ID, ORGANISATION_NAME)
 
     @patch('ptmd.database.queries.files.prepare_files_data', return_value=[PREPARED_DATA])
     @patch('ptmd.database.queries.files.session')

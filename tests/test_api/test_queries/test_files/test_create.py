@@ -60,7 +60,9 @@ def mock_jwt_required(*args, **kwargs):
 @patch('ptmd.api.queries.files.create.create_timepoints_hours',
        return_value=[Timepoint(value=3, unit='hours', label='TP1')])
 class TestCreateFile(TestCase):
-    def test_create_gdrive_file(self,
+
+    @patch('ptmd.api.queries.files.create.get_shipped_file', return_value=False)
+    def test_create_gdrive_file(self, mock_get_shipped_file,
                                 mock_timepoints, mock_chemical,
                                 mock_user, mock_jwt_1, mock_organism, mock_file_chem,
                                 mock_organisation_1, mock_organisation_2,
@@ -99,7 +101,9 @@ class TestCreateFile(TestCase):
                                    data=dumps(data))
             self.assertEqual(response.json['data']['file_url'], 'a')
 
+    @patch('ptmd.api.queries.files.create.get_shipped_file', return_value=False)
     def test_create_gdrive_error(self,
+                                 mock_get_shipped_file,
                                  mock_timepoints, mock_chemical,
                                  mock_user, mock_jwt_1, mock_organism, mock_file_chem, mock_organisation_1,
                                  mock_organisation_2,
@@ -131,4 +135,26 @@ class TestCreateFile(TestCase):
                                    data=dumps(data))
             self.assertEqual(response.json["message"],
                              "An error occurred while uploading the file to the Google Drive.")
+            self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.files.create.get_shipped_file', return_value=True)
+    def test_wrong_batch(self, mocked_shipped_file,
+                         mock_timepoints, mock_chemical,
+                         mock_user, mock_jwt_1, mock_organism, mock_file_chem,
+                         mock_organisation_1, mock_organisation_2,
+                         mock_get_current_user, mock_login,
+                         mock_get_chemicals_mapping, mock_get_organism_code,
+                         mock_get_organism, mock_get_chem, mock_upload, mock_auth,
+                         mock_jwt, mock_session):
+        with app.test_client() as client:
+            data = {
+                "organism": "organism1",
+                "exposure_batch": "AA"
+            }
+            mock_get_current_user().id = 1
+            mock_user().role = 'admin'
+            response = client.post('/api/files',
+                                   headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                   data=dumps(data))
+            self.assertEqual(response.json, {'message': 'Batch AA for organism1 already exists.'})
             self.assertEqual(response.status_code, 400)

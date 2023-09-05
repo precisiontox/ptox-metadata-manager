@@ -19,7 +19,8 @@ from .queries import (
     get_chemicals_from_name,
     create_files,
     create_timepoints_hours,
-    get_token
+    get_token,
+    get_shipped_file
 )
 
 from ptmd.config import Base

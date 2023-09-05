@@ -16,6 +16,7 @@ from ptmd.database.models import Organisation, File, Chemical, Timepoint
 from ptmd.database.queries.chemicals import get_chemicals_from_name
 from ptmd.database.queries.timepoints import create_timepoints_hours
 from ptmd.api.queries.utils import check_role
+from ptmd.database import get_shipped_file
 
 
 class CreateGDriveFile:
@@ -37,6 +38,8 @@ class CreateGDriveFile:
             "timepoints": request.json.get("timepoints", None),
             "vehicle": request.json.get("vehicle", None)
         }
+        if get_shipped_file(self.data['organism'], self.data['exposure_batch']):
+            raise ValueError(f'Batch {self.data["exposure_batch"]} for {self.data["organism"]} already exists.')
 
     def generate_file(self, user: int) -> dict:
         """ Method to process the user input and create a file in the Google Drive.
