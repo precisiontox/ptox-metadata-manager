@@ -36,7 +36,7 @@ def create_chemicals(chemicals: list[dict]) -> dict[str, Chemical]:
     """
     LOGGER.info('Creating Chemicals')
     chemicals_in_database = {}
-    water: Chemical = Chemical(common_name='Water', ptx_code=997, cas='7732-18-5', formula='H2O')
+    water: Chemical = Chemical(common_name='Water', ptx_code=000, cas='7732-18-5', formula='H2O')
     dmso: Chemical = Chemical(common_name='DMSO', ptx_code=998, cas='67-68-5', formula='C2H6OS')
     session.add_all([water, dmso])
     session.commit()

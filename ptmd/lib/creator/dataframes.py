@@ -79,7 +79,7 @@ def build_sample_dataframe(harvester: Any, chemicals_mapping: dict[str, str], or
         timepoint_key = f'TP{tp}'
         timepoint = TIME_POINT_MAPPING[timepoint_key] if timepoint_key in TIME_POINT_MAPPING else 'X'
         timepoint_value = harvester.timepoints[tp - 1]
-        control_code = '999' if harvester.vehicle == 'DMSO' else '997'
+        control_code = '999' if harvester.vehicle == 'DMSO' else '000'
         for replicate in range(1, harvester.replicates4control + 1):
             hash_id = '%s%s%sZ%s%s' % (organism_code, harvester.exposure_batch, control_code, timepoint, replicate)
             series = Series([hash_id, BASE_IDENTIFIER + control_code, *EMPTY_FIELDS_VALUES,
