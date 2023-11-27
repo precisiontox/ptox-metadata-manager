@@ -214,7 +214,7 @@ class VerticalValidator:
             else:
                 self.collection_order.append(collection_order)
 
-            if replicate > self.replicates:
+            if compound_name not in self.controls_keys and replicate > self.replicates:
                 message = f"Replicate {replicate} is greater than the number of replicates {self.replicates}."
                 self.validator.add_error(label, message, 'replicate')
 
@@ -232,6 +232,9 @@ class VerticalValidator:
                 if dose != 0:
                     message = "Controls must have a dose of 0."
                     self.validator.add_error(label, message, 'dose_code')
+                if replicate > self.controls:
+                    message = f"Control {replicate} is greater than the number of controls {self.controls}."
+                    self.validator.add_error(label, message, 'replicate')
 
             if compound_name not in self.compounds:
                 self.compounds[compound_name] = {
