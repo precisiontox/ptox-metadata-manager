@@ -181,7 +181,7 @@ class TestValidateIdentifier(TestCase):
         validate_compound(validator)
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors']['test'][0]['message'],
-                         "The identifier compound should be 997 but got 2.")
+                         "The identifier compound should be 000 but got 2.")
 
     def test_validate_compound_blanks(self):
         validator = ExcelValidatorMock()
