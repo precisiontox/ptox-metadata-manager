@@ -14,6 +14,7 @@ from jsonschema import Draft4Validator as Validator
 from ptmd.config import session
 from ptmd.const import CREATE_USER_SCHEMA_PATH
 from ptmd.database import login_user, get_token, User, TokenBlocklist, Token, Organisation
+from ptmd.exceptions import PasswordPolicyError, TokenInvalidError, TokenExpiredError
 from .utils import check_role
 
 
@@ -76,11 +77,19 @@ def change_password() -> tuple[Response, int]:
     if new_password != repeat_password:
         return jsonify({"msg": "Passwords do not match"}), 400
 
+    if password == new_password:
+        return jsonify({"msg": "New password cannot be the same as the old one"}), 400
+
     user: User = User.query.filter(User.id == get_jwt()['sub']).first()
-    changed: bool = user.change_password(old_password=password, new_password=new_password)
-    if not changed:
-        return jsonify({"msg": "Wrong password"}), 400
-    return jsonify({"msg": "Password changed successfully"}), 200
+    try:
+        changed: bool = user.change_password(old_password=password, new_password=new_password)
+        if not changed:
+            return jsonify({"msg": "Wrong password"}), 400
+        return jsonify({"msg": "Password changed successfully"}), 200 if changed else jsonify()
+    except PasswordPolicyError as e:
+        return jsonify({"msg": str(e)}), 400
+    except Exception:
+        return jsonify({"msg": "An unexpected error occurred"}), 500
 
 
 @check_role(role='disabled')
@@ -188,8 +197,10 @@ def reset_password(token: str) -> tuple[Response, int]:
         user.set_password(password)
         session.delete(reset_token_from_db)  # type: ignore
         return jsonify({"msg": "Password changed successfully"}), 200
-    except Exception as e:
+    except (PasswordPolicyError, TokenInvalidError, TokenExpiredError) as e:
         return jsonify({"msg": str(e)}), 400
+    except Exception:
+        return jsonify({"msg": "An unexpected error occurred"}), 500
 
 
 @check_role(role='admin')
