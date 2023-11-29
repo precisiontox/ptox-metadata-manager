@@ -14,7 +14,7 @@ from jsonschema import Draft4Validator as Validator
 from ptmd.config import session
 from ptmd.const import CREATE_USER_SCHEMA_PATH
 from ptmd.database import login_user, get_token, User, TokenBlocklist, Token, Organisation
-from ptmd.exceptions import *
+from ptmd.exceptions import PasswordPolicyError
 from .utils import check_role
 
 
