@@ -28,7 +28,7 @@ def get_chemicals() -> tuple[Response, int]:
 
     :return: tuple containing a JSON response and a status code
     """
-    return jsonify({"data": [dict(chemical) for chemical in Chemical.query.filter(Chemical.ptx_code < 998).all()]}), 200
+    return jsonify({"data": [dict(chemical) for chemical in Chemical.query.filter(Chemical.ptx_code < 997).all()]}), 200
 
 
 def get_organisations() -> tuple[Response, int]:
