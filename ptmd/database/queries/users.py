@@ -7,6 +7,7 @@ from flask import jsonify, Response
 
 from ptmd.config import session
 from ptmd.logger import LOGGER
+from ptmd.exceptions import TokenExpiredError, TokenInvalidError
 from ptmd.database.models import User, Token
 
 
@@ -52,7 +53,7 @@ def get_token(token: str) -> Token:
     """
     token_from_db: Token = Token.query.filter(Token.token == token).first()
     if token_from_db is None:
-        raise Exception("Invalid token")
+        raise TokenInvalidError
     if token_from_db.expires_on < datetime.now(token_from_db.expires_on.tzinfo):
-        raise Exception("Token expired")
+        raise TokenExpiredError
     return token_from_db
