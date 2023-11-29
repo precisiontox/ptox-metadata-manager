@@ -144,6 +144,14 @@ class TestUserQueries(TestCase):
             self.assertEqual(created_user.json, {'msg': "Password must between 8 and 20 characters long, contain at "
                                                         "least one uppercase letter, one lowercase letter, one number "
                                                         "and one special character."})
+            self.assertEqual(created_user.status_code, 400)
+
+            mock_user.query.filter().first().change_password = lambda x: x/0
+            created_user = client.put('/api/users',
+                                      headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                      data=dumps(user_data))
+            self.assertEqual(created_user.json, {'msg': 'An unexpected error occurred'})
+            self.assertEqual(created_user.status_code, 500)
 
     @patch('ptmd.api.queries.users.User')
     @patch('ptmd.api.queries.users.get_jwt', return_value={'sub': 1})
@@ -283,6 +291,12 @@ class TestUserQueries(TestCase):
                                                     "one uppercase letter, one lowercase letter, one number and one "
                                                     "special character."})
             self.assertEqual(response.status_code, 400)
+
+        mock_token.side_effect = Exception()
+        with app.test_client() as client:
+            response = client.post('/api/users/reset/123', data=dumps({"password": "None"}), headers=headers)
+            self.assertEqual(response.json, {"msg": "An unexpected error occurred"})
+            self.assertEqual(response.status_code, 500)
 
     @patch('ptmd.api.queries.users.get_token')
     @patch('ptmd.api.queries.users.session')

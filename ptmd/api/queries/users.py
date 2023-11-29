@@ -88,6 +88,8 @@ def change_password() -> tuple[Response, int]:
         return jsonify({"msg": "Password changed successfully"}), 200 if changed else jsonify()
     except PasswordPolicyError as e:
         return jsonify({"msg": str(e)}), 400
+    except Exception:
+        return jsonify({"msg": "An unexpected error occurred"}), 500
 
 
 @check_role(role='disabled')
