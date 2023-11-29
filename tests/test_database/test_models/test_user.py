@@ -102,5 +102,5 @@ class TestUser(TestCase):
         with self.assertRaises(PasswordPolicyError) as context:
             user.set_password('test')
         self.assertEqual(str(context.exception),
-                         "Password must between 8 and 20 characters long, contain at least one uppercase letter, one "
+                         "Password must be between 8 and 20 characters long, contain at least one uppercase letter, one "
                          "lowercase letter, one number and one special character.")

@@ -6,7 +6,7 @@ class PasswordPolicyError(Exception):
 
     def __init__(self) -> None:
         """ Constructor """
-        self.message: str = "Password must between 8 and 20 characters long, contain at least one uppercase letter, " \
+        self.message: str = "Password must be between 8 and 20 characters long, contain at least one uppercase letter, " \
                             "one lowercase letter, one number and one special character."
 
     def __str__(self) -> str:

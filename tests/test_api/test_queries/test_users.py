@@ -141,7 +141,7 @@ class TestUserQueries(TestCase):
             created_user = client.put('/api/users',
                                       headers={'Authorization': f'Bearer {123}', **HEADERS},
                                       data=dumps(user_data))
-            self.assertEqual(created_user.json, {'msg': "Password must between 8 and 20 characters long, contain at "
+            self.assertEqual(created_user.json, {'msg': "Password must be between 8 and 20 characters long, contain at "
                                                         "least one uppercase letter, one lowercase letter, one number "
                                                         "and one special character."})
             self.assertEqual(created_user.status_code, 400)
@@ -287,9 +287,9 @@ class TestUserQueries(TestCase):
         headers = {'Authorization': f'Bearer {123}', **HEADERS}
         with app.test_client() as client:
             response = client.post('/api/users/reset/123', data=dumps({"password": "None"}), headers=headers)
-            self.assertEqual(response.json, {"msg": "Password must between 8 and 20 characters long, contain at least "
-                                                    "one uppercase letter, one lowercase letter, one number and one "
-                                                    "special character."})
+            self.assertEqual(response.json, {"msg": "Password must be between 8 and 20 characters long, contain at "
+                                                    "least one uppercase letter, one lowercase letter, one number "
+                                                    "and one special character."})
             self.assertEqual(response.status_code, 400)
 
         mock_token.side_effect = Exception()
