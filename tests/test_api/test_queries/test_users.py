@@ -310,7 +310,6 @@ class TestUserQueries(TestCase):
     @patch('ptmd.api.queries.users.get_token')
     def test_reset_password_error(self, mock_token,
                                   mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
-
         mock_token.return_value.user_reset[0].set_password.side_effect = PasswordPolicyError
         headers = {'Authorization': f'Bearer 123', **HEADERS}
         with app.test_client() as client:

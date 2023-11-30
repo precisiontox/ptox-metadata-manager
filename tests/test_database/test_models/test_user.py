@@ -106,8 +106,9 @@ class TestUser(TestCase):
                          "one lowercase letter, one number and one special character.")
 
     def test_create_user_with_invalid_password(self):
+        user = User(username='test', password='test', email='your@email.com', role='admin')
         with self.assertRaises(PasswordPolicyError) as context:
-            User(username='test', password='pwd', email='your@email.com', role='admin')
+            user.set_password('test')
         self.assertEqual(str(context.exception),
-                         "Password must be between 8 and 20 characters long, contain at least one uppercase letter, "
-                         "one lowercase letter, one number and one special character.")
+                         "Password must be between 8 and 20 characters long, contain at least one uppercase letter, one "
+                         "lowercase letter, one number and one special character.")
