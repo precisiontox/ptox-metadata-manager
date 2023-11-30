@@ -5,7 +5,7 @@ python-dotenv~=0.21.1
 pydrive2~=1.15.1
 sqlAlchemy==2.0.4
 flask-jwt-extended~=4.4.4
-Flask~=2.2.3
+Flask~=3.0.0
 Flask-SQLAlchemy~=3.0.3
 flask-cors~=3.0.10
 Flask-Session~=0.4.0
@@ -16,8 +16,8 @@ flasgger~=0.9.5
 PyYAML~=6.0.1
 numpy~=1.23.3
 jsonschema~=4.18.4
-jinja2~=3.0.1
-werkzeug~=2.3.8
+jinja2~=3.1.2
+werkzeug~=3.0.1
 
 git+https://github.com/isa-tools/isa-api.git@Bump-jsonschema
 # isatools~=0.14.2
