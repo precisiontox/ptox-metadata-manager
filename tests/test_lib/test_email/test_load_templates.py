@@ -21,7 +21,7 @@ class TestTemplateLoaders(TestCase):
 
     def test_create_validation_mail_content(self):
         organisation = Organisation(name='ORGANISATION NAME')
-        user = User(username='USERNAME', password='test', email='EMAIL', role='admin',
+        user = User(username='USERNAME', password='!Str0?nkPassw0rd', email='EMAIL', role='admin',
                     organisation_id=organisation.organisation_id)
         data = create_validation_mail_content(user)
         self.assertIn('USERNAME', data)

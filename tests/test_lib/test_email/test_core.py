@@ -11,7 +11,7 @@ from ptmd.database.models import User
 class TestEmailCore(TestCase):
 
     def test_send_validation_mail(self, mock_build, mock_get_config, mock_credentials):
-        user = User(username='username', email='email', password='password')
+        user = User(username='username', email='email', password='!Str0?nkPassw0rd')
         response = send_validation_mail(user)
         self.assertIn('<h1> Hello, admin </h1>', response)
 

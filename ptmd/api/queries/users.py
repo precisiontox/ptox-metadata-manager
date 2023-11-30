@@ -46,6 +46,10 @@ def create_user() -> tuple[Response, int]:
         return jsonify(user_dict), 200
     except IntegrityError:
         return jsonify({"msg": "Username or email already taken"}), 400
+    except PasswordPolicyError as e:
+        return jsonify({"msg": str(e)}), 400
+    except Exception:
+        return jsonify({"msg": "An unexpected error occurred"}), 500
 
 
 def login() -> tuple[Response, int]:

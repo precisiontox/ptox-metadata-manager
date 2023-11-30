@@ -48,6 +48,8 @@ class User(Base):
     ) -> None:
         """ Constructor for the User class. Let's use encode the password with bcrypt before committing it to the
         database. """
+        if not match(PASSWORD_POLICY, password):
+            raise PasswordPolicyError
         self.username = username
         self.password = bcrypt.hash(password)
         self.email = email
@@ -104,7 +106,7 @@ class User(Base):
         :raises PasswordPolicyError: if the password does not match the password policy
         """
         if not match(PASSWORD_POLICY, password):
-            raise PasswordPolicyError()
+            raise PasswordPolicyError
         self.password = bcrypt.hash(password)
         session.commit()
 
