@@ -7,4 +7,4 @@ from ptmd.const import DOT_ENV_CONFIG
 
 SQLALCHEMY_DATABASE_URI: str = DOT_ENV_CONFIG['SQLALCHEMY_DATABASE_URL']
 SQLALCHEMY_SECRET_KEY: str = DOT_ENV_CONFIG['SQLALCHEMY_SECRET_KEY']
-PASSWORD_POLICY: str = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,20}$"
+PASSWORD_POLICY: str = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[\[\]\(\)#?!@$%^&*-_+=<>:;,.]).{8,20}$"
