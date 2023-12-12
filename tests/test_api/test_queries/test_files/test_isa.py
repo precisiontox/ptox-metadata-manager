@@ -36,7 +36,7 @@ class TestISA(TestCase):
         mock_user().id = 1
         mock_user().role = 'admin'
         with patch('ptmd.api.queries.files.isa.convert_file_to_isa') as mock_convert:
-            mock_convert.return_value = {'message': 'SUCCESS'}
+            mock_convert.return_value = [{'message': 'SUCCESS'}]
             with app.test_client() as client:
                 response = client.get('/api/files/1/isa', headers=HEADERS)
                 self.assertEqual(response.json, {'message': 'SUCCESS'})

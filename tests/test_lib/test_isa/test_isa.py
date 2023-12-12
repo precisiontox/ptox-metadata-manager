@@ -101,3 +101,7 @@ class TestIsa(TestCase):
         investigation = Investigation()
         investigation.from_dict(isa)
         self.assertIsInstance(investigation, Investigation)
+
+        new_isa = Investigation()
+        new_isa.from_dict(investigation.to_dict())
+        self.assertEqual(investigation, new_isa)

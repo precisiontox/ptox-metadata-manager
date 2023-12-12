@@ -39,3 +39,11 @@ class TokenInvalidError(APIError):
     def __init__(self) -> None:
         """ Constructor """
         self.message: str = "Invalid token"
+
+
+class TimepointValueError(APIError):
+    """ Exception raised when a timepoint value is invalid """
+
+    def __init__(self) -> None:
+        """ Constructor """
+        self.message: str = "Timepoint value must be a positive integer"

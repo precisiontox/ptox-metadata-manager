@@ -15,7 +15,7 @@ def convert_to_isa(file_id: int) -> tuple[Response, int]:
     :return: a tuple containing the response and the status code
     """
     try:
-        response: list[dict] = convert_file_to_isa(file_id)
+        response: dict = convert_file_to_isa(file_id)[0]
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except FileNotFoundError as e:
