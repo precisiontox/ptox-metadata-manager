@@ -55,7 +55,8 @@ class Batch2ISA:
         study: Study = Study(
             filename=self.filename,
             sources=[self.blank_source],
-            characteristic_categories=[ORGANISM_OA, SEX_OA, REPLICATE_OA, BOX_OA, POSITION_OA]
+            characteristic_categories=[ORGANISM_OA, SEX_OA, REPLICATE_OA, BOX_OA, POSITION_OA],
+            units=[HOURS_OA]
         )
         self.create_samples(study)
         study.factors = list(self.factors.values())

@@ -1,5 +1,6 @@
 """ Ontology annotations and sources to create the ISA investigations.
 """
+from uuid import uuid4
 
 from isatools.model import OntologyAnnotation, OntologySource
 
@@ -68,7 +69,8 @@ FEMALE_OA: OntologyAnnotation = OntologyAnnotation(term_source=PATO, term='femal
 SEX_OA: OntologyAnnotation = OntologyAnnotation(term_source=PATO, term='biological sex', term_accession='PATO:0000047')
 EXPOSURE_OA: OntologyAnnotation = OntologyAnnotation(term_source=NCIT, term='Exposure', term_accession='NCIT:C17941')
 SAMPLING_OA: OntologyAnnotation = OntologyAnnotation(term_source=NCIT, term='Sampling', term_accession='NCIT:C25662')
-HOURS_OA: OntologyAnnotation = OntologyAnnotation(term_source=UO, term='hour', term_accession='UO:0000032')
+HOURS_OA: OntologyAnnotation = OntologyAnnotation(term_source=UO, term='hour', term_accession='UO:0000032',
+                                                  id_=f"#unit/{uuid4()}")
 ORGANISM_NA_OA: OntologyAnnotation = OntologyAnnotation(term_source=NCIT, term='N/A', term_accession='NCIT:C48660')
 BOX_OA: OntologyAnnotation = OntologyAnnotation(term_source=NCIT, term='Box', term_accession='NCIT:C43178')
 POSITION_OA: OntologyAnnotation = OntologyAnnotation(
