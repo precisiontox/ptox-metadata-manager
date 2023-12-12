@@ -17,6 +17,7 @@ from ptmd.database.queries.chemicals import get_chemicals_from_name
 from ptmd.database.queries.timepoints import create_timepoints_hours
 from ptmd.api.queries.utils import check_role
 from ptmd.database import get_shipped_file
+from ptmd.exceptions import TimepointValueError
 
 
 class CreateGDriveFile:
@@ -95,5 +96,7 @@ def create_gdrive_file() -> tuple[Response, int]:
         payload: CreateGDriveFile = CreateGDriveFile()
         response: dict = payload.generate_file(user=get_current_user().id)
         return jsonify({"data": response}), 200
+    except TimepointValueError as e:
+        return jsonify({"message": str(e)}), 400
     except Exception as e:
         return jsonify({"message": str(e)}), 400
