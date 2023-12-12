@@ -1,7 +1,9 @@
 from unittest import TestCase
 from unittest.mock import patch
+from datetime import datetime, timedelta
 
-from ptmd.database.queries import login_user, create_organisations, create_users
+from ptmd.database.queries import login_user, create_organisations, create_users, get_token
+from ptmd.exceptions import TokenInvalidError, TokenExpiredError
 
 
 INPUTS_ORGS = {'KIT': {"g_drive": "123", "long_name": "test12"}}
@@ -47,3 +49,19 @@ class TestUsersQueries(TestCase):
         input_users = [{'username': 'test', 'password': 'test', 'organisation': organisations['KIT']}]
         user = create_users(users=input_users)
         self.assertEqual(user[0], 123)
+
+    @patch('ptmd.database.queries.users.Token')
+    def test_get_token(self, mock_token):
+        mock_token.query.filter().first.return_value = None
+        with self.assertRaises(TokenInvalidError) as context:
+            get_token('ABC')
+        self.assertEqual(str(context.exception), 'Invalid token')
+
+        class MockToken:
+            def __init__(self):
+                self.expires_on = datetime.now() - timedelta(days=10)
+
+        mock_token.query.filter().first.return_value = MockToken()
+        with self.assertRaises(TokenExpiredError) as context:
+            get_token('ABC')
+        self.assertEqual(str(context.exception), 'Token expired')

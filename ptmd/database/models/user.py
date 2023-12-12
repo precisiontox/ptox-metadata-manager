@@ -2,10 +2,13 @@
 """
 from __future__ import annotations
 from typing import Generator
+from re import match
 
 from passlib.hash import bcrypt
 from ptmd.config import Base, db, session
 from ptmd.const import ROLES
+from ptmd.exceptions import PasswordPolicyError
+from ptmd.database.const import PASSWORD_POLICY
 from ptmd.database.models.token import Token
 from ptmd.lib.email import send_validation_mail, send_validated_account_mail
 
@@ -45,6 +48,8 @@ class User(Base):
     ) -> None:
         """ Constructor for the User class. Let's use encode the password with bcrypt before committing it to the
         database. """
+        if not match(PASSWORD_POLICY, password):
+            raise PasswordPolicyError
         self.username = username
         self.password = bcrypt.hash(password)
         self.email = email
@@ -97,7 +102,11 @@ class User(Base):
         """ Set the user password. Helper function to avoid code repetition.
 
         :param password: the new password
+
+        :raises PasswordPolicyError: if the password does not match the password policy
         """
+        if not match(PASSWORD_POLICY, password):
+            raise PasswordPolicyError
         self.password = bcrypt.hash(password)
         session.commit()
 

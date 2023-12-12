@@ -164,9 +164,9 @@ def validate_controls_compound(validator: Any, compound_name: str, code: int) ->
         validator.add_error(validator.current_record['label'],
                             f"The identifier compound should be 999 but got {code}.",
                             PTX_ID_LABEL)
-    elif 'WATER' in compound_name and code != 997:
+    elif 'WATER' in compound_name and code != 000:
         validator.add_error(validator.current_record['label'],
-                            f"The identifier compound should be 997 but got {code}.",
+                            f"The identifier compound should be 000 but got {code}.",
                             PTX_ID_LABEL)
 
 

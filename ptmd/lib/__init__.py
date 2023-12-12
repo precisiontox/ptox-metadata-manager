@@ -5,3 +5,5 @@ necessary directories/folders and files.
 
 from .gdrive import GoogleDriveConnector
 from .creator import DataframeCreator
+from .excel import save_to_excel
+from .updater import BatchUpdater, BatchError

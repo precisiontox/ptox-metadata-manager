@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 
 from ptmd.api import app
+from ptmd.exceptions import PasswordPolicyError, TokenInvalidError, TokenExpiredError
 
 
 HEADERS = {'Content-Type': 'application/json'}
@@ -90,6 +91,33 @@ class TestUserQueries(TestCase):
                                        data=dumps(user_data))
             self.assertEqual(created_user.json, {'msg': 'Username or email already taken'})
 
+    @patch('ptmd.api.queries.users.Organisation')
+    def test_create_user_invalid_password(
+            self, mock_organisation, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+        mock_get_current_user().role = 'admin'
+        user_data = {
+            "username": "1234",
+            "password": "1234",
+            "confirm_password": "1234",
+            "organisation": "UOX",
+            "email": "test@test.com"
+        }
+        with app.test_client() as client:
+            response = client.post('/api/users', headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                   data=dumps(user_data))
+            self.assertEqual(response.json, {'msg': 'Password must be between 8 and 20 characters long, contain at '
+                                                    'least one uppercase letter, one lowercase letter, one number '
+                                                    'and one special character.'})
+            self.assertEqual(response.status_code, 400)
+
+            user_data['password'] = '!@#$%a^&A()a'
+            user_data['confirm_password'] = '!@#$%a^&A()a'
+            mock_organisation.query.filter.side_effect = Exception
+            response = client.post('/api/users', headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                   data=dumps(user_data))
+            self.assertEqual(response.json, {'msg': 'An unexpected error occurred'})
+            self.assertEqual(response.status_code, 500)
+
     @patch('ptmd.api.queries.users.session')
     @patch('ptmd.api.queries.users.get_jwt', return_value={'sub': 1})
     @patch('ptmd.api.queries.users.User')
@@ -110,6 +138,13 @@ class TestUserQueries(TestCase):
             self.assertEqual(created_user.json, {'msg': 'Passwords do not match'})
 
             user_data['confirm_password'] = '1234'
+            created_user = client.put('/api/users',
+                                      headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                      data=dumps(user_data))
+            self.assertEqual(created_user.json, {'msg': 'New password cannot be the same as the old one'})
+
+            user_data['confirm_password'] = '666'
+            user_data['new_password'] = '666'
             mock_user.query.filter().first().change_password.return_value = False
             created_user = client.put('/api/users',
                                       headers={'Authorization': f'Bearer {123}', **HEADERS},
@@ -127,6 +162,23 @@ class TestUserQueries(TestCase):
                                       headers={'Authorization': f'Bearer {123}', **HEADERS},
                                       data=dumps(user_data))
             self.assertEqual(created_user.json, {'msg': 'You are not authorized to access this route'})
+
+            mock_user.query.filter().first().change_password.side_effect = PasswordPolicyError()
+            mock_get_current_user().role = 'admin'
+            created_user = client.put('/api/users',
+                                      headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                      data=dumps(user_data))
+            self.assertEqual(created_user.json, {'msg': "Password must be between 8 and 20 characters long, contain at "
+                                                        "least one uppercase letter, one lowercase letter, one number "
+                                                        "and one special character."})
+            self.assertEqual(created_user.status_code, 400)
+
+            mock_user.query.filter().first().change_password = lambda x: x/0
+            created_user = client.put('/api/users',
+                                      headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                      data=dumps(user_data))
+            self.assertEqual(created_user.json, {'msg': 'An unexpected error occurred'})
+            self.assertEqual(created_user.status_code, 500)
 
     @patch('ptmd.api.queries.users.User')
     @patch('ptmd.api.queries.users.get_jwt', return_value={'sub': 1})
@@ -258,12 +310,29 @@ class TestUserQueries(TestCase):
     @patch('ptmd.api.queries.users.get_token')
     def test_reset_password_error(self, mock_token,
                                   mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
-        mock_token.side_effect = Exception('test')
-        headers = {'Authorization': f'Bearer {123}', **HEADERS}
+        mock_token.return_value.user_reset[0].set_password.side_effect = PasswordPolicyError
+        headers = {'Authorization': 'Bearer 123', **HEADERS}
         with app.test_client() as client:
-            response = client.post('/api/users/reset/123', data=dumps({"password": "None"}), headers=headers)
-            self.assertEqual(response.json, {"msg": "test"})
+            response = client.post('/api/users/reset/456', data=dumps({"password": "None"}), headers=headers)
+            self.assertEqual(response.json, {"msg": "Password must be between 8 and 20 characters long, contain at "
+                                                    "least one uppercase letter, one lowercase letter, one number "
+                                                    "and one special character."})
             self.assertEqual(response.status_code, 400)
+
+            mock_token.side_effect = TokenInvalidError
+            response = client.post('/api/users/reset/123', data=dumps({"password": "None"}), headers=headers)
+            self.assertEqual(response.json, {"msg": "Invalid token"})
+            self.assertEqual(response.status_code, 400)
+
+            mock_token.side_effect = TokenExpiredError
+            response = client.post('/api/users/reset/123', data=dumps({"password": "None"}), headers=headers)
+            self.assertEqual(response.json, {"msg": "Token expired"})
+            self.assertEqual(response.status_code, 400)
+
+            mock_token.side_effect = Exception
+            response = client.post('/api/users/reset/123', data=dumps({"password": "None"}), headers=headers)
+            self.assertEqual(response.json, {"msg": "An unexpected error occurred"})
+            self.assertEqual(response.status_code, 500)
 
     @patch('ptmd.api.queries.users.get_token')
     @patch('ptmd.api.queries.users.session')

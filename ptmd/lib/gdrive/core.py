@@ -4,6 +4,7 @@ and upload the files to the drive.
 from __future__ import annotations
 
 from os import path
+from uuid import uuid4
 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive, GoogleDriveFile
@@ -124,6 +125,19 @@ class GoogleDriveConnector:
                 return get_file_information(google_drive=self.google_drive, folder_id=directory_id, filename=title)
         return None
 
+    def update_file(self, file_id: str, file_path: str, title: str) -> str:
+        """ This function will update the file in the Google Drive.
+
+        :param file_id: The Google Drive file identifier.
+        :param file_path: The path to the file to be uploaded.
+        :param title: The title of the file to be uploaded.
+        """
+        file = self.google_drive.CreateFile({'id': file_id, 'title': title})
+        file.SetContentFile(file_path)
+        file.Upload()
+        file.content.close()
+        return file_id
+
     def download_file(self, file_id: str | int, filename: str) -> str:
         """ This function will download the file from the Google Drive.
 
@@ -131,7 +145,7 @@ class GoogleDriveConnector:
         :param filename: The name of file to be downloaded.
         """
         file = self.google_drive.CreateFile({'id': file_id})
-        file_path = path.join(DOWNLOAD_DIRECTORY_PATH, filename)
+        file_path = path.join(DOWNLOAD_DIRECTORY_PATH, filename.replace('.xlsx', f'_{uuid4()}.xlsx'))
         file.GetContentFile(file_path)
         return file_path
 

@@ -230,6 +230,21 @@ class TestVerticalValidator(TestCase):
         self.assertEqual(validator.report['errors'][self.organism][0]['message'],
                          "Replicate 1 has too many timepoints.")
 
+    def test_validate_controls_too_many(self):
+        validator = MockValidator()
+        extra_node: dict = {**self.default_node}
+        self.general_information['control'] = 8
+        extra_node['data']['replicate'] = 12
+        extra_node['data']['compound_name'] = "CONTROL (DMSO)"
+        extra_node['data']['dose_code'] = 0
+        graph = VerticalValidator(self.general_information, validator)
+        graph.add_node(self.default_node)
+        graph.add_node(extra_node)
+        graph.validate()
+        self.assertFalse(validator.report['valid'])
+        self.assertEqual(validator.report['errors']['CP1'][0]['message'],
+                         "Control 12 is greater than the number of controls 8.")
+
     def test_validate_controls_dose_not_zero(self):
         validator = MockValidator()
         self.general_information['control'] = 1

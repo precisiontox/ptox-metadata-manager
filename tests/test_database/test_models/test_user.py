@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch, mock_open
 
 from ptmd.database import User, Organisation, File
+from ptmd.exceptions import PasswordPolicyError
 
 
 @patch("builtins.open", mock_open(read_data="{'save_credentials_file': 'test'}"))
@@ -10,14 +11,14 @@ class TestUser(TestCase):
     @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
     def test_user(self, mock_send_confirmation_mail):
         expected_user = {'files': [], 'id': None, 'organisation': None, 'username': 'test', 'role': 'disabled'}
-        user = User(username='test', password='test', email='your@email.com')
+        user = User(username='test', password='A!Str0ngPwd', email='your@email.com')
         self.assertEqual(dict(user), expected_user)
-        self.assertTrue(user.validate_password('test'))
+        self.assertTrue(user.validate_password('A!Str0ngPwd'))
 
         with patch('ptmd.database.models.user.session') as mock_session:
-            changed = user.change_password(old_password='test', new_password='test2')
+            changed = user.change_password(old_password='A!Str0ngPwd', new_password='A!Str0ngPwd2')
             self.assertTrue(changed)
-            changed = user.change_password(old_password='test', new_password='test2')
+            changed = user.change_password(old_password='test', new_password='A!Str0ngPwd')
             self.assertFalse(changed)
 
             with patch('ptmd.database.models.user.send_validation_mail') as mock_email:
@@ -39,7 +40,7 @@ class TestUser(TestCase):
         organisation = Organisation(name='123', gdrive_id='1')
         organisation.files = []
         organisation.id = 2
-        user = User(username='test', password='test', email='your@email.com', role='admin')
+        user = User(username='test', password='!Str0?nkPassw0rd', email='your@email.com', role='admin')
         user.organisation = organisation
         self.assertEqual(user.role, 'admin')
         self.assertEqual(dict(user)['files'], [])
@@ -51,7 +52,7 @@ class TestUser(TestCase):
         user_input: dict = {
             'username': 'rw1',
             'organisation_id': organisation.organisation_id,
-            'password': 'test',
+            'password': '!Str0?nkPassw0rd',
             'email': 'y@t.com'
         }
         user = User(**user_input)
@@ -62,7 +63,7 @@ class TestUser(TestCase):
     @patch('ptmd.database.models.user.session')
     @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
     def test_set_role_success(self, mock_send_confirmation_mail, mock_session):
-        user = User('test', 'test', 'test', 'disabled')
+        user = User('test', '!Str0?nkPassw0rd', 'test', 'disabled')
         user.set_role('banned')
         self.assertEqual(user.role, 'banned')
         mock_session.commit.assert_called_once()
@@ -70,7 +71,7 @@ class TestUser(TestCase):
     @patch('ptmd.database.models.user.session')
     @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
     def test_set_role_invalid_role(self, mock_send_confirmation_mail, mock_session):
-        user = User('test', 'test', 'test', 'disabled')
+        user = User('test', '!Str0?nkPassw0rd', 'test', 'disabled')
         with self.assertRaises(ValueError) as context:
             user.set_role('invalid role')
         self.assertEqual(str(context.exception), "Invalid role: invalid role")
@@ -88,9 +89,26 @@ class TestUser(TestCase):
         organisation = Organisation(name='123', gdrive_id='1')
         organisation.files = [file_1, file_2]
         organisation.id = 2
-        user = User(username='test', password='test', email='your@email.com', role='admin')
+        user = User(username='test', password='!Str0?nkPassw0rd', email='your@email.com', role='admin')
         user.organisation = organisation
         user.files = [file_1]
         files = dict(user)['files']
         self.assertIn(dict(file_1), files)
         self.assertIn(dict(file_2), files)
+
+    @patch('ptmd.database.models.user.session')
+    def test_set_password_policy_failure(self, mock_session):
+        user = User(username='test', password='!Str0?nkPassw0rd[]()', email='your@email.com', role='admin')
+        with self.assertRaises(PasswordPolicyError) as context:
+            user.set_password('test')
+        self.assertEqual(str(context.exception),
+                         "Password must be between 8 and 20 characters long, contain at least one uppercase letter, "
+                         "one lowercase letter, one number and one special character.")
+
+    def test_create_user_with_invalid_password(self):
+        user = User(username='test', password=':AStr0nkP3Wd!!', email='your@email.com', role='admin')
+        with self.assertRaises(PasswordPolicyError) as context:
+            user.set_password('test')
+        self.assertEqual(str(context.exception),
+                         "Password must be between 8 and 20 characters long, contain at least one uppercase letter, one"
+                         " lowercase letter, one number and one special character.")

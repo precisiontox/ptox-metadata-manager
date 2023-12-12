@@ -7,5 +7,5 @@ from .organisms import create_organisms, get_allowed_organisms, get_organism_cod
 from .users import login_user, create_users, get_token
 from .organisations import create_organisations
 from .timepoints import create_timepoints_hours
-from .files import create_files, prepare_files_data, extract_values_from_title
+from .files import create_files, prepare_files_data, extract_values_from_title, get_shipped_file
 from .search import search_files

@@ -4,6 +4,7 @@ from unittest.mock import patch
 from json import dumps as json_dumps
 
 from ptmd.api import app
+from ptmd.api.queries.files.register import change_batch
 
 
 class MockGoogleDrive:
@@ -72,11 +73,13 @@ class TestRegisterFile(TestCase):
     @patch('ptmd.api.queries.files.register.get_current_user')
     @patch('ptmd.api.queries.files.register.extract_data_from_spreadsheet')
     @patch('ptmd.api.queries.files.register.remove')
-    def test_register_file_validation_success(self, mock_rm, mock_data, mock_user, mock_organisation,
-                                              mock_get_user, mock_jwt_in_request, mock_file,
+    @patch('ptmd.api.queries.files.register.get_shipped_file')
+    def test_register_file_validation_success(self, mocked_shipped_file, mock_rm, mock_data, mock_user,
+                                              mock_organisation, mock_get_user, mock_jwt_in_request, mock_file,
                                               mock_verify_jwt, mock_gdrive, mock_session):
         mock_get_user().role = 'admin'
         mock_file.return_value.file_id = '123'
+        mocked_shipped_file.return_value = None
 
         mock_organisation.query.filter().first.return_value.gdrive_id = '123'
         mock_organisation.query.filter().first.return_value.name = 'test'
@@ -106,11 +109,13 @@ class TestRegisterFile(TestCase):
     @patch('ptmd.api.queries.files.register.get_current_user')
     @patch('ptmd.api.queries.files.register.extract_data_from_spreadsheet')
     @patch('ptmd.api.queries.files.register.remove')
-    def test_register_file_error_upload(self, mock_rm, mock_data, mock_user, mock_organisation,
+    @patch('ptmd.api.queries.files.register.get_shipped_file')
+    def test_register_file_error_upload(self, mocked_shipped_file, mock_rm, mock_data, mock_user, mock_organisation,
                                         mock_get_user, mock_jwt_in_request, mock_file,
                                         mock_verify_jwt, mock_gdrive, mock_session):
         mock_get_user().role = 'admin'
         mock_file.return_value.file_id = '123'
+        mocked_shipped_file.return_value = None
 
         mock_organisation.query.filter().first.return_value.gdrive_id = '123'
         mock_organisation.query.filter().first.return_value.name = 'test'
@@ -166,3 +171,98 @@ class TestRegisterFile(TestCase):
             }), headers=HEADERS)
             self.assertEqual(response.json, {'message': "File '123' does not contain the required data."})
             self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.files.register.session')
+    @patch('ptmd.api.queries.files.register.GoogleDriveConnector', return_value=MockGoogleDrive())
+    @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
+    @patch('ptmd.api.queries.files.register.File')
+    @patch('ptmd.api.queries.utils.verify_jwt_in_request')
+    @patch('ptmd.api.queries.utils.get_current_user')
+    @patch('ptmd.api.queries.files.register.Organisation')
+    @patch('ptmd.api.queries.files.register.get_current_user')
+    @patch('ptmd.api.queries.files.register.extract_data_from_spreadsheet')
+    @patch('ptmd.api.queries.files.register.remove')
+    @patch('ptmd.api.queries.files.register.get_shipped_file')
+    @patch('ptmd.api.queries.files.register.change_batch', return_value='filename')
+    def test_register_file_new_batch_success(self, mock_change_file, mocked_shipped_file, mock_rm, mock_data, mock_user,
+                                             mock_organisation, mock_get_user, mock_jwt_in_request, mock_file,
+                                             mock_verify_jwt, mock_gdrive, mock_session):
+        mock_get_user().role = 'admin'
+        mock_file.return_value.file_id = '123'
+        mocked_shipped_file.return_value = True
+        mock_organisation.query.filter().first.return_value.gdrive_id = '123'
+        mock_organisation.query.filter().first.return_value.name = 'test'
+        mock_user().id = 1
+
+        with app.test_client() as client:
+            with patch('ptmd.api.queries.files.register.jsonify') as mock_jsonify:
+                external_file = {'file_id': '123', 'batch': 'AA', 'organism': 'human', 'partner': 'partner'}
+                client.post('/api/files/register',
+                            headers={'Authorization': f'Bearer {123}', **HEADERS},
+                            data=json_dumps(external_file))
+                mock_rm.assert_called_once_with('filepath')
+                mock_data.assert_called_once_with('filepath')
+                mock_session.add.assert_called_once()
+                mock_session.commit.assert_called_once()
+                mock_jsonify.assert_called_once_with(
+                    {'message': 'file 123 was successfully created with internal id 123', 'file': {}}
+                )
+
+    @patch('ptmd.api.queries.files.register.session')
+    @patch('ptmd.api.queries.files.register.GoogleDriveConnector', return_value=MockGoogleDrive())
+    @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
+    @patch('ptmd.api.queries.files.register.File')
+    @patch('ptmd.api.queries.utils.verify_jwt_in_request')
+    @patch('ptmd.api.queries.utils.get_current_user')
+    @patch('ptmd.api.queries.files.register.Organisation')
+    @patch('ptmd.api.queries.files.register.get_current_user')
+    @patch('ptmd.api.queries.files.register.extract_data_from_spreadsheet')
+    @patch('ptmd.api.queries.files.register.remove')
+    @patch('ptmd.api.queries.files.register.get_shipped_file')
+    @patch('ptmd.api.queries.files.register.change_batch', return_value=({'error': 'filename'}, 400))
+    def test_register_file_new_batch_error(self, mock_change_file, mocked_shipped_file, mock_rm, mock_data, mock_user,
+                                           mock_organisation, mock_get_user, mock_jwt_in_request, mock_file,
+                                           mock_verify_jwt, mock_gdrive, mock_session):
+        mock_get_user().role = 'admin'
+        mock_file.return_value.file_id = '123'
+        mocked_shipped_file.return_value = True
+        mock_organisation.query.filter().first.return_value.gdrive_id = '123'
+        mock_organisation.query.filter().first.return_value.name = 'test'
+        mock_user().id = 1
+
+        with app.test_client() as client:
+            external_file = {'file_id': '123', 'batch': 'AA', 'organism': 'human', 'partner': 'partner'}
+            response = client.post('/api/files/register',
+                                   headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                   data=json_dumps(external_file))
+            self.assertEqual(response.json, {'error': 'filename'})
+            self.assertEqual(response.status_code, 400)
+
+    @patch('ptmd.api.queries.files.register.remove')
+    @patch('ptmd.api.queries.files.register.jsonify')
+    def test_change_batch_error_412_no_new_batch(self, mock_jsonify, mock_rm):
+        response = change_batch(None, 'species1', 'filepath', 'filename')
+        self.assertEqual(response[1], 412)
+        mock_jsonify.assert_called_once_with({"message": "Batch already used with species1"})
+        mock_rm.assert_called_once_with('filepath')
+
+    @patch('ptmd.api.queries.files.register.remove')
+    @patch('ptmd.api.queries.files.register.jsonify')
+    @patch('ptmd.api.queries.files.register.get_shipped_file')
+    def test_change_batch_error_412_with_new_batch(self, mock_shipped_file, mock_jsonify, mock_rm):
+        mock_shipped_file.return_value = True
+        response = change_batch("AA", 'species1', 'filepath', 'filename')
+        self.assertEqual(response[1], 412)
+        mock_jsonify.assert_called_once_with({"message": "Batch already used with species1"})
+        mock_rm.assert_called_once_with('filepath')
+
+    @patch('ptmd.api.queries.files.register.remove')
+    @patch('ptmd.api.queries.files.register.BatchUpdater')
+    @patch('ptmd.api.queries.files.register.get_shipped_file')
+    def test_change_batch_error_412_success(self, mock_shipped_file, mock_batch_updated, mock_rm):
+        mock_batch_updated.return_value.old_batch = 'BB'
+        mock_shipped_file.return_value = False
+        response = change_batch("AA", 'species1', 'filepath', 'filenameBB')
+        mock_rm.assert_not_called()
+        mock_batch_updated.assert_called_with(batch='AA', filepath='filepath')
+        self.assertEqual(response, 'filenameAA')
