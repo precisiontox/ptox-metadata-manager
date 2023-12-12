@@ -7,6 +7,7 @@ from json import dumps
 from ptmd.api import app
 from ptmd.const import ALLOWED_DOSE_VALUES
 from ptmd.database.models import Timepoint
+from ptmd.exceptions import TimepointValueError
 
 
 class MockGoogleAuth(GoogleAuth):
@@ -100,6 +101,13 @@ class TestCreateFile(TestCase):
             response = client.post('/api/files', headers={'Authorization': f'Bearer {123}', **HEADERS},
                                    data=dumps(data))
             self.assertEqual(response.json['data']['file_url'], 'a')
+
+            mock_timepoints.side_effect = TimepointValueError
+            data['timepoints'] = [None, 1]
+            response = client.post('/api/files', headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                   data=dumps(data))
+            self.assertEqual(response.json, {'message': "Timepoint value must be a positive integer"})
+            self.assertEqual(response.status_code, 400)
 
     @patch('ptmd.api.queries.files.create.get_shipped_file', return_value=False)
     def test_create_gdrive_error(self,
