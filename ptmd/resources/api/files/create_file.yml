@@ -95,7 +95,7 @@ definitions:
         dose:
             type: string
             description: The dose for these chemicals
-            enum: ["BMD10", "BMD25", "10mg/L"]
+            enum: ["BMD10", "BMD25", "10mg/L", "Alternative"]
   Create File Response:
     type: object
     properties:
