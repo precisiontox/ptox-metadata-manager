@@ -78,8 +78,8 @@ After clicking "Next", you will access the timepoints page where you are asked t
 
     **Figure 4:** Creating a new sample collection spreadsheet - Exposure Information
 
-The last page of the creator will contain information of the chemicals used for the exposure. They are organised in three
-groups based on the dose: **BMD10** (Low), **BMD25** (Medium), **10mg/L** (High), **Alternative** (Alternative). Each chemical can only be added to one
+The last page of the creator will contain information of the chemicals used for the exposure. They are organised in different
+groups, including: **BMD10** (Low), **BMD25** (Medium), **10mg/L** (High), or **Alternative** (Alternative). Each chemical can only be added to one
 group at a time and you will need to create a new batch to test a chemical at a different dose for the same species. At
 least one group must contain a chemical for the spreadsheet to be generated but you can add as many chemicals as you want
 in each group.
