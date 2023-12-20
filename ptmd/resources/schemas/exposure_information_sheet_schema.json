@@ -127,7 +127,7 @@
     "dose_code": {
       "type": ["string", "integer"],
       "description": "The dose code.",
-      "enum": ["0", "BMD10", "BMD25", "10mg/L", 0],
+      "enum": ["0", "BMD10", "BMD25", "10mg/L", "Alternative", 0],
       "_role": "admin"
     },
     "precisiontox_short_identifier": {
