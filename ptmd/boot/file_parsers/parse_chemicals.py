@@ -16,9 +16,14 @@ def parse_chemicals() -> list[dict]:
     chemicals_dataframe: DataFrame = read_csv(CHEMICALS_FILEPATH, sep=",", encoding='utf-8')
     for compound in chemicals_dataframe.itertuples():
         chemicals.append({
-            'common_name': compound.compound_name_user,
+            'common_name': compound.compound_name_user.replace('\xa0', ''),
             'ptx_code': int(compound.ptx_code.replace(BASE_IDENTIFIER, '')),
             'formula': compound.formula,
             'cas': compound.cas_neutral
         })
+        print(chemicals[-1])
     return chemicals
+
+
+if __name__ == '__main__':
+    parse_chemicals()
