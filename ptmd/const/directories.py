@@ -13,7 +13,7 @@ GOOGLE_DRIVE_SETTINGS_FILE_PATH: str = DOT_ENV_CONFIG['GOOGLE_DRIVE_SETTINGS_FIL
 SCHEMAS_PATH: str = path.join(DATA_PATH, 'schemas')
 EXPOSURE_INFORMATION_SCHEMA_FILEPATH: str = path.join(SCHEMAS_PATH, 'exposure_information_sheet_schema.json')
 PARTNERS_LONGNAME_PATH: str = path.join(DATA_PATH, 'data', 'partners.json')
-CHEMICALS_FILEPATH: str = path.join(DATA_PATH, 'data', 'chemicals.xlsx')
+CHEMICALS_FILEPATH: str = path.join(DATA_PATH, 'data', 'ptx_chem_database_chemicals.csv')
 ORGANISMS_FILEPATH: str = path.join(DATA_PATH, 'data', 'organisms.json')
 DOWNLOAD_DIRECTORY_PATH: str = path.join(DATA_PATH, 'downloads')
 

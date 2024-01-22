@@ -2,7 +2,7 @@
 """
 from __future__ import annotations
 
-from pandas import read_excel, DataFrame
+from pandas import read_csv, DataFrame
 
 from ptmd.const import CHEMICALS_FILEPATH, BASE_IDENTIFIER
 
@@ -13,14 +13,12 @@ def parse_chemicals() -> list[dict]:
     :return: A list of chemicals.
     """
     chemicals: list[dict] = []
-    chemicals_dataframe: DataFrame = read_excel(CHEMICALS_FILEPATH,
-                                                engine='openpyxl',
-                                                sheet_name="SUMMARY table of CHEMICALS")
+    chemicals_dataframe: DataFrame = read_csv(CHEMICALS_FILEPATH, sep=",", encoding='utf-8')
     for compound in chemicals_dataframe.itertuples():
         chemicals.append({
-            'common_name': compound.Compound.replace('"', ''),
-            'ptx_code': int(compound._2.replace('"', '').replace(BASE_IDENTIFIER, '')),
-            'formula': compound.Formula.replace('"', ''),
-            'cas': compound._5.replace('"', '').split('\n')[0]
+            'common_name': compound.compound_name_user.replace('\xa0', ''),
+            'ptx_code': int(compound.ptx_code.replace(BASE_IDENTIFIER, '')),
+            'formula': compound.formula,
+            'cas': compound.cas_neutral
         })
     return chemicals
