@@ -12,3 +12,4 @@ class TestCompound(TestCase):
             for key in keys:
                 self.assertIn(key, chemical.keys())
             self.assertEqual(type(chemical), dict)
+            self.assertIsInstance(chemical['ptx_code'], int)
