@@ -21,9 +21,4 @@ def parse_chemicals() -> list[dict]:
             'formula': compound.formula,
             'cas': compound.cas_neutral
         })
-        print(chemicals[-1])
     return chemicals
-
-
-if __name__ == '__main__':
-    parse_chemicals()
