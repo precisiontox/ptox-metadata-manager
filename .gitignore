@@ -20,3 +20,4 @@ credentials.json
 .env.prod
 envv/*
 ptmd.db
+scripts/
