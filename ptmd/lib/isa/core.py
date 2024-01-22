@@ -29,7 +29,7 @@ from ptmd.lib.isa.ontologies import (
 
 
 class Batch2ISA:
-    """ Class for converting a batch of PTMD data to ISA-Tab format.
+    """ Class for converting a batch of PTMD data to ISA-json format.
 
     :param file: The file to convert.
     """
@@ -53,7 +53,7 @@ class Batch2ISA:
         :return: A list of dictionaries containing the ISA investigations.
         """
         study: Study = Study(
-            filename=self.filename,
+            filename=f's_{self.filename.replace(".xlsx", ".txt")}',
             sources=[self.blank_source],
             characteristic_categories=[ORGANISM_OA, SEX_OA, REPLICATE_OA, BOX_OA, POSITION_OA],
             units=[HOURS_OA]
@@ -235,7 +235,7 @@ class Batch2ISA:
         :param sample_identifier: The identifier of the sample.
         :return: A source.
         """
-        source_name: str = f"Source of sample {sample_identifier}"
+        source_name: str = f"{sample_identifier}_source"
 
         if 'Drosophila_melanogaster' not in self.organism_name:
             return Source(name=source_name, characteristics=[
