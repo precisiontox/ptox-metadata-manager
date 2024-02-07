@@ -25,7 +25,7 @@ def extract_data_from_spreadsheet(filepath: str) -> dict | None:
         'blanks': general_information['blanks'],
         'vehicle_name': general_information['compound_vehicle'],
         'timepoints': create_timepoints_hours(timepoints_values),
-        'chemicals': get_chemicals_from_name(list(set(exposure_information['compound_name']))),
+        'chemicals': get_chemicals_from_name(list(exposure_information['compound_name'].unique())),
         'organism_name': general_information['biosystem_name'],
         'batch': general_information['exposure_batch'],
         'organisation_name': general_information['partner_id'],
