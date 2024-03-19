@@ -83,7 +83,7 @@ def get_shipped_file(species: str, batch: str) -> File | None:  # pragma: no cov
     :param batch: the batch of the file
     :return: the first received file with the given batch and species if it exists or None
 
-    @note: This function is excluded from coverage report because it is just a wrapper around a database query
+    :note: This function is excluded from coverage report because it is just a wrapper around a database query
     """
     return File.query.join(Organism).filter(
             Organism.ptox_biosystem_name == species,

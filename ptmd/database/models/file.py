@@ -198,11 +198,11 @@ class File(Base):
         """ Validate the time of the shipment or reception of the file to make sure it is after the start and end date
         of the collection steps.
 
-        :@param at: the date the samples were shipped
-        :@param field: the field to be validated
-        :@return: the date the samples were shipped
+        :param at: the date the samples were shipped
+        :param field: the field to be validated
+        :return: the date the samples were shipped
 
-        :@raise ValueError: if the date is before the start or end date of the collection steps
+        :raise ValueError: if the date is before the start or end date of the collection steps
         """
         start_date: datetime = datetime.strptime(self.start_date.strftime('%Y-%m-%d'), '%Y-%m-%d')
         end_date: datetime = datetime.strptime(self.end_date.strftime('%Y-%m-%d'), '%Y-%m-%d')

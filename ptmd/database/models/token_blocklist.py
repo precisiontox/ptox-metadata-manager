@@ -20,9 +20,9 @@ class TokenBlocklist(Base):
 
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header: dict, jwt_payload: dict) -> bool:
-    """ Check if a JWT exists in the database blocklist
+    """Check if a JWT exists in the database blocklist
 
-    @param jwt_header: JWT header
-    @param jwt_payload: JWT payload
+    :param jwt_header: JWT header
+    :param jwt_payload: JWT payload
     """
     return session.query(TokenBlocklist.id).filter_by(jti=jwt_payload["jti"]).scalar() is not None  # type: ignore
