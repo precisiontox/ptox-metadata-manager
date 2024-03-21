@@ -51,10 +51,14 @@ class TestUsersQueries(TestCase):
         self.assertEqual(user[0], 123)
 
     @patch('ptmd.database.queries.users.Token')
-    def test_get_token(self, mock_token):
+    @patch('ptmd.database.queries.users.session.delete')
+    @patch('ptmd.database.queries.users.session.commit')
+    def test_get_token(self, mock_session_commit, mock_session_delete, mock_token):
         mock_token.query.filter().first.return_value = None
         with self.assertRaises(TokenInvalidError) as context:
             get_token('ABC')
+            mock_session_delete.assert_not_called()
+            mock_session_commit.assert_not_called()
         self.assertEqual(str(context.exception), 'Invalid token')
 
         class MockToken:
@@ -64,4 +68,6 @@ class TestUsersQueries(TestCase):
         mock_token.query.filter().first.return_value = MockToken()
         with self.assertRaises(TokenExpiredError) as context:
             get_token('ABC')
+            mock_session_delete.assert_called_once_with(mock_token.query.filter().first())
+            mock_session_commit.assert_called_once()
         self.assertEqual(str(context.exception), 'Token expired')

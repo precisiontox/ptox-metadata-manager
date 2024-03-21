@@ -2,6 +2,8 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from ptmd.boot import initialize
+from ptmd.boot.core import create_download_directory
+from ptmd.const import DOWNLOAD_DIRECTORY_PATH
 
 
 class MockUser:
@@ -40,3 +42,20 @@ class TestInitializeApp(TestCase):
         mock_boot.assert_not_called()
         mock_base.metadata.drop_all.assert_called_once()
         mock_gdc.assert_called_once()
+
+
+class TestUtils(TestCase):
+
+    @patch('ptmd.boot.core.mkdir')
+    @patch('ptmd.boot.core.exists', return_value=False)
+    def test_create_download_directory_true(self, exists_mock, mkdir_mock):
+        create_download_directory()
+        exists_mock.assert_called_once_with(DOWNLOAD_DIRECTORY_PATH)
+        mkdir_mock.assert_called_once_with(DOWNLOAD_DIRECTORY_PATH)
+
+    @patch('ptmd.boot.core.mkdir')
+    @patch('ptmd.boot.core.exists', return_value=True)
+    def test_create_download_directory_false(self, exists_mock, mkdir_mock):
+        create_download_directory()
+        exists_mock.assert_called_once_with(DOWNLOAD_DIRECTORY_PATH)
+        mkdir_mock.assert_not_called()

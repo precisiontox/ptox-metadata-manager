@@ -1,7 +1,10 @@
 """ This module contains the main initializer of the application.
 """
+from os.path import exists
+from os import mkdir
+
 from ptmd.config import app, engine
-from ptmd.const import ADMIN_EMAIL, ADMIN_USERNAME, ADMIN_PASSWORD
+from ptmd.const import ADMIN_EMAIL, ADMIN_USERNAME, ADMIN_PASSWORD, DOWNLOAD_DIRECTORY_PATH
 from ptmd.database import User, Base
 from ptmd.lib import GoogleDriveConnector
 from ptmd.logger import LOGGER
@@ -24,6 +27,7 @@ def initialize() -> None:
     """
     LOGGER.info('Initializing the application')
     create_config_file()
+    create_download_directory()
     connector: GoogleDriveConnector = GoogleDriveConnector()
     Base.metadata.create_all(engine)
 
@@ -41,3 +45,11 @@ def initialize() -> None:
         LOGGER.error('Error initializing the application: %s', e)
         raise e
     LOGGER.info('Application initialized')
+
+
+def create_download_directory() -> None:
+    """ Create the download directory under ptmd/resources/.
+    """
+    if not exists(DOWNLOAD_DIRECTORY_PATH):
+        mkdir(DOWNLOAD_DIRECTORY_PATH)
+        LOGGER.info('Download directory created')

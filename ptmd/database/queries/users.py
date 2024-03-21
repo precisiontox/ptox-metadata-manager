@@ -55,6 +55,7 @@ def get_token(token: str) -> Token:
     if token_from_db is None:
         raise TokenInvalidError
     if token_from_db.expires_on < datetime.now(token_from_db.expires_on.tzinfo):
-        # session.delete(token_from_db)  # type: ignore
+        session.delete(token_from_db)  # type: ignore
+        session.commit()
         raise TokenExpiredError
     return token_from_db

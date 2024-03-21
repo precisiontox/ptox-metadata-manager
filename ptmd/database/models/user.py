@@ -127,6 +127,7 @@ class User(Base):
         self.role = 'enabled'
         if self.activation_token:
             session.delete(self.activation_token)  # type: ignore
+            session.commit()
         send_validation_mail(self)
 
     def __activate_account(self) -> None:
