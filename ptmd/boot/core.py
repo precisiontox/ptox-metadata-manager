@@ -48,7 +48,7 @@ def initialize() -> None:
 
 
 def create_download_directory() -> None:
-    """ Create the download directory on Google Drive.
+    """ Create the download directory under ptmd/resources/.
     """
     if not exists(DOWNLOAD_DIRECTORY_PATH):
         mkdir(DOWNLOAD_DIRECTORY_PATH)
