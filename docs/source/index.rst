@@ -1,4 +1,4 @@
-Welcome to Precision Toxixology Metadata Manager's documentation!
+Welcome to Precision Toxicology Metadata Manager's documentation!
 =================================================================
 .. mdinclude:: ../../README.md
 
