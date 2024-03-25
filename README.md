@@ -188,12 +188,12 @@ It is responsible for the user interface and the communication with the API.
 ### The backend API
 It is hosted in this repository. It contains a [Flask](https://flask.palletsprojects.com/en/2.3.x/) application exposing a REST API and is plugged to a relational
 database through [SQLAlchemy](https://www.sqlalchemy.org/). It is responsible for authentication, all functionalities logic and the persistence of 
-(meta)-data
+(meta)-data.
 
 ### Development process
-. It provides a [Swagger documentation](http://mmapi.precisiontox.org/apidocs/) describing the API usage 
-and enabling to build and run queries through a web UI. The code is documented using ``docstrings`` 
-and the documentation is available on [readTheDocs](https://pretox-metadata-manager.readthedocs.io/en/latest/?badge=latest).
+The API documentation is provided by a [Swagger documentation](http://mmapi.precisiontox.org/apidocs/), letting users query the API
+through a web UI. The code is documented using ``docstrings`` and the documentation is available on 
+[readTheDocs](https://pretox-metadata-manager.readthedocs.io/en/latest/?badge=latest).
 The application is entirely unit-tested, typehints are checked with ``mypy``, code quality is surveyed by ``Codacy``
 and styles are enforced by ``flake8``, all as part of  the continuous integration pipeline.
 
