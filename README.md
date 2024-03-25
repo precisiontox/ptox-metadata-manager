@@ -74,7 +74,6 @@ will perform material extractions for *RNAseq* and *mass-spectrometry* data acqu
 metadata do not contain any error, can be used to find physical samples in the boxes shipped to the core facility 
 and that the experimental results can be produced in a FAIR and publishable way.
 
-
 Consortium partners producing samples are invited to fill a form based on an experimental design defined by the consortium. 
 The form generates Excel files containing metadata about sample exposition and collection divided into
 two sheets:
