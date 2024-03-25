@@ -32,7 +32,7 @@
 
 <p align="center">
   The PrecisionTox Metadata Manager is a tool to help manage metadata about samples collected in the lab. It is part of the
-  <a href="https://precisiontox.org/" target="_blank">PrecisionTox Consortium]</a> and is used to ensure that metadata 
+  <a href="https://precisiontox.org/" target="_blank">PrecisionTox Consortium</a> and is used to ensure that metadata 
   are correct and can be used to find data files.
 </p>
 
