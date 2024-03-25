@@ -77,17 +77,12 @@ and that the experimental results can be produced in a FAIR and publishable way.
 Consortium partners producing samples are invited to fill a form based on an experimental design defined by the consortium. 
 The form generates Excel files containing metadata about sample exposition and collection divided into
 two sheets:
-- a first sheet containing specific information about the samples. This includes which replicates are exposed 
-to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique 
-identifier for each exposed replicate, each control and each empty tube based on a following pattern:
-`organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code`.
-- a second sheet containing general information about the experiment, such as the organisation, the species, the start 
-and end date, etc.
+- a first sheet containing specific information about the samples. This includes which replicates are exposed to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique identifier for each exposed replicate, each control and each empty tube based on a following pattern: `organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code`.
+- a second sheet containing general information about the experiment, such as the organisation, the species, the start and end date, etc.
 
 The spreadsheets are then uploaded to a shared Google Drive folder and opened for editing for when users hit the lab. The 
 tool keeps track of the files uploaded to Google Drive, can import external files, and can validate the 
 content of the spreadsheets. These validation steps are mandatory and must be performed before the files and boxes can be shipped.
-<br>
 
 Once marked as **shipped**, the file is locked and cannot be edited anymore.
 
