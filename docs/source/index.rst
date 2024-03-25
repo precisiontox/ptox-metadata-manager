@@ -9,6 +9,14 @@ Welcome to Precision Toxicology Metadata Manager's documentation!
 
     user_guide
     ptmd/models/index
+    ptmd/libraries/creator
+    ptmd/libraries/data_extractor
+    ptmd/libraries/email
+    ptmd/libraries/excel
+    ptmd/libraries/gdrive
+    ptmd/libraries/isa
+    ptmd/libraries/updater
+    ptmd/libraries/validation
     API Documentation <https://pretox.isa-tools.org/apidocs/>
 
 

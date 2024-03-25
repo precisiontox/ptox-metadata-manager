@@ -58,7 +58,7 @@
 ### Video tutorial
 <p align="center">
   <a href="https://www.youtube.com/watch?v=XWItfWplwT0&hd=1" target="_blank">
-    <img src="./docs/source/_static/img/video_thumbnail.jpg"
+    <img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/DomDoc/docs/source/_static/img/video_thumbnail.jpg"
         alt="Click to view the tool presentation video on youtube">
     <br>
     <span> Click to view video tutorial</span>
@@ -183,7 +183,7 @@ the `ptmd/resources/` directory are served.
 Finally, you need to set the publishing status of your application status to 'In Production' in your Google Cloud 
 Console. This will allow the application to refresh authentication tokens automatically.
 
-## Architecture:
+## Architecture
 
 ### The frontend client
 A NuxtJS web application accessible in [development](https://ptmm.netlify.app)
