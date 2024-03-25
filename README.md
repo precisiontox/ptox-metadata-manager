@@ -73,14 +73,15 @@ even exposed to compounds and samples are collected. These samples are meant to 
 will perform material extractions for *RNAseq* and *mass-spectrometry* data acquisitions. The tool ensures that 
 metadata do not contain any error, can be used to find physical samples in the boxes shipped to the core facility 
 and that the experimental results can be produced in a FAIR and publishable way.
-<br>
+
+
 Consortium partners producing samples are invited to fill a form based on an experimental design defined by the consortium. 
 The form generates Excel files containing metadata about sample exposition and collection divided into
 two sheets:
 - a first sheet containing specific information about the samples. This includes which replicates are exposed 
 to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique 
 identifier for each exposed replicate, each control and each empty tube based on a following pattern:
-``organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code``.
+`organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code`.
 - a second sheet containing general information about the experiment, such as the organisation, the species, the start 
 and end date, etc.
 
