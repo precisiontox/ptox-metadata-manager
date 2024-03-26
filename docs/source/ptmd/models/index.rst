@@ -1,6 +1,6 @@
 Database Model
 =================================================================
-.. image:: ./../../../../database.png
+.. image:: ./../../_static/img/database.png
     :align: center
     :alt: Database Model
 

@@ -14,9 +14,9 @@ from ptmd.database.models import User, Token
 def login_user(username: str, password: str) -> tuple[Response, int]:
     """ Login a user and return a JWT token. The username and password are retrieved from the request body.
 
-    @param username
-    @param password
-    @return: Response, int: the response message and the response code
+    :param username
+    :param password
+    :return: Response, int: the response message and the response code
     """
     raw_user = User.query.filter(User.username == username).first()
     user = dict(raw_user) if raw_user and raw_user.validate_password(password) else None
@@ -55,6 +55,7 @@ def get_token(token: str) -> Token:
     if token_from_db is None:
         raise TokenInvalidError
     if token_from_db.expires_on < datetime.now(token_from_db.expires_on.tzinfo):
-        # session.delete(token_from_db)  # type: ignore
+        session.delete(token_from_db)  # type: ignore
+        session.commit()
         raise TokenExpiredError
     return token_from_db

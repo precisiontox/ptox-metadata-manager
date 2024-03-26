@@ -2,15 +2,17 @@
 
 <p align="center">
   <a href="https://github.com/precisiontox/ptox-metadata-manager/actions/workflows/build.yml" target="_blank" rel="noopener noreferrer">
-    <img src="https://github.com/precisiontox/ptox-metadata-manager/actions/workflows/build.yml/badge.svg" alt="Build Badge" /> 
+    <img src="https://github.com/precisiontox/ptox-metadata-manager/actions/workflows/build.yml/badge.svg" alt="Build Badge" />
   </a>
   <a href="https://coveralls.io/github/precisiontox/ptox-metadata-manager?branch=main" target="_blank" rel="noopener noreferrer">
-    <img src="https://coveralls.io/repos/github/precisiontox/ptox-metadata-manager/badge.svg?branch=terazus-badges" alt="Coverage Report Badge" /> 
+    <img src="https://coveralls.io/repos/github/precisiontox/ptox-metadata-manager/badge.svg?branch=terazus-badges" alt="Coverage Report Badge" />
   </a>
   <a href="https://app.codacy.com/gh/precisiontox/ptox-metadata-manager/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
-    <img src="https://app.codacy.com/project/badge/Grade/1503dc8bf33c40bbb474ec328ba90219"/>
+    <img src="https://app.codacy.com/project/badge/Grade/1503dc8bf33c40bbb474ec328ba90219" alt="Code Quality badge"/>
   </a>
-  <img src="https://img.shields.io/badge/Status-production-green" alt="Status Badge" />
+  <a href="https://mm.precisiontox.org" target="_blank">
+    <img src="https://img.shields.io/badge/Status-production-green" alt="Status Badge" />
+  </a>
   <a href="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs_badge.svg" target="_blank" rel="noopener noreferrer">
     <img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs_badge.svg" alt="Docstring Coverage Badge"/>
   </a>
@@ -24,42 +26,64 @@
     <img src="https://img.shields.io/badge/licence-AGPL-blue" alt="Licence Badge"/>
   </a>
   <a href="https://pretox.isa-tools.org/apidocs/" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/API-Swagger-blue" alt="Licence Badge"/>
+    <img src="https://img.shields.io/badge/API-Swagger-blue" alt="API Doc Badge"/>
   </a>
 </p>
 
+<p align="center">
+  The PrecisionTox Metadata Manager is a tool to help manage metadata about samples collected in the lab. It is part of the
+  <a href="https://precisiontox.org/" target="_blank">PrecisionTox Consortium</a> and is used to ensure that metadata 
+  are correct and can be used to find data files.
+</p>
 
+## Table of contents
+- [Introduction](#introduction)
+  - [Video tutorial](#video-tutorial)
+  - [Objectives](#objectives)
+- [Getting started](#getting-started)
+  - [Requirements](#requirements)
+  - [Setup](#setup)
+  - [Production](#production)
+- [Architecture](#architecture)
+  - [Development process](#development-process)
+  - [Components](#components)
+  - [Database: Entity Relationship Diagram (ERD)](#database-entity-relationship-diagram-erd)
+- [Development](#development)
+  - [Testing](#testing)
+  - [Documentation](#verify-and-generate-the-documentation)
+  - [Static typing](#verify-type-hints)
 
 ## Introduction
+
+### Video tutorial
 <p align="center">
   <a href="https://www.youtube.com/watch?v=XWItfWplwT0&hd=1" target="_blank">
-    <img src="./docs/source/_static/img/video_thumbnail.jpg"
+    <img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/DomDoc/docs/source/_static/img/video_thumbnail.jpg"
         alt="Click to view the tool presentation video on youtube">
+    <br>
+    <span> Click to view video tutorial</span>
   </a>
 </p>
 
 ### Objectives
-The precision toxicology metadata manager is a tool created to help consortium partners  of the [PrecisionTox](https://precisiontox.org/) who produce 
-data to create, find, validate and share metadata about samples they collect in the lab. The idea behind the tool is to 
-operate at planning stage, before organisms are even exposed to compounds and samples are collected. These samples are meant to be shipped
-to a central partner who will perform material extractions for *RNAseq* and *mass-spectrometry* data acquisitions.
-The tool ensures that metadata do not contain any error, can be used to find physical samples in the boxes shipped to the core facility and that the experimental results can be produced in
-a FAIR and publishable way.
-<br>
+The precision toxicology metadata manager was created to help partners producing data in the
+[PrecisionTox Consortium](https://precisiontox.org/) to create, find, validate and share metadata 
+about samples they collect in the lab. The idea behind the tool is to operate at planning stage, before organisms are 
+even exposed to compounds and samples are collected. These samples are meant to be shipped to a central partner who 
+will perform material extractions for *RNAseq* and *mass-spectrometry* data acquisitions. The tool ensures that 
+metadata do not contain any error, can be used to find physical samples in the boxes shipped to the core facility 
+and that the experimental results can be produced in a FAIR and publishable way.
+
 Consortium partners producing samples are invited to fill a form based on an experimental design defined by the consortium. 
-The form generates excel files containing metadata about sample exposition and collection divided into
+The form generates Excel files containing metadata about sample exposition and collection divided into
 two sheets:
-- a first sheet containing specific information about the samples. This includes which replicates are exposed 
-to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique 
-identifier for each exposed replicate, each control and each empty tube based on a following pattern:
-``organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code``.
-- a second sheet containing general information about the experiment, such as the organisation, the species, the start 
-and end date, etc.
+- a first sheet containing specific information about the samples. This includes which replicates are exposed to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique identifier for each exposed replicate, each control and each empty tube based on a following pattern: `organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code`.
+- a second sheet containing general information about the experiment, such as the organisation, the species, the start and end date, etc.
+
 
 The spreadsheets are then uploaded to a shared Google Drive folder and opened for editing for when users hit the lab. The 
 tool keeps track of the files uploaded to Google Drive, can import external files, and can validate the 
 content of the spreadsheets. These validation steps are mandatory and must be performed before the files and boxes can be shipped.
-<br>
 
 Once marked as **shipped**, the file is locked and cannot be edited anymore.
 
@@ -73,43 +97,7 @@ Finally, the sample metadata are registered in a purpose-built database and be r
 This allows users to search and retrieve sample metadata through both programmatic and web interfaces while providing stable, persistent 
 and unique identifiers for each record.
 
-<img src="./docs/source/_static/img/user_story.png" alt="Metadata pipeline for sample exposure and collection" style="max-width:700px; margin:auto; display:block;"/>
-
-
-### Components:
-
-#### The frontend client
-A NuxtJS web application accessible at https://ptmm.netlify.app. 
-It is responsible for the user interface and the communication with the API.
-
-#### The backend API
-It is hosted in this repository. It contains a [Flask](https://flask.palletsprojects.com/en/2.3.x/) application exposing a REST API and is plugged to a relational
-database through [SQLAlchemy](https://www.sqlalchemy.org/). 
-
-It is responsible for authentication, all functionalities logic and the persistence of 
-(meta)-data. It provides a Swagger documentation accessible at https://pretox.isa-tools.org/apidocs. The documentation 
-describes the API usage and provides a way to run queries through a web UI. The code is documented using ``docstrings`` 
-and the documentation is available on ``readthedocs``. The application is entirely unit-tested, typehints are checked 
-with ``mypy``, code quality is surveyed by ``Codacy`` and styles are enforced by ``flake8``, all as part of  the 
-continuous integration pipeline.
-<br> <br>
-The application source code is contained in the ``ptmd`` directory and divided as such:
-- The ``api`` directory contains the flask application exposing the REST API. It includes routes definitions, the 
-  JSON Web Token authentication logic and the validation of user inputs through JSON Schema.
-- The ``boot`` directory contains the code responsible for booting the application, like seeding the initial data into 
-the database.
-- The ``const`` directory contains the constants used throughout the application.
-- The ``database`` directory contains the database models and complex queries. Interactions with the database is mostly
-defined as methods of the model classes.
-- The ``lib`` directory contains the code responsible for the business logic, like the interactions with the spreadsheets
-and the Google Drive API, sending emails and generating ISA-JSON files.
-- The ``resources`` directory contains the assets used by the application, like JSON schemas, swagger yaml files, data
-files for organisations and chemicals, etc.
-
-Tests are contained in the ``tests`` directory and divided mirroring the application exact structure. They require no 
-data files and no interaction with the database to be executed.
-
-
+<img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs/source/_static/img/user_story.png" alt="Metadata pipeline for sample exposure and collection" style="max-width:700px; margin:auto; display:block;"/>
 
 ## Getting started
 ### Requirements:
@@ -126,6 +114,7 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt # for production
 pip install -r requirements-dev.txt # for development
+mv ptmd/resources/.env.example ptmd/resources/.env # Create the .env file
 ```
 
 Before running the application you need to obtain a Google Drive ID and secret: head to your Google Cloud console and 
@@ -156,32 +145,73 @@ The environment variables are divided into three categories:
   - `SQLALCHEMY_DATABASE_URL`: this is the URL to your database. You can use sqlite, postgres, mysql, etc., e.g.
     sqlite:///ptmd.db, and will need to change this before running the application.
   - `SQLALCHEMY_SECRET_KEY`: this is the secret key used to encrypt hashes and other sensitive data.
-  - `SITE_URL`: the URL of the site.
+  - `SITE_URL`: the URL of the JavaScript client (used for sending activation and reset links through emails).
 - The Google Drive API configuration variables:
   - `GOOGLE_DRIVE_CLIENT_ID`: the Google Drive client ID obtainable in your Google Cloud Console (see above).
   - `GOOGLE_DRIVE_CLIENT_SECRET`: the Google Drive client secret obtaining in your Google Cloud Console (see above).
   - `GOOGLE_DRIVE_CREDENTIALS_FILEPATH`: the path where to store the credentials file created during first boot. This needs to 
     be a json file (e.g. credentials.json).
-  - `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first seed_db 
-    e.g. settings.yaml) Not that a `.yml` extension <b>will not be accepted</b>, please use `.yaml` instead.
+  - `GOOGLE_DRIVE_SETTINGS_FILEPATH`: the path where to store the settings file created during first initialization
+    (e.g. settings.yaml). Note that a `.yml` extension <b>will not be accepted</b>, please use `.yaml` instead.
 - The admin account configuration variables.
   - `ADMIN_EMAIL`: the email address of the admin user. This is used to send emails to the admin user when a new user
     registers.
   - `ADMIN_USERNAME`: the username of the admin user. This is used to create the first admin user. Cannot be changed.
   - `ADMIN_PASSWORD`: the password of the admin user. This is used to create the first admin user. Can be changed later.
 
-You can now run the following command and accept the application in your browser. This is done once only during first seed_db.
+You can now run the following command and accept the application in your browser. This is done once only during first initialization.
 It will download the Google API credentials file and generate the database once you are done.
-Finally, it will seed_db the flask API.
+Finally, it will boot the flask API in your local host.
+
+<u>Note</u>: The Google credentials can be generated on any machine and then copied to the server where the application is
+running if path in the `.env` file matches the path on the server.
+
 ```shell
 python -m app
 ```
 
 Once the API is booted go to http://localhost:5000/apidocs to see the Swagger documentation.
 
-## Database: Entity Relationship Diagram (ERD)
-<img src="./docs/source/_static/img/database.png" alt="Database Entity Relationship Diagram (ERD)"/>
+### Production
+In order to run the application in production you will need a web server and a WSGI. It has been tested with 
+Apache/Passenger and Nginx/Gunicorn. You will also want to configure your web server so that files under 
+the `ptmd/resources/` directory are served.
+Finally, you need to set the publishing status of your application status to 'In Production' in your Google Cloud 
+Console. This will allow the application to refresh authentication tokens automatically.
 
+## Architecture
+
+### The frontend client
+A NuxtJS web application accessible in [development](https://ptmm.netlify.app)
+and [production](https://mm.precisiontox.org).
+It is responsible for the user interface and the communication with the API.
+
+### The backend API
+It is hosted in this repository. It contains a [Flask](https://flask.palletsprojects.com/en/2.3.x/) application exposing a REST API and is plugged to a relational
+database through [SQLAlchemy](https://www.sqlalchemy.org/). It is responsible for authentication, all functionalities logic and the persistence of 
+(meta)-data.
+
+### Development process
+The API documentation is provided by a [Swagger documentation](http://mmapi.precisiontox.org/apidocs/), letting users query the API
+through a web UI. The code is documented using ``docstrings`` and the documentation is available on 
+[readTheDocs](https://pretox-metadata-manager.readthedocs.io/en/latest/?badge=latest).
+The application is entirely unit-tested, typehints are checked with ``mypy``, code quality is surveyed by ``Codacy``
+and styles are enforced by ``flake8``, all as part of  the continuous integration pipeline.
+
+#### Components
+The application source code is contained in the ``ptmd`` directory and divided as such:
+- The ``api`` directory contains the flask application exposing the REST API. It includes routes definitions, the JSON Web Token authentication logic and the validation of user inputs through JSON Schema.
+- The ``boot`` directory contains the code responsible for booting the application, like seeding the initial data into the database.
+- The ``const`` directory contains the constants used throughout the application.
+- The ``database`` directory contains the database models and complex queries. Interactions with the database is mostly defined as methods of the model classes.
+- The ``lib`` directory contains the code responsible for the business logic, like the interactions with the spreadsheets and the Google Drive API, sending emails and generating ISA-JSON files.
+- The ``resources`` directory contains the assets used by the application, like JSON schemas, swagger yaml files, data files for organisations and chemicals, etc.
+
+Tests are contained in the ``tests`` directory and divided mirroring the application exact structure. They require no 
+data files and no interaction with the database to be executed.
+
+### Database: Entity Relationship Diagram (ERD)
+<img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs/source/_static/img/database.png" alt="Database Entity Relationship Diagram (ERD)"/>
 
 ## Development
 
@@ -194,7 +224,8 @@ coverage report -m
 
 
 ### Verify and generate the documentation
-You will need the development dependencies installed to generate the documentation.
+The documentation is generated using Sphinx and hosted on [ReadTheDocs](https://pretox-metadata-manager.readthedocs.io/en/latest/).
+It can also be generated locally after installing the development dependencies.
 For Unix based systems:
 ```shell
 docstr-coverage ptmd/ --fail-under=100
@@ -216,5 +247,6 @@ mypy --config-file=./mypy.ini
 ```
 
 
-## Authors:
--  [B. Dominique](https://github.com/terazus), University of Oxford (orcid: [0000-0002-2109-489X](https://orcid.org/0000-0002-2109-489X))
+## Authors and publications:
+- [B. Dominique](https://github.com/terazus), University of Oxford (orcid: [0000-0002-2109-489X](https://orcid.org/0000-0002-2109-489X))
+- Poster: [FAIR by design: study design-driven creation of standards compliant metadata](https://doi.org/10.5281/zenodo.7847619)

@@ -220,11 +220,16 @@ class TestUserQueries(TestCase):
                 response = client.get('/api/users/2/activate', headers={'Authorization': f'Bearer {123}', **HEADERS})
                 self.assertEqual(response.json, {'msg': 'Account validated'})
 
-    def test_enable_account_errors(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+    @patch('ptmd.api.queries.users.session.delete')
+    @patch('ptmd.api.queries.users.session.commit')
+    def test_enable_account_errors(self, mock_session_commit, mock_session_delete,
+                                   mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
         with patch('ptmd.database.queries.users.Token') as mocked_token:
             mocked_token.query.filter().first.return_value.expires_on = datetime.now() - timedelta(days=11)
             with app.test_client() as client:
                 response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+                mock_session_commit.assert_called_once()
+                mock_session_delete.assert_called_once_with(mocked_token.query.filter().first.return_value)
                 self.assertEqual(response.json, {'msg': 'Token expired'})
                 self.assertEqual(response.status_code, 400)
 

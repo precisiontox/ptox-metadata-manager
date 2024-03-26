@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, os.path.abspath('./../..'))
 sys.path.insert(0, os.path.abspath('./../../ptmd'))
 
-project = 'Precision Toxixology Metadata Manager'
+project = 'Precision Toxicology Metadata Manager'
 copyright = '2022, Dominique Batista'
 author = 'Dominique Batista'
 version = '0.0.1'

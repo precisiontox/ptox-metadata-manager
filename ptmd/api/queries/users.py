@@ -200,6 +200,7 @@ def reset_password(token: str) -> tuple[Response, int]:
         user: User = reset_token_from_db.user_reset[0]
         user.set_password(password)
         session.delete(reset_token_from_db)  # type: ignore
+        session.commit()
         return jsonify({"msg": "Password changed successfully"}), 200
     except (PasswordPolicyError, TokenInvalidError, TokenExpiredError) as e:
         return jsonify({"msg": str(e)}), 400
