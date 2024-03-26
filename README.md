@@ -77,17 +77,13 @@ and that the experimental results can be produced in a FAIR and publishable way.
 Consortium partners producing samples are invited to fill a form based on an experimental design defined by the consortium. 
 The form generates Excel files containing metadata about sample exposition and collection divided into
 two sheets:
-- a first sheet containing specific information about the samples. This includes which replicates are exposed 
-to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique 
-identifier for each exposed replicate, each control and each empty tube based on a following pattern:
-`organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code`.
-- a second sheet containing general information about the experiment, such as the organisation, the species, the start 
-and end date, etc.
+- a first sheet containing specific information about the samples. This includes which replicates are exposed to which compound, at which dose, with which vehicle, and after how long they were collected. It also includes a unique identifier for each exposed replicate, each control and each empty tube based on a following pattern: `organism_code:exposure_batch_code:chemical_compound_code:dose_code:timepoint_code:replicate_code`.
+- a second sheet containing general information about the experiment, such as the organisation, the species, the start and end date, etc.
+
 
 The spreadsheets are then uploaded to a shared Google Drive folder and opened for editing for when users hit the lab. The 
 tool keeps track of the files uploaded to Google Drive, can import external files, and can validate the 
 content of the spreadsheets. These validation steps are mandatory and must be performed before the files and boxes can be shipped.
-<br>
 
 Once marked as **shipped**, the file is locked and cannot be edited anymore.
 
@@ -101,7 +97,7 @@ Finally, the sample metadata are registered in a purpose-built database and be r
 This allows users to search and retrieve sample metadata through both programmatic and web interfaces while providing stable, persistent 
 and unique identifiers for each record.
 
-<img src="./docs/source/_static/img/user_story.png" alt="Metadata pipeline for sample exposure and collection" style="max-width:700px; margin:auto; display:block;"/>
+<img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs/source/_static/img/user_story.png" alt="Metadata pipeline for sample exposure and collection" style="max-width:700px; margin:auto; display:block;"/>
 
 ## Getting started
 ### Requirements:
@@ -192,35 +188,30 @@ It is responsible for the user interface and the communication with the API.
 
 ### The backend API
 It is hosted in this repository. It contains a [Flask](https://flask.palletsprojects.com/en/2.3.x/) application exposing a REST API and is plugged to a relational
-database through [SQLAlchemy](https://www.sqlalchemy.org/). 
+database through [SQLAlchemy](https://www.sqlalchemy.org/). It is responsible for authentication, all functionalities logic and the persistence of 
+(meta)-data.
 
 ### Development process
-It is responsible for authentication, all functionalities logic and the persistence of 
-(meta)-data. It provides a [Swagger documentation](http://mmapi.precisiontox.org/apidocs/) describing the API usage 
-and enabling to build and run queries through a web UI. The code is documented using ``docstrings`` 
-and the documentation is available on [readTheDocs](https://pretox-metadata-manager.readthedocs.io/en/latest/?badge=latest).
+The API documentation is provided by a [Swagger documentation](http://mmapi.precisiontox.org/apidocs/), letting users query the API
+through a web UI. The code is documented using ``docstrings`` and the documentation is available on 
+[readTheDocs](https://pretox-metadata-manager.readthedocs.io/en/latest/?badge=latest).
 The application is entirely unit-tested, typehints are checked with ``mypy``, code quality is surveyed by ``Codacy``
 and styles are enforced by ``flake8``, all as part of  the continuous integration pipeline.
 
 #### Components
 The application source code is contained in the ``ptmd`` directory and divided as such:
-- The ``api`` directory contains the flask application exposing the REST API. It includes routes definitions, the 
-  JSON Web Token authentication logic and the validation of user inputs through JSON Schema.
-- The ``boot`` directory contains the code responsible for booting the application, like seeding the initial data into 
-the database.
+- The ``api`` directory contains the flask application exposing the REST API. It includes routes definitions, the JSON Web Token authentication logic and the validation of user inputs through JSON Schema.
+- The ``boot`` directory contains the code responsible for booting the application, like seeding the initial data into the database.
 - The ``const`` directory contains the constants used throughout the application.
-- The ``database`` directory contains the database models and complex queries. Interactions with the database is mostly
-defined as methods of the model classes.
-- The ``lib`` directory contains the code responsible for the business logic, like the interactions with the spreadsheets
-and the Google Drive API, sending emails and generating ISA-JSON files.
-- The ``resources`` directory contains the assets used by the application, like JSON schemas, swagger yaml files, data
-files for organisations and chemicals, etc.
+- The ``database`` directory contains the database models and complex queries. Interactions with the database is mostly defined as methods of the model classes.
+- The ``lib`` directory contains the code responsible for the business logic, like the interactions with the spreadsheets and the Google Drive API, sending emails and generating ISA-JSON files.
+- The ``resources`` directory contains the assets used by the application, like JSON schemas, swagger yaml files, data files for organisations and chemicals, etc.
 
 Tests are contained in the ``tests`` directory and divided mirroring the application exact structure. They require no 
 data files and no interaction with the database to be executed.
 
 ### Database: Entity Relationship Diagram (ERD)
-<img src="./docs/source/_static/img/database.png" alt="Database Entity Relationship Diagram (ERD)"/>
+<img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs/source/_static/img/database.png" alt="Database Entity Relationship Diagram (ERD)"/>
 
 ## Development
 
