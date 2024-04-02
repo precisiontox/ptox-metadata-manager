@@ -170,7 +170,7 @@ class VerticalValidator:
 
     def __init__(self, definitions: dict, validator: ExcelValidator) -> None:
         """ The validator constructor. """
-        self.controls_keys: list[str] = ['CONTROL (DMSO)', 'CONTROL (WATER)']
+        self.controls_keys: list[str] = ['CONTROL (DMSO)', 'CONTROL (Water)']
         self.validator: ExcelValidator = validator
         self.timepoints: list = definitions['timepoints']
         self.replicates: int = definitions['replicates']
@@ -263,6 +263,10 @@ class VerticalValidator:
             if compound_name == 'EXTRACTION BLANK':
                 break
 
+            if compound_name in self.controls_keys:
+                self.validate_controls(compound_val)
+                break
+
             for timepoint in compound_val['replicates']:
                 if timepoint in self.timepoints:
                     replicate: int = compound_val['replicates'][timepoint]
@@ -283,3 +287,27 @@ class VerticalValidator:
                 elif timepoint < len(self.timepoints):
                     message = f"Timepoint {replicate} is missing {len(self.timepoints) - timepoint} replicate(s)."
                     self.validator.add_error(compound_name, message, 'replicates')
+
+    def validate_controls(self, compound_values: dict) -> None:
+        """ Validates the controls points against the general information. Verify the number of replicates and
+        timepoints.
+
+        :param compound_values: The compound values to validate.
+        """
+        message: str
+        for timepoint, replicate in compound_values['replicates'].items():
+            if replicate < self.controls:
+                message = f"Control at timepoint {timepoint} is missing {self.controls - replicate} replicate(s)."
+                self.validator.add_error('Control', message, 'replicates')
+            elif replicate > self.controls:
+                message = f"Control at timepoint {timepoint} has too many replicates ({replicate})."
+                self.validator.add_error('Control', message, 'replicates')
+
+        for replicate, timepoint in compound_values['timepoints'].items():
+            if timepoint > len(self.timepoints):
+                message = f"Timepoint {replicate} has greater number of controls {timepoint} " \
+                          f"than expected ({self.controls})."
+                self.validator.add_error('Control', message, 'timepoints')
+            elif timepoint < len(self.timepoints):
+                message = f"Timepoint {replicate} is missing {len(self.timepoints) - timepoint} control(s)."
+                self.validator.add_error('Control', message, 'timepoints')
