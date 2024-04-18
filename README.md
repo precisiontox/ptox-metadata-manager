@@ -175,7 +175,7 @@ Once the API is booted go to http://localhost:5000/apidocs to see the Swagger do
 ### Production
 In order to run the application in production you will need a web server and a WSGI. It has been tested with 
 Apache/Passenger and Nginx/Gunicorn. You will also want to configure your web server so that files under 
-the `ptmd/resources/` directory are served.
+the `ptmd/resources/` directory **are not served**.
 Finally, you need to set the publishing status of your application status to 'In Production' in your Google Cloud 
 Console. This will allow the application to refresh authentication tokens automatically.
 
