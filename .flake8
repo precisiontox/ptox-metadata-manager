@@ -4,6 +4,6 @@ exclude =
     .github
     venv*
     venv
-    examples/*
+    ptmd/migrations
 max-line-length = 140
 per-file-ignores = __init__.py:F401
