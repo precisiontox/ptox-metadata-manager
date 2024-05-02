@@ -26,6 +26,7 @@ class PasswordPolicyError(APIError):
 
 
 class InvalidPasswordError(APIError):
+    """ Exception raised when a password is not matching the user's password """
 
     def __init__(self) -> None:
         """ Constructor """

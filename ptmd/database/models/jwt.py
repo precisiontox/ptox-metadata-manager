@@ -1,3 +1,4 @@
+""" Database model for JSON Web Tokens. Stores valid JWTs and checks if a token is valid """
 from datetime import datetime, timezone
 
 from ptmd.config import Base, db, session, jwt
