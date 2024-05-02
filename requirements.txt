@@ -17,7 +17,7 @@ PyYAML~=6.0.1
 numpy~=1.23.3
 jsonschema~=4.18.4
 jinja2~=3.0.1
-werkzeug~=2.2.2
+werkzeug~=2.3.7
 alembic~=1.11.1
 
 git+https://github.com/isa-tools/isa-api.git@Bump-jsonschema
