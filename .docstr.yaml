@@ -1,0 +1,3 @@
+badge: docs
+exclude: migrations\*
+fail_under: 100git add
