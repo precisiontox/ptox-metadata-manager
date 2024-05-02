@@ -29,14 +29,15 @@ class TestUsersQueries(TestCase):
         mock_jsonify.assert_called_once_with({'msg': 'Bad username or password'})
         self.assertEqual(response[1], 401)
 
-    @patch('ptmd.database.queries.users.create_access_token', return_value='ABC')
     @patch('ptmd.database.queries.users.jsonify')
     @patch('ptmd.database.queries.users.User')
-    def test_login_user_success(self, mock_user, mock_jsonify, mock_access_token):
-        mock_user.query.filter().first.return_value = MockModel()
+    @patch('ptmd.database.queries.users.session')
+    def test_login_user_success(self, mock_session, mock_user, mock_jsonify):
+        mock_user.query.filter.return_value.first.return_value.login.return_value = ('JTI', 'JWT')
         response = login_user('A', 'B')
-        mock_jsonify.assert_called_once_with(access_token='ABC')
+        mock_session.add.assert_called_once_with('JTI')
         self.assertEqual(response[1], 200)
+        mock_jsonify.assert_called_once_with({'access_token': 'JWT'})
 
     @patch('ptmd.database.queries.users.session')
     @patch('ptmd.database.queries.organisations.session')
@@ -51,10 +52,14 @@ class TestUsersQueries(TestCase):
         self.assertEqual(user[0], 123)
 
     @patch('ptmd.database.queries.users.Token')
-    def test_get_token(self, mock_token):
+    @patch('ptmd.database.queries.users.session.delete')
+    @patch('ptmd.database.queries.users.session.commit')
+    def test_get_token(self, mock_session_commit, mock_session_delete, mock_token):
         mock_token.query.filter().first.return_value = None
         with self.assertRaises(TokenInvalidError) as context:
             get_token('ABC')
+            mock_session_delete.assert_not_called()
+            mock_session_commit.assert_not_called()
         self.assertEqual(str(context.exception), 'Invalid token')
 
         class MockToken:
@@ -64,4 +69,6 @@ class TestUsersQueries(TestCase):
         mock_token.query.filter().first.return_value = MockToken()
         with self.assertRaises(TokenExpiredError) as context:
             get_token('ABC')
+            mock_session_delete.assert_called_once_with(mock_token.query.filter().first())
+            mock_session_commit.assert_called_once()
         self.assertEqual(str(context.exception), 'Token expired')

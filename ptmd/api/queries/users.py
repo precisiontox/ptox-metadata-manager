@@ -13,8 +13,8 @@ from jsonschema import Draft4Validator as Validator
 
 from ptmd.config import session
 from ptmd.const import CREATE_USER_SCHEMA_PATH
-from ptmd.database import login_user, get_token, User, TokenBlocklist, Token, Organisation
-from ptmd.exceptions import PasswordPolicyError, TokenInvalidError, TokenExpiredError
+from ptmd.database import login_user, get_token, User, Token, Organisation
+from ptmd.exceptions import PasswordPolicyError, TokenInvalidError, TokenExpiredError, InvalidPasswordError
 from .utils import check_role
 
 
@@ -61,8 +61,12 @@ def login() -> tuple[Response, int]:
     password: str = request.json.get('password', None)
     if not username or not password:
         return jsonify({"msg": "Missing username or password"}), 400
-    logged_in: tuple[Response, int] = login_user(username=username, password=password)
-    return logged_in
+    try:
+        return login_user(username=username, password=password)
+    except InvalidPasswordError as e:
+        return jsonify({"msg": str(e)}), 401
+    except Exception:
+        return jsonify({"msg": "An unexpected error occurred"}), 500
 
 
 @check_role(role='disabled')
@@ -110,7 +114,8 @@ def get_me() -> tuple[Response, int]:
 def logout() -> tuple[Response, int]:
     """ Logs the user out by expiring the token
     """
-    session.add(TokenBlocklist(jti=get_jwt()["jti"]))
+    current_user: User = get_current_user()
+    current_user.revoke_jwts()
     session.commit()
     return jsonify(msg="Logout successfully"), 200
 
@@ -200,6 +205,7 @@ def reset_password(token: str) -> tuple[Response, int]:
         user: User = reset_token_from_db.user_reset[0]
         user.set_password(password)
         session.delete(reset_token_from_db)  # type: ignore
+        session.commit()
         return jsonify({"msg": "Password changed successfully"}), 200
     except (PasswordPolicyError, TokenInvalidError, TokenExpiredError) as e:
         return jsonify({"msg": str(e)}), 400

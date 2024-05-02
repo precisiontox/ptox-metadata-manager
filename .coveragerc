@@ -5,6 +5,7 @@ relative_files = True
 omit =
     tests/*
     ptmd/__main__.py
+    ptmd/migrations/*
 
 [report]
 exclude_lines =

@@ -1,8 +1,7 @@
 """ This module contains all queries related to users.
 """
 
-from datetime import timedelta, datetime
-from flask_jwt_extended import create_access_token
+from datetime import datetime
 from flask import jsonify, Response
 
 from ptmd.config import session
@@ -14,16 +13,17 @@ from ptmd.database.models import User, Token
 def login_user(username: str, password: str) -> tuple[Response, int]:
     """ Login a user and return a JWT token. The username and password are retrieved from the request body.
 
-    @param username
-    @param password
-    @return: Response, int: the response message and the response code
+    :param username
+    :param password
+    :return: Response, int: the response message and the response code
     """
-    raw_user = User.query.filter(User.username == username).first()
-    user = dict(raw_user) if raw_user and raw_user.validate_password(password) else None
-    if not user:
+    current_user: User = User.query.filter(User.username == username).first()
+    if not current_user:
         return jsonify({"msg": "Bad username or password"}), 401
-    access_token = create_access_token(identity=user['id'], expires_delta=timedelta(days=1000000))
-    return jsonify(access_token=access_token), 200
+    jti, jwt = current_user.login(password)
+    session.add(jti)
+    session.commit()
+    return jsonify({"access_token": jwt}), 200
 
 
 def create_users(users: list[dict]) -> dict[int, User]:
@@ -55,6 +55,7 @@ def get_token(token: str) -> Token:
     if token_from_db is None:
         raise TokenInvalidError
     if token_from_db.expires_on < datetime.now(token_from_db.expires_on.tzinfo):
-        # session.delete(token_from_db)  # type: ignore
+        session.delete(token_from_db)  # type: ignore
+        session.commit()
         raise TokenExpiredError
     return token_from_db

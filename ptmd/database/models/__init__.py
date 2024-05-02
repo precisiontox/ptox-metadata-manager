@@ -5,7 +5,7 @@ from .user import User
 from .chemical import Chemical
 from .organism import Organism
 from .file import File
-from .token_blocklist import TokenBlocklist
+from .jwt import JWT
 from .token import Token
 from .dose import Dose
 from .timepoint import Timepoint

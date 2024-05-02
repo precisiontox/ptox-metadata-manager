@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 
 from ptmd.api import app
-from ptmd.exceptions import PasswordPolicyError, TokenInvalidError, TokenExpiredError
+from ptmd.exceptions import PasswordPolicyError, TokenInvalidError, TokenExpiredError, InvalidPasswordError
 
 
 HEADERS = {'Content-Type': 'application/json'}
@@ -46,6 +46,24 @@ class TestUserQueries(TestCase):
                             headers={'Authorization': f'Bearer {123}', **HEADERS},
                             data=dumps({"username": "test", "password": "test"}))
                 mocked.assert_called_with(username='test', password='test')
+
+            with patch('ptmd.api.queries.users.login_user', side_effect=InvalidPasswordError):
+                response = client.post(
+                    '/api/session',
+                    headers={'Authorization': f'Bearer {123}', **HEADERS},
+                    data=dumps({"username": "test", "password": "test"})
+                )
+                self.assertEqual(response.json, {'msg': 'Invalid password'})
+                self.assertEqual(response.status_code, 401)
+
+            with patch('ptmd.api.queries.users.login_user', side_effect=Exception):
+                response = client.post(
+                    '/api/session',
+                    headers={'Authorization': f'Bearer {123}', **HEADERS},
+                    data=dumps({"username": "test", "password": "test"})
+                )
+                self.assertEqual(response.json, {'msg': 'An unexpected error occurred'})
+                self.assertEqual(response.status_code, 500)
 
     @patch('ptmd.api.queries.users.session')
     @patch('ptmd.api.queries.users.User')
@@ -203,15 +221,21 @@ class TestUserQueries(TestCase):
                                    data=dumps({}))
             self.assertEqual(response.json, {'msg': 'Missing username or password'})
 
-    @patch('ptmd.api.queries.users.TokenBlocklist')
-    @patch('ptmd.api.queries.users.get_jwt', return_value={'jti': 1})
+    @patch('ptmd.api.queries.users.get_current_user')
     @patch('ptmd.api.queries.users.session')
-    def test_logout_user(self, mock_session, mock_jwt, mock_token_blocklist,
-                         mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
-        mock_get_current_user().role = 'admin'
+    def test_logout_user(
+        self,
+        mock_session,
+        mock_get_current_user,
+        mock_get_current_use_utils,
+        mock_verify_jwt,
+        mock_verify_in_request
+    ):
+        mock_get_current_use_utils().role = 'admin'
         with app.test_client() as client:
             response = client.delete('/api/session', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json, {'msg': 'Logout successfully'})
+        mock_get_current_user.return_value.revoke_jwts.assert_called_once()
 
     def test_validate_account(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
         mock_get_current_user().role = 'admin'
@@ -220,11 +244,16 @@ class TestUserQueries(TestCase):
                 response = client.get('/api/users/2/activate', headers={'Authorization': f'Bearer {123}', **HEADERS})
                 self.assertEqual(response.json, {'msg': 'Account validated'})
 
-    def test_enable_account_errors(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
+    @patch('ptmd.api.queries.users.session.delete')
+    @patch('ptmd.api.queries.users.session.commit')
+    def test_enable_account_errors(self, mock_session_commit, mock_session_delete,
+                                   mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
         with patch('ptmd.database.queries.users.Token') as mocked_token:
             mocked_token.query.filter().first.return_value.expires_on = datetime.now() - timedelta(days=11)
             with app.test_client() as client:
                 response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
+                mock_session_commit.assert_called_once()
+                mock_session_delete.assert_called_once_with(mocked_token.query.filter().first.return_value)
                 self.assertEqual(response.json, {'msg': 'Token expired'})
                 self.assertEqual(response.status_code, 400)
 

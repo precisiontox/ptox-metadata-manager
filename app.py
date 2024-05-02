@@ -1,6 +1,5 @@
-from ptmd import app, initialize
+from ptmd import app
 
 
 if __name__ == '__main__':
-    initialize()
     app.run()

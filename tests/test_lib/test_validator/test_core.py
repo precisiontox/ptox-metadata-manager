@@ -287,3 +287,61 @@ class TestVerticalValidator(TestCase):
         }
         self.assertFalse(validator.report['valid'])
         self.assertEqual(validator.report['errors'], expected_error)
+
+    def test_validate_failed_too_many_controls(self):
+        validator = MockValidator()
+        self.general_information['controls'] = 1
+        self.general_information['timepoints'] = [4]
+        vertical_validator = VerticalValidator(self.general_information, validator)
+        vertical_validator.add_node({
+            'data': {
+                'compound_name': 'CONTROL (Water)',
+                'replicate': 1,
+                'timepoint_(hours)': 4,
+                'dose_code': 0,
+                'box_id': 'Box1',
+                'box_column': 1,
+                'box_row': 'A',
+                'collection_order': 1
+            },
+            'label': 'CP1'
+        })
+        vertical_validator.add_node({
+            'data': {
+                'compound_name': 'CONTROL (Water)',
+                'replicate': 2,
+                'timepoint_(hours)': 4,
+                'dose_code': 0,
+                'box_id': 'Box1',
+                'box_column': 1,
+                'box_row': 'B',
+                'collection_order': 2
+            },
+            'label': 'CP2'
+        })
+        vertical_validator.validate()
+        errors = validator.report['errors']
+        self.assertEqual(errors['CP2'][0]['message'], 'Control 2 is greater than the number of controls 1.')
+        self.assertEqual(errors['Control'][0]['message'], 'Control at timepoint 4 has too many replicates (2).')
+
+    def test_validate_failed_not_enough_controls(self):
+        validator = MockValidator()
+        self.general_information['controls'] = 1
+        self.general_information['timepoints'] = [4, 12]
+        vertical_validator = VerticalValidator(self.general_information, validator)
+        vertical_validator.add_node({
+            'data': {
+                'compound_name': 'CONTROL (Water)',
+                'replicate': 1,
+                'timepoint_(hours)': 4,
+                'dose_code': 0,
+                'box_id': 'Box1',
+                'box_column': 1,
+                'box_row': 'A',
+                'collection_order': 1
+            },
+            'label': 'CP1'
+        })
+        vertical_validator.validate()
+        errors = validator.report['errors']
+        self.assertEqual(errors['Control'][0]['message'], 'Timepoint 1 is missing 1 control(s).')

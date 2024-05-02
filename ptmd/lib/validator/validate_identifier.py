@@ -116,7 +116,7 @@ def validate_compound(validator: Any) -> None:
 
     compound_code_reference: int = int(validator.current_record['data'][PTX_ID_LABEL][3:6])
     compound_reference: str = validator.current_record['data'][COMPOUND_NAME_LABEL]
-    if compound_code_reference < 1 or compound_code_reference > 999:
+    if compound_code_reference < 0 or compound_code_reference > 999:
         validator.add_error(validator.current_record['label'],
                             f"The identifier doesn't contain a valid compound code '{compound_code_reference}'.",
                             PTX_ID_LABEL)
