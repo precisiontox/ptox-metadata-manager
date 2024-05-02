@@ -162,7 +162,6 @@ The environment variables are divided into three categories:
   - `ADMIN_USERNAME`: the username of the admin user. This is used to create the first admin user. Cannot be changed.
   - `ADMIN_PASSWORD`: the password of the admin user. This is used to create the first admin user. Can be changed later.
 
-
 #### Migrations
 Copy the value of SQLALCHEMY_DATABASE_URL from the `.env` file and open the `alembic.ini` file.
 Replace the value of `sqlalchemy.url` with the value you copied.
@@ -172,6 +171,10 @@ alembic upgrade head
 ```
 This will open a Google page in your browser requesting permissions for the application to access your Google Drive and
 Google Mail. It will download the Google API credentials file and generate the database once you are done.
+=======
+You can now run the following command and accept the application in your browser. This is done once only during first initialization.
+It will download the Google API credentials file and generate the database once you are done.
+Finally, it will boot the flask API in your local host.
 
 <u>Note</u>: The Google credentials can be generated on any machine and then copied to the server where the application is
 running if path in the `.env` file matches the path on the server.
