@@ -230,6 +230,20 @@ data files and no interaction with the database to be executed.
 
 ## Development
 
+### Migrating the app in production
+If the application is already deployed in production you will want to run the following command to update the database.
+First installing the new dependencies:
+```shell
+pip install -r requirements.txt
+```
+Open the `alembic.ini` file and replace the value of `sqlalchemy.url` at line 63 with the value of 
+`SQLALCHEMY_DATABASE_URL` from the `.env` file.
+Then, run the following command:
+```shell
+alembic upgrade head
+```
+You can now restart the web server and WSGI.
+
 ### Testing
 You will need the development dependencies installed to run the tests.
 ```shell
