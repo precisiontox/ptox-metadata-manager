@@ -2,9 +2,8 @@ from unittest import TestCase
 from unittest.mock import patch
 from datetime import datetime, timedelta
 
-from ptmd.database.queries import login_user, create_organisations, create_users, get_token
+from ptmd.database.queries import login_user, create_organisations, create_users, get_token, get_admin_users
 from ptmd.exceptions import TokenInvalidError, TokenExpiredError
-
 
 INPUTS_ORGS = {'KIT': {"g_drive": "123", "long_name": "test12"}}
 
@@ -72,3 +71,12 @@ class TestUsersQueries(TestCase):
             mock_session_delete.assert_called_once_with(mock_token.query.filter().first())
             mock_session_commit.assert_called_once()
         self.assertEqual(str(context.exception), 'Token expired')
+
+    @patch('ptmd.database.queries.users.User')
+    def test_get_admin_users(self, mock_user):
+        expected_users = ['user1', 'user2']  # TODO: Perhaps change to objects
+        mock_user.query.filter.return_value = expected_users
+        users = get_admin_users()
+        mock_user.query.filter.assert_called_once_with(False)
+        self.assertEqual(users, expected_users)
+

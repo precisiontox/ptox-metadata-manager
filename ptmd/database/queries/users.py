@@ -59,3 +59,11 @@ def get_token(token: str) -> Token:
         session.commit()
         raise TokenExpiredError
     return token_from_db
+
+
+def get_admin_users() -> list[User]:
+    """ Returns a list of users with the admin role
+
+    :return: a list of all matching (i.e. admin role) users
+    """
+    return User.query.filter(User.role == 'admin')
