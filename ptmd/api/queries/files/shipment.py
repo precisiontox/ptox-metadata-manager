@@ -5,6 +5,7 @@ from __future__ import annotations
 from flask import jsonify, Response, request
 
 from ptmd.database import File, get_shipped_file
+from ptmd.database.queries.users import email_admins_file_shipped
 from ptmd.api.queries.utils import check_role
 from ptmd.lib import GoogleDriveConnector, BatchUpdater, BatchError
 from ptmd.api.queries.samples import save_samples
@@ -19,13 +20,14 @@ def ship_data(file_id: int) -> tuple[Response, int]:
     :exception PermissionError: if the user is not the owner of the file
     :exception ValueError: if the file is not in the correct state
     """
-    # TODO: send an email to the admin when the samples are shipped
+    # TODO: Fix this - send an email to the admin when the samples are shipped
     try:
         new_batch: str | None = request.args.get('new_batch', None)
         file: File = validate_batch(file_id=file_id, new_batch=new_batch)
         file.ship_samples(at=request.json.get('at', None))
         connector: GoogleDriveConnector = GoogleDriveConnector()
         connector.lock_file(file.gdrive_id)
+        email_admins_file_shipped(str(file_id))  # TODO: Causes internal server error in test_shipment.py, line 68
         return jsonify({'message': f'File {file_id} shipped successfully.'}), 200
     except BatchError as e:
         return e.serialize()
@@ -33,6 +35,11 @@ def ship_data(file_id: int) -> tuple[Response, int]:
         return jsonify({'message': f'File {file_id} could not be locked but has been sent anyway'}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
+    # TODO: This shows that the exception is caused by 'no such table: user'
+    # TODO:  Presumably a reference to the model must somehow be included in the relevant test file?
+    except Exception as e:
+        print("FRC!")
+        print(e)
 
 
 @check_role(role='user')

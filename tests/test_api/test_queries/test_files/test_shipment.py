@@ -5,7 +5,6 @@ from ptmd.api import app
 from ptmd.api.queries.files.shipment import validate_batch
 from ptmd.lib import BatchError
 
-
 HEADERS = {'Content-Type': 'application/json', 'Authorization': 'Bearer 123'}
 
 
@@ -54,7 +53,7 @@ class TestShipments(TestCase):
 
     @patch('ptmd.api.queries.files.shipment.validate_batch')
     @patch('ptmd.api.queries.files.shipment.GoogleDriveConnector')
-    def test_ship_success(self, mock_drive, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
+    def test_ship_success(self, mock_drive, mock_file,  mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
         class FileMock:
             def __init__(self):
                 self.gdrive_id = '123'

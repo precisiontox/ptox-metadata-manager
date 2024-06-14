@@ -3,7 +3,8 @@ from unittest import TestCase
 from ptmd.const import SITE_URL
 from ptmd.database.models import User, Organisation
 from ptmd.lib.email.load_templates import (
-    create_validation_mail_content, create_validated_email_content, create_confirmation_email_content
+    create_validation_mail_content, create_validated_email_content, create_confirmation_email_content,
+    create_file_shipped_mail_content
 )
 
 
@@ -27,3 +28,7 @@ class TestTemplateLoaders(TestCase):
         self.assertIn('USERNAME', data)
         self.assertIn('EMAIL', data)
         self.assertIn(f'{SITE_URL}/api/users/{user.id}/activate', data)
+
+    def test_file_shipped_email(self):
+        data = create_file_shipped_mail_content('FILENAME')
+        self.assertIn('FILENAME', data)

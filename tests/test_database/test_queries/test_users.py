@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from datetime import datetime, timedelta
 
-from ptmd.database.queries import login_user, create_organisations, create_users, get_token, get_admin_users
+from ptmd.database.queries import login_user, create_organisations, create_users, get_token, email_admins_file_shipped
 from ptmd.exceptions import TokenInvalidError, TokenExpiredError
 
 INPUTS_ORGS = {'KIT': {"g_drive": "123", "long_name": "test12"}}
@@ -73,10 +73,8 @@ class TestUsersQueries(TestCase):
         self.assertEqual(str(context.exception), 'Token expired')
 
     @patch('ptmd.database.queries.users.User')
-    def test_get_admin_users(self, mock_user):
-        expected_users = ['user1', 'user2']  # TODO: Perhaps change to objects
-        mock_user.query.filter.return_value = expected_users
-        users = get_admin_users()
+    def test_email_admins_file_shipped(self, mock_user):
+        email = email_admins_file_shipped('FILENAME')
         mock_user.query.filter.assert_called_once_with(False)
-        self.assertEqual(users, expected_users)
-
+        self.assertIn('FILENAME', email)
+        print(email)
