@@ -7,7 +7,6 @@ from ptmd.exceptions import TokenInvalidError, TokenExpiredError
 
 INPUTS_ORGS = {'KIT': {"g_drive": "123", "long_name": "test12"}}
 
-
 class MockModel:
     @staticmethod
     def validate_password(password):
@@ -73,8 +72,15 @@ class TestUsersQueries(TestCase):
         self.assertEqual(str(context.exception), 'Token expired')
 
     @patch('ptmd.database.queries.users.User')
-    def test_email_admins_file_shipped(self, mock_user):
+    @patch('ptmd.database.queries.users.send_file_shipped_email')
+    def test_email_admins_file_shipped(self, mock_email, mock_user):
+        class MockedUser:
+            def __init__(self):
+                self.email = "test@test.com"
+
+        mock_email.return_value = 'test@test.org'
+        mock_user.query.filter.return_value = [MockedUser()]
         email = email_admins_file_shipped('FILENAME')
+        self.assertEqual(email, 'test@test.org')
+        mock_email.assert_called_once_with('FILENAME', ['test@test.com'])
         mock_user.query.filter.assert_called_once_with(False)
-        self.assertIn('FILENAME', email)
-        print(email)

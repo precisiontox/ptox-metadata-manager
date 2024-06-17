@@ -53,13 +53,23 @@ class TestShipments(TestCase):
 
     @patch('ptmd.api.queries.files.shipment.validate_batch')
     @patch('ptmd.api.queries.files.shipment.GoogleDriveConnector')
-    def test_ship_success(self, mock_drive, mock_file,  mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
+    @patch('ptmd.api.queries.files.shipment.email_admins_file_shipped')
+    def test_ship_success(
+            self,
+            mock_ship,
+            mock_drive,
+            mock_file,
+            mock_jwt_verify_flask,
+            mock_jwt_verify_utils,
+            mock_user
+    ):
         class FileMock:
             def __init__(self):
                 self.gdrive_id = '123'
 
             def ship_samples(self, at):
                 pass
+
         mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
@@ -68,6 +78,7 @@ class TestShipments(TestCase):
             self.assertEqual(response.json, {'message': 'File 1 shipped successfully.'})
             self.assertEqual(response.status_code, 200)
             mock_drive().lock_file.assert_called_once_with('123')
+            mock_ship.assert_called_once_with('1')
 
     @patch('ptmd.api.queries.files.shipment.File')
     def test_receive_data_error_404(self, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
