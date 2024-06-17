@@ -7,6 +7,7 @@ from ptmd.exceptions import TokenInvalidError, TokenExpiredError
 
 INPUTS_ORGS = {'KIT': {"g_drive": "123", "long_name": "test12"}}
 
+
 class MockModel:
     @staticmethod
     def validate_password(password):

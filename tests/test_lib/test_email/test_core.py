@@ -35,5 +35,3 @@ class TestEmailCore(TestCase):
         filename = 'FILENAME'
         response = send_file_shipped_email(filename, ['test@test.org', 'test@test.com'])
         self.assertIn(filename, response)
-
-
