@@ -40,7 +40,7 @@ def ship_data(file_id: int) -> tuple[Response, int]:
     except Exception as e:
         print("FRC!")
         print(e)
-        return e
+        return jsonify({'message': str(e)}), 500
 
 
 @check_role(role='user')
