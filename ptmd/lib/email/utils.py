@@ -5,6 +5,7 @@ from yaml import safe_load
 
 from ptmd.const import GOOGLE_DRIVE_SETTINGS_FILE_PATH
 
+
 def get_config() -> str:
     """ Get the configuration file for the Google Drive API.
 
@@ -13,5 +14,3 @@ def get_config() -> str:
     with open(GOOGLE_DRIVE_SETTINGS_FILE_PATH, 'r') as settings_file:
         settings = safe_load(settings_file)
     return settings['save_credentials_file']
-
-

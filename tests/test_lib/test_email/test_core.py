@@ -25,4 +25,3 @@ class TestEmailCore(TestCase):
         self.assertIn('<h1> Hello, username </h1>', response)
         self.assertIn('token', response)
         self.assertNotIn('email@test.com', response)
-

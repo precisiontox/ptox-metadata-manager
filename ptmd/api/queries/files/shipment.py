@@ -40,6 +40,7 @@ def ship_data(file_id: int) -> tuple[Response, int]:
     except Exception as e:
         print("FRC!")
         print(e)
+        return e
 
 
 @check_role(role='user')
