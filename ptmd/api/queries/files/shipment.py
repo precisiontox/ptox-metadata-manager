@@ -9,6 +9,7 @@ from ptmd.database.queries.users import email_admins_file_shipped
 from ptmd.api.queries.utils import check_role
 from ptmd.lib import GoogleDriveConnector, BatchUpdater, BatchError
 from ptmd.api.queries.samples import save_samples
+from ptmd.config import session
 
 
 @check_role(role='user')
@@ -34,6 +35,11 @@ def ship_data(file_id: int) -> tuple[Response, int]:
         return jsonify({'message': f'File {file_id} could not be locked but has been sent anyway'}), 200
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
+    except Exception:
+        session.rollback()
+        return jsonify({'message': 'An unknown error occurred. Sorry.'}), 500
+
+
 
 
 @check_role(role='user')
