@@ -42,7 +42,6 @@ class TestShipments(TestCase):
         class FileMock:
             def ship_samples(self, at):
                 raise ValueError('A value error.')
-
         mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
