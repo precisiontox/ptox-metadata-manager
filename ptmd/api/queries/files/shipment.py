@@ -40,8 +40,6 @@ def ship_data(file_id: int) -> tuple[Response, int]:
         return jsonify({'message': 'An unknown error occurred. Sorry.'}), 500
 
 
-
-
 @check_role(role='user')
 def receive_data(file_id: int) -> tuple[Response, int]:
     """ Method to receive the samples from UoB
