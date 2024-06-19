@@ -2,9 +2,8 @@ from unittest import TestCase
 from unittest.mock import patch
 from datetime import datetime, timedelta
 
-from ptmd.database.queries import login_user, create_organisations, create_users, get_token
+from ptmd.database.queries import login_user, create_organisations, create_users, get_token, email_admins_file_shipped
 from ptmd.exceptions import TokenInvalidError, TokenExpiredError
-
 
 INPUTS_ORGS = {'KIT': {"g_drive": "123", "long_name": "test12"}}
 
@@ -29,14 +28,15 @@ class TestUsersQueries(TestCase):
         mock_jsonify.assert_called_once_with({'msg': 'Bad username or password'})
         self.assertEqual(response[1], 401)
 
-    @patch('ptmd.database.queries.users.create_access_token', return_value='ABC')
     @patch('ptmd.database.queries.users.jsonify')
     @patch('ptmd.database.queries.users.User')
-    def test_login_user_success(self, mock_user, mock_jsonify, mock_access_token):
-        mock_user.query.filter().first.return_value = MockModel()
+    @patch('ptmd.database.queries.users.session')
+    def test_login_user_success(self, mock_session, mock_user, mock_jsonify):
+        mock_user.query.filter.return_value.first.return_value.login.return_value = ('JTI', 'JWT')
         response = login_user('A', 'B')
-        mock_jsonify.assert_called_once_with(access_token='ABC')
+        mock_session.add.assert_called_once_with('JTI')
         self.assertEqual(response[1], 200)
+        mock_jsonify.assert_called_once_with({'access_token': 'JWT'})
 
     @patch('ptmd.database.queries.users.session')
     @patch('ptmd.database.queries.organisations.session')
@@ -71,3 +71,17 @@ class TestUsersQueries(TestCase):
             mock_session_delete.assert_called_once_with(mock_token.query.filter().first())
             mock_session_commit.assert_called_once()
         self.assertEqual(str(context.exception), 'Token expired')
+
+    @patch('ptmd.database.queries.users.User')
+    @patch('ptmd.database.queries.users.send_file_shipped_email')
+    def test_email_admins_file_shipped(self, mock_email, mock_user):
+        class MockedUser:
+            def __init__(self):
+                self.email = "test@test.com"
+
+        mock_email.return_value = 'test@test.org'
+        mock_user.query.filter.return_value = [MockedUser()]
+        email = email_admins_file_shipped('FILENAME')
+        self.assertEqual(email, 'test@test.org')
+        mock_email.assert_called_once_with('FILENAME', ['test@test.com'])
+        mock_user.query.filter.assert_called_once_with(False)

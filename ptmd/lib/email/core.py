@@ -15,7 +15,8 @@ from .load_templates import (
     create_confirmation_email_content,
     create_validated_email_content,
     create_validation_mail_content,
-    create_reset_pwd_mail_content
+    create_reset_pwd_mail_content,
+    create_file_shipped_mail_content
 )
 
 
@@ -96,4 +97,17 @@ def send_reset_pwd_email(username: str, email: str, token: str) -> str:
     service: Any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
     message: MIMEMultipart = build_email_core(title='PTMD -Reset Password', email=email)
     body: str = create_reset_pwd_mail_content(username, token)
+    return send_email(message, service, body)
+
+
+def send_file_shipped_email(filename: str, emails: list[str]) -> str:
+    """ Email all admins when a file is shipped
+
+    :param filename: Name of the file just shipped
+    :param emails: List of all admin emails
+    :return: the message sent
+    """
+    service: Any = build('gmail', 'v1', credentials=Credentials.from_authorized_user_file(get_config()))
+    message: MIMEMultipart = build_email_core(title='PTMD - A file has shipped', email=','.join(emails))
+    body: str = create_file_shipped_mail_content(filename)
     return send_email(message, service, body)

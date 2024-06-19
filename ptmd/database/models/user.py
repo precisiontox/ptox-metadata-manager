@@ -3,13 +3,17 @@
 from __future__ import annotations
 from typing import Generator
 from re import match
+from datetime import timedelta
+
+from flask_jwt_extended import create_access_token
 
 from passlib.hash import bcrypt
-from ptmd.config import Base, db, session
+from ptmd.config import Base, db, session, jwt as jwt_manager
 from ptmd.const import ROLES
-from ptmd.exceptions import PasswordPolicyError
+from ptmd.exceptions import PasswordPolicyError, InvalidPasswordError
 from ptmd.database.const import PASSWORD_POLICY
 from ptmd.database.models.token import Token
+from ptmd.database.models.jwt import JWT
 from ptmd.lib.email import send_validation_mail, send_validated_account_mail
 
 
@@ -77,6 +81,22 @@ class User(Base):
         }
         for key, value in user.items():
             yield key, value
+
+    def login(self, password: str) -> tuple[JWT, str]:
+        """Login the user and create a JWT token.
+
+        :param password: the user password
+        :return: the JWT token
+        """
+        if not self.validate_password(password):
+            raise InvalidPasswordError
+        token: str = create_access_token(identity=self.id, expires_delta=timedelta(days=1000000))
+        jti: str = jwt_manager._decode_jwt_from_config(token)['jti']
+        return JWT(jti=jti, user=self), token
+
+    def revoke_jwts(self) -> None:
+        """ Revoke all the JWTs of the user by deleting them from the database """
+        session.query(JWT).filter(JWT.user_id == self.id).delete()
 
     def validate_password(self, password: str) -> bool:
         """ Checks if a user password is valid

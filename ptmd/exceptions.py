@@ -25,6 +25,14 @@ class PasswordPolicyError(APIError):
                             "letter, one lowercase letter, one number and one special character."
 
 
+class InvalidPasswordError(APIError):
+    """ Exception raised when a password is not matching the user's password """
+
+    def __init__(self) -> None:
+        """ Constructor """
+        self.message: str = "Invalid password"
+
+
 class TokenExpiredError(APIError):
     """ Exception raised when a token is expired """
 

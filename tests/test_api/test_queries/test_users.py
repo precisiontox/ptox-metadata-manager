@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 
 from ptmd.api import app
-from ptmd.exceptions import PasswordPolicyError, TokenInvalidError, TokenExpiredError
+from ptmd.exceptions import PasswordPolicyError, TokenInvalidError, TokenExpiredError, InvalidPasswordError
 
 
 HEADERS = {'Content-Type': 'application/json'}
@@ -46,6 +46,24 @@ class TestUserQueries(TestCase):
                             headers={'Authorization': f'Bearer {123}', **HEADERS},
                             data=dumps({"username": "test", "password": "test"}))
                 mocked.assert_called_with(username='test', password='test')
+
+            with patch('ptmd.api.queries.users.login_user', side_effect=InvalidPasswordError):
+                response = client.post(
+                    '/api/session',
+                    headers={'Authorization': f'Bearer {123}', **HEADERS},
+                    data=dumps({"username": "test", "password": "test"})
+                )
+                self.assertEqual(response.json, {'msg': 'Invalid password'})
+                self.assertEqual(response.status_code, 401)
+
+            with patch('ptmd.api.queries.users.login_user', side_effect=Exception):
+                response = client.post(
+                    '/api/session',
+                    headers={'Authorization': f'Bearer {123}', **HEADERS},
+                    data=dumps({"username": "test", "password": "test"})
+                )
+                self.assertEqual(response.json, {'msg': 'An unexpected error occurred'})
+                self.assertEqual(response.status_code, 500)
 
     @patch('ptmd.api.queries.users.session')
     @patch('ptmd.api.queries.users.User')
@@ -203,15 +221,21 @@ class TestUserQueries(TestCase):
                                    data=dumps({}))
             self.assertEqual(response.json, {'msg': 'Missing username or password'})
 
-    @patch('ptmd.api.queries.users.TokenBlocklist')
-    @patch('ptmd.api.queries.users.get_jwt', return_value={'jti': 1})
+    @patch('ptmd.api.queries.users.get_current_user')
     @patch('ptmd.api.queries.users.session')
-    def test_logout_user(self, mock_session, mock_jwt, mock_token_blocklist,
-                         mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
-        mock_get_current_user().role = 'admin'
+    def test_logout_user(
+        self,
+        mock_session,
+        mock_get_current_user,
+        mock_get_current_use_utils,
+        mock_verify_jwt,
+        mock_verify_in_request
+    ):
+        mock_get_current_use_utils().role = 'admin'
         with app.test_client() as client:
             response = client.delete('/api/session', headers={'Authorization': f'Bearer {123}', **HEADERS})
             self.assertEqual(response.json, {'msg': 'Logout successfully'})
+        mock_get_current_user.return_value.revoke_jwts.assert_called_once()
 
     def test_validate_account(self, mock_get_current_user, mock_verify_jwt, mock_verify_in_request):
         mock_get_current_user().role = 'admin'

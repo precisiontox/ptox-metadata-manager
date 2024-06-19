@@ -53,3 +53,14 @@ def create_reset_pwd_mail_content(username: str, token: str) -> str:
     with open(path.join(TEMPLATES_PATH, 'reset_password.html'), 'r') as template_data:
         template: Template = Template(template_data.read())
         return template.render(username=username, url=f'{SITE_URL}/users/reset_pwd/{token}')
+
+
+def create_file_shipped_mail_content(filename: str) -> str:
+    """ Create the content of the email to be sent to admins when a file ships.
+
+    :param filename: the name of the file which has been shipped.
+    :return: the content of the email
+    """
+    with open(path.join(TEMPLATES_PATH, 'file_shipped.html'), 'r') as template_data:
+        template: Template = Template(template_data.read())
+        return template.render(filename=filename)

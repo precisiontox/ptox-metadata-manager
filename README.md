@@ -117,10 +117,13 @@ pip install -r requirements-dev.txt # for development
 mv ptmd/resources/.env.example ptmd/resources/.env # Create the .env file
 ```
 
+#### Google Drive API
 Before running the application you need to obtain a Google Drive ID and secret: head to your Google Cloud console and 
 enable the <b>Google Drive API</b> and the <b>Gmail API</b>. Then, go to `API & Services > Credentials` and create a new OAuth client 
 ID using the `Desktop Application` option. Once done, you will be presented with a client ID and a client secret you
 will want to copy.
+
+#### Environment variables
 Inside the `ptmd/resources/` directory, rename `.env.example` to `.env` and fill in the values for your environment.
 ```text
 # Parameters for the Flask app
@@ -159,6 +162,16 @@ The environment variables are divided into three categories:
   - `ADMIN_USERNAME`: the username of the admin user. This is used to create the first admin user. Cannot be changed.
   - `ADMIN_PASSWORD`: the password of the admin user. This is used to create the first admin user. Can be changed later.
 
+#### Migrations
+Copy the value of SQLALCHEMY_DATABASE_URL from the `.env` file and open the `alembic.ini` file.
+Replace the value of `sqlalchemy.url` with the value you copied.
+Then, run the following command:
+```shell
+alembic upgrade head
+```
+This will open a Google page in your browser requesting permissions for the application to access your Google Drive and
+Google Mail. It will download the Google API credentials file and generate the database once you are done.
+=======
 You can now run the following command and accept the application in your browser. This is done once only during first initialization.
 It will download the Google API credentials file and generate the database once you are done.
 Finally, it will boot the flask API in your local host.
@@ -166,6 +179,8 @@ Finally, it will boot the flask API in your local host.
 <u>Note</u>: The Google credentials can be generated on any machine and then copied to the server where the application is
 running if path in the `.env` file matches the path on the server.
 
+#### Running the application
+Once you've run the migrations scripts, you can start the application with:
 ```shell
 python -m app
 ```
@@ -214,6 +229,20 @@ data files and no interaction with the database to be executed.
 <img src="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/docs/source/_static/img/database.png" alt="Database Entity Relationship Diagram (ERD)"/>
 
 ## Development
+
+### Migrating the app in production
+If the application is already deployed in production you will want to run the following command to update the database.
+First installing the new dependencies:
+```shell
+pip install -r requirements.txt
+```
+Open the `alembic.ini` file and replace the value of `sqlalchemy.url` at line 63 with the value of 
+`SQLALCHEMY_DATABASE_URL` from the `.env` file.
+Then, run the following command:
+```shell
+alembic upgrade head
+```
+You can now restart the web server and WSGI.
 
 ### Testing
 You will need the development dependencies installed to run the tests.

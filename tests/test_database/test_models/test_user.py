@@ -1,8 +1,9 @@
+from datetime import timedelta
 from unittest import TestCase
 from unittest.mock import patch, mock_open
 
-from ptmd.database import User, Organisation, File
-from ptmd.exceptions import PasswordPolicyError
+from ptmd.database import User, Organisation, File, JWT
+from ptmd.exceptions import PasswordPolicyError, InvalidPasswordError
 
 
 @patch("builtins.open", mock_open(read_data="{'save_credentials_file': 'test'}"))
@@ -45,9 +46,8 @@ class TestUser(TestCase):
         self.assertEqual(user.role, 'admin')
         self.assertEqual(dict(user)['files'], [])
 
-    @patch('ptmd.database.queries.users.create_access_token', return_value='OK')
     @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
-    def test_user_with_organisation(self, mock_send_mail, mock_create_access_token):
+    def test_user_with_organisation(self, mock_send_mail):
         organisation: Organisation = Organisation(name='123', gdrive_id='1')
         user_input: dict = {
             'username': 'rw1',
@@ -112,3 +112,29 @@ class TestUser(TestCase):
         self.assertEqual(str(context.exception),
                          "Password must be between 8 and 20 characters long, contain at least one uppercase letter, one"
                          " lowercase letter, one number and one special character.")
+
+    @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
+    @patch('ptmd.database.models.user.create_access_token')
+    @patch('ptmd.database.models.user.jwt_manager._decode_jwt_from_config')
+    def test_login(self, mock_decode_jwt, mock_create_access_token, mock_send_confirmation_mail):
+        user = User(username='test', password='A!Str0ngPwd', email='your@email.com')
+        user.id = 1
+        with self.assertRaises(InvalidPasswordError) as context:
+            user.login('test')
+        self.assertEqual(str(context.exception), "Invalid password")
+
+        jwt, token = user.login('A!Str0ngPwd')
+        mock_create_access_token.assert_called_once_with(identity=user.id, expires_delta=timedelta(days=1000000))
+        mock_decode_jwt.assert_called_once_with(token)
+        self.assertEqual(jwt.user.id, user.id)
+        self.assertEqual(token, mock_create_access_token.return_value)
+
+    @patch('ptmd.database.models.token.send_confirmation_mail', return_value=True)
+    @patch('ptmd.database.models.user.session')
+    def test_revoke_tokens(self, mock_session, mock_send_confirmation_mail):
+        user = User(username='test', password='A!Str0ngPwd', email='your@email.com')
+        user.id = 1
+        user.revoke_jwts()
+        mock_session.query.assert_called_once_with(JWT)
+        mock_session.query.return_value.filter.assert_called_once()
+        mock_session.query.return_value.filter.return_value.delete.assert_called_once()
