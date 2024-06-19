@@ -2,9 +2,8 @@ from unittest import TestCase
 from unittest.mock import patch
 from datetime import datetime, timedelta
 
-from ptmd.database.queries import login_user, create_organisations, create_users, get_token
+from ptmd.database.queries import login_user, create_organisations, create_users, get_token, email_admins_file_shipped
 from ptmd.exceptions import TokenInvalidError, TokenExpiredError
-
 
 INPUTS_ORGS = {'KIT': {"g_drive": "123", "long_name": "test12"}}
 
@@ -72,3 +71,17 @@ class TestUsersQueries(TestCase):
             mock_session_delete.assert_called_once_with(mock_token.query.filter().first())
             mock_session_commit.assert_called_once()
         self.assertEqual(str(context.exception), 'Token expired')
+
+    @patch('ptmd.database.queries.users.User')
+    @patch('ptmd.database.queries.users.send_file_shipped_email')
+    def test_email_admins_file_shipped(self, mock_email, mock_user):
+        class MockedUser:
+            def __init__(self):
+                self.email = "test@test.com"
+
+        mock_email.return_value = 'test@test.org'
+        mock_user.query.filter.return_value = [MockedUser()]
+        email = email_admins_file_shipped('FILENAME')
+        self.assertEqual(email, 'test@test.org')
+        mock_email.assert_called_once_with('FILENAME', ['test@test.com'])
+        mock_user.query.filter.assert_called_once_with(False)

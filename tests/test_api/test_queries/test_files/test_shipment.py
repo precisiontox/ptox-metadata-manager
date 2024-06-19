@@ -5,7 +5,6 @@ from ptmd.api import app
 from ptmd.api.queries.files.shipment import validate_batch
 from ptmd.lib import BatchError
 
-
 HEADERS = {'Content-Type': 'application/json', 'Authorization': 'Bearer 123'}
 
 
@@ -43,7 +42,6 @@ class TestShipments(TestCase):
         class FileMock:
             def ship_samples(self, at):
                 raise ValueError('A value error.')
-
         mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
@@ -54,7 +52,18 @@ class TestShipments(TestCase):
 
     @patch('ptmd.api.queries.files.shipment.validate_batch')
     @patch('ptmd.api.queries.files.shipment.GoogleDriveConnector')
-    def test_ship_success(self, mock_drive, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):
+    @patch('ptmd.api.queries.files.shipment.email_admins_file_shipped')
+    @patch('ptmd.api.queries.files.shipment.session')
+    def test_ship_error_500(
+        self,
+        mock_session,
+        mock_ship,
+        mock_drive,
+        mock_file,
+        mock_jwt_verify_flask,
+        mock_jwt_verify_utils,
+        mock_user
+    ):
         class FileMock:
             def __init__(self):
                 self.gdrive_id = '123'
@@ -64,11 +73,40 @@ class TestShipments(TestCase):
         mock_file.return_value = FileMock()
         mock_user().id = 1
         mock_user().role = 'admin'
+        mock_ship.side_effect = Exception()
+        with app.test_client() as client:
+            response = client.post('/api/files/1/ship', headers=HEADERS, json={})
+            self.assertEqual(response.status_code, 500)
+            mock_session.rollback.assert_called_once()
+
+    @patch('ptmd.api.queries.files.shipment.validate_batch')
+    @patch('ptmd.api.queries.files.shipment.GoogleDriveConnector')
+    @patch('ptmd.api.queries.files.shipment.email_admins_file_shipped')
+    def test_ship_success(
+            self,
+            mock_ship,
+            mock_drive,
+            mock_file,
+            mock_jwt_verify_flask,
+            mock_jwt_verify_utils,
+            mock_user
+    ):
+        class FileMock:
+            def __init__(self):
+                self.gdrive_id = '123'
+
+            def ship_samples(self, at):
+                pass
+
+        mock_file.return_value = FileMock()
+        mock_user().id = 1
+        mock_user().role = 'admin'
         with app.test_client() as client:
             response = client.post('/api/files/1/ship', headers=HEADERS, json={})
             self.assertEqual(response.json, {'message': 'File 1 shipped successfully.'})
             self.assertEqual(response.status_code, 200)
             mock_drive().lock_file.assert_called_once_with('123')
+            mock_ship.assert_called_once_with('1')
 
     @patch('ptmd.api.queries.files.shipment.File')
     def test_receive_data_error_404(self, mock_file, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):

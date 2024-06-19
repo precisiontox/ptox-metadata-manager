@@ -9,5 +9,6 @@ from .core import (
     send_confirmation_mail,
     send_validated_account_mail,
     send_validation_mail,
-    send_reset_pwd_email
+    send_reset_pwd_email,
+    send_file_shipped_email
 )

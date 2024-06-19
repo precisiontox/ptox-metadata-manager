@@ -9,6 +9,8 @@ from ptmd.logger import LOGGER
 from ptmd.exceptions import TokenExpiredError, TokenInvalidError
 from ptmd.database.models import User, Token
 
+from ptmd.lib.email.core import send_file_shipped_email
+
 
 def login_user(username: str, password: str) -> tuple[Response, int]:
     """ Login a user and return a JWT token. The username and password are retrieved from the request body.
@@ -59,3 +61,16 @@ def get_token(token: str) -> Token:
         session.commit()
         raise TokenExpiredError
     return token_from_db
+
+
+# Having code to send emails located in a file for code to make user-related queries looks wrong to me,
+# but it appears to be the only way to avoid this application complaining about circular imports.
+def email_admins_file_shipped(filename: str) -> str:
+    """ Finds all admin users and emails them about a file being shipped.
+
+    :param: filename of the file to be sent
+    :return: the email announcing this exciting event
+    """
+    users: list[User] = User.query.filter(User.role == 'admin')
+    emails: list[str] = [user.email for user in users]
+    return send_file_shipped_email(filename, emails)
