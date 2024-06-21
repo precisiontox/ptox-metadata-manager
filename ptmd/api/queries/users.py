@@ -11,6 +11,7 @@ from flask_jwt_extended import get_jwt, get_current_user
 from sqlalchemy.exc import IntegrityError
 from jsonschema import Draft4Validator as Validator
 
+from ptmd.logger import LOGGER
 from ptmd.config import session
 from ptmd.const import CREATE_USER_SCHEMA_PATH
 from ptmd.database import login_user, get_token, User, Token, Organisation
@@ -144,7 +145,8 @@ def enable_account(token: str) -> tuple[Response, int]:
         user.set_role('enabled')
         return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200
     except Exception as e:
-        return jsonify(msg=str(e)), 400
+        LOGGER.error("Account not enabled: %s", e)
+        return jsonify(msg='Failed to enable your account. Please contact an admin for assistance.'), 400
 
 
 @check_role(role='admin')

@@ -254,13 +254,19 @@ class TestUserQueries(TestCase):
                 response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
                 mock_session_commit.assert_called_once()
                 mock_session_delete.assert_called_once_with(mocked_token.query.filter().first.return_value)
-                self.assertEqual(response.json, {'msg': 'Token expired'})
+                self.assertEqual(response.json,
+                                 {
+                                     'msg': 'Failed to enable your account. Please contact an admin for assistance.'
+                                 })
                 self.assertEqual(response.status_code, 400)
 
             mocked_token.query.filter().first.return_value = None
             with app.test_client() as client:
                 response = client.get('/api/users/enable/2', headers={'Authorization': f'Bearer {123}', **HEADERS})
-                self.assertEqual(response.json, {'msg': 'Invalid token'})
+                self.assertEqual(response.json,
+                                 {
+                                     'msg': 'Failed to enable your account. Please contact an admin for assistance.'
+                                 })
                 self.assertEqual(response.status_code, 400)
 
     @patch('ptmd.api.queries.users.User')
