@@ -25,7 +25,7 @@
   <a href="https://raw.githubusercontent.com/precisiontox/ptox-metadata-manager/main/LICENCE" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/licence-AGPL-blue" alt="Licence Badge"/>
   </a>
-  <a href="https://pretox.isa-tools.org/apidocs/" target="_blank" rel="noopener noreferrer">
+  <a href="https://mmapi.precisiontox.org/apidocs/" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/API-Swagger-blue" alt="API Doc Badge"/>
   </a>
 </p>
