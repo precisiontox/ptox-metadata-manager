@@ -29,7 +29,7 @@ class TestISA(TestCase):
             mock_convert.side_effect = ValueError('A 400 error.')
             with app.test_client() as client:
                 response = client.get('/api/files/1/isa', headers=HEADERS)
-                self.assertEqual(response.json, {'message': 'A 400 error.'})
+                self.assertEqual(response.json, {'message': 'File conversion failed.'})
                 self.assertEqual(response.status_code, 400)
 
     def test_convert_success(self, mock_jwt_verify_flask, mock_jwt_verify_utils, mock_user):

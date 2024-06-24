@@ -150,6 +150,30 @@ class TestRegisterFile(TestCase):
             self.assertEqual(response.json, {'message': "File '123' does not exist."})
             self.assertEqual(response.status_code, 400)
 
+
+    # TODO: Fix this test, which should check line 65 in register.py
+    '''
+    @patch('ptmd.api.queries.files.register.get_current_user')
+    @patch('ptmd.api.queries.utils.verify_jwt_in_request')
+    @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
+    @patch('ptmd.api.queries.utils.get_current_user')
+    @patch('ptmd.api.queries.files.register.GoogleDriveConnector', return_value=MockGoogleDrive())
+    def test_register_no_file_data(self, mock_gdrive, mock_get_user,
+                                   mock_jwt_in_request, mock_verify_jwt, mock_get_current_user):
+        mock_get_user().role = 'admin'
+        mock_get_current_user().id = 1
+        mock_gdrive.upload_file = ['banana', 'banana']
+        with app.test_client() as test_client:
+            response = test_client.post('api/files/register', data=json_dumps({
+                'file_id': '123',
+                'batch': 'AA',
+                'organism': 'human',
+                'partner': 'UOB'
+            }), headers=HEADERS)
+            self.assertEqual(response.json, {'message': "File '123' could not be uploaded."})
+            self.assertEqual(response.status_code, 400)
+    '''
+
     @patch('ptmd.api.queries.files.register.get_current_user')
     @patch('ptmd.api.queries.utils.verify_jwt_in_request')
     @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
@@ -266,3 +290,36 @@ class TestRegisterFile(TestCase):
         mock_rm.assert_not_called()
         mock_batch_updated.assert_called_with(batch='AA', filepath='filepath')
         self.assertEqual(response, 'filenameAA')
+
+
+    @patch('ptmd.api.queries.files.register.session')
+    @patch('ptmd.api.queries.files.register.GoogleDriveConnector', return_value=MockGoogleDriveError())
+    @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
+    @patch('ptmd.api.queries.files.register.File')
+    @patch('ptmd.api.queries.utils.verify_jwt_in_request')
+    @patch('ptmd.api.queries.utils.get_current_user')
+    @patch('ptmd.api.queries.files.register.Organisation')
+    @patch('ptmd.api.queries.files.register.get_current_user')
+    @patch('ptmd.api.queries.files.register.extract_data_from_spreadsheet')
+    @patch('ptmd.api.queries.files.register.remove')
+    @patch('ptmd.api.queries.files.register.get_shipped_file')
+    def test_register_file_error_upload(self, mocked_shipped_file, mock_rm, mock_data, mock_user, mock_organisation,
+                                        mock_get_user, mock_jwt_in_request, mock_file,
+                                        mock_verify_jwt, mock_gdrive, mock_session):
+        mock_get_user().role = 'admin'
+        mock_file.return_value.file_id = '123'
+        mocked_shipped_file.return_value = None
+
+        mock_organisation.query.filter().first.return_value.gdrive_id = '123'
+        mock_organisation.query.filter().first.return_value.name = 'test'
+        mock_user().id = 1
+        mocked_shipped_file.side_effect = Exception()
+
+        with app.test_client() as client:
+            with patch('ptmd.api.queries.files.register.jsonify') as mock_jsonify:
+                external_file = {'file_id': '123', 'batch': 'AA', 'organism': 'human', 'partner': 'partner'}
+                response = client.post('/api/files/register',
+                                       headers={'Authorization': f'Bearer {123}', **HEADERS},
+                                       data=json_dumps(external_file))
+                mock_jsonify.assert_called_once_with({'message': 'An unexpected error occurred.'})
+                self.assertEqual(response.status_code, 500)

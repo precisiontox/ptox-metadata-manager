@@ -35,7 +35,7 @@ def ship_data(file_id: int) -> tuple[Response, int]:
     except PermissionError:
         return jsonify({'message': f'File {file_id} could not be locked but has been sent anyway'}), 200
     except ValueError as e:
-        LOGGER.error("Value error: %s", str(e))
+        LOGGER.error("Value error: %s" % (str(e)))
         return jsonify({'message': 'File is not in the correct state.'}), 400
     except Exception:
         session.rollback()
@@ -60,10 +60,10 @@ def receive_data(file_id: int) -> tuple[Response, int]:
     except BatchError as e:
         return e.serialize()
     except PermissionError as e:
-        LOGGER.error("User is not an admin: %s", str(e))
+        LOGGER.error("User is not an admin: %s" % (str(e)))
         return jsonify({'message': 'You do not have permission to perform this action.'}), 403
     except ValueError as e:
-        LOGGER.error("File not in correct state: %s", str(e))
+        LOGGER.error("File not in correct state: %s" % (str(e)))
         return jsonify({'message': 'File is not in the correct state.'}), 400
 
 

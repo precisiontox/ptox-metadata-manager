@@ -145,7 +145,7 @@ def enable_account(token: str) -> tuple[Response, int]:
         user.set_role('enabled')
         return jsonify(msg="Account enabled. An email has been to an admin to validate your account."), 200
     except Exception as e:
-        LOGGER.error("Account not enabled: %s", e)
+        LOGGER.error("Account not enabled: %s" % (str(e)))
         return jsonify(msg='Failed to enable your account. Please contact an admin for assistance.'), 400
 
 
