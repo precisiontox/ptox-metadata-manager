@@ -151,29 +151,6 @@ class TestRegisterFile(TestCase):
             self.assertEqual(response.status_code, 400)
 
 
-    # TODO: Fix this test, which should check line 65 in register.py
-    '''
-    @patch('ptmd.api.queries.files.register.get_current_user')
-    @patch('ptmd.api.queries.utils.verify_jwt_in_request')
-    @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
-    @patch('ptmd.api.queries.utils.get_current_user')
-    @patch('ptmd.api.queries.files.register.GoogleDriveConnector', return_value=MockGoogleDrive())
-    def test_register_no_file_data(self, mock_gdrive, mock_get_user,
-                                   mock_jwt_in_request, mock_verify_jwt, mock_get_current_user):
-        mock_get_user().role = 'admin'
-        mock_get_current_user().id = 1
-        mock_gdrive.upload_file = ['banana', 'banana']
-        with app.test_client() as test_client:
-            response = test_client.post('api/files/register', data=json_dumps({
-                'file_id': '123',
-                'batch': 'AA',
-                'organism': 'human',
-                'partner': 'UOB'
-            }), headers=HEADERS)
-            self.assertEqual(response.json, {'message': "File '123' could not be uploaded."})
-            self.assertEqual(response.status_code, 400)
-    '''
-
     @patch('ptmd.api.queries.files.register.get_current_user')
     @patch('ptmd.api.queries.utils.verify_jwt_in_request')
     @patch('flask_jwt_extended.view_decorators.verify_jwt_in_request')
