@@ -280,7 +280,7 @@ class TestRegisterFile(TestCase):
     @patch('ptmd.api.queries.files.register.extract_data_from_spreadsheet')
     @patch('ptmd.api.queries.files.register.remove')
     @patch('ptmd.api.queries.files.register.get_shipped_file')
-    def test_register_file_error_upload(self, mocked_shipped_file, mock_rm, mock_data, mock_user, mock_organisation,
+    def test_register_file_exception_upload(self, mocked_shipped_file, mock_rm, mock_data, mock_user, mock_organisation,
                                         mock_get_user, mock_jwt_in_request, mock_file,
                                         mock_verify_jwt, mock_gdrive, mock_session):
         mock_get_user().role = 'admin'
