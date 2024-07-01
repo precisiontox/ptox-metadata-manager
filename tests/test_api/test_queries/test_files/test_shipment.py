@@ -47,7 +47,7 @@ class TestShipments(TestCase):
         mock_user().role = 'admin'
         with app.test_client() as client:
             response = client.post('/api/files/1/ship', headers=HEADERS, json={})
-            self.assertEqual(response.json, {'message': 'A value error.'})
+            self.assertEqual(response.json, {'message': 'File is not in the correct state.'})
             self.assertEqual(response.status_code, 400)
 
     @patch('ptmd.api.queries.files.shipment.validate_batch')
@@ -143,7 +143,7 @@ class TestShipments(TestCase):
         mock_user().role = 'admin'
         with app.test_client() as client:
             response = client.post('/api/files/1/receive', headers=HEADERS, json={})
-            self.assertEqual(response.json, {'message': 'A value error.'})
+            self.assertEqual(response.json, {'message': 'File is not in the correct state.'})
             self.assertEqual(response.status_code, 400)
 
     @patch('ptmd.api.queries.files.shipment.validate_batch')

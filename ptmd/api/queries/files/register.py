@@ -8,6 +8,7 @@ from os import remove
 from flask import jsonify, Response, request
 from flask_jwt_extended import get_current_user
 
+from ptmd.logger import LOGGER
 from ptmd.config import session
 from ptmd.database import Organisation, File, get_shipped_file
 from ptmd.lib import BatchUpdater, GoogleDriveConnector
@@ -60,7 +61,7 @@ def register_gdrive_file() -> tuple[Response, int]:
         file_data: dict[str, str] | None = connector.upload_file(organisation.gdrive_id, filepath, filename)
         remove(filepath)
         if not file_data:
-            raise ValueError(f"File '{file_id}' could not be uploaded.")
+            raise ValueError(f"File '{file_id}' could not be uploaded.")  # TODO: Test this
 
         file: File = File(gdrive_id=file_data['id'],
                           name=filename,
@@ -71,8 +72,11 @@ def register_gdrive_file() -> tuple[Response, int]:
         session.commit()
         msg: str = f'file {file_id} was successfully created with internal id {file.file_id}'
         return jsonify({"message": msg, "file": dict(file)}), 201
-    except Exception as e:
+    except ValueError as e:
         return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        LOGGER.error("Registration error: %s" % (str(e)))
+        return jsonify({"message": 'An unexpected error occurred.'}), 500
 
 
 def change_batch(new_batch: str, species: str, filepath: str, filename: str) -> tuple[Response, int] | str:

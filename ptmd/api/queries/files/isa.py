@@ -3,6 +3,7 @@
 
 from flask import jsonify, Response
 
+from ptmd.logger import LOGGER
 from ptmd.lib.isa import convert_file_to_isa
 from ptmd.api.queries.utils import check_role
 
@@ -17,7 +18,9 @@ def convert_to_isa(file_id: int) -> tuple[Response, int]:
     try:
         response: dict = convert_file_to_isa(file_id)[0]
     except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+        LOGGER.error("ValueError: %s" % (str(e)))
+        return jsonify({'message': 'File conversion failed.'}), 400
     except FileNotFoundError as e:
-        return jsonify({'message': str(e)}), 404
+        LOGGER.error("File not found: %s" % (str(e)))
+        return jsonify({'message': 'File not found.'}), 404
     return jsonify(response), 200

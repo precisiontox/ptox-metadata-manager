@@ -3,6 +3,7 @@
 
 from flask import jsonify, Response
 
+from ptmd.logger import LOGGER
 from ptmd.database.models import File
 from ptmd.api.queries.utils import check_role
 
@@ -23,4 +24,5 @@ def delete_file(file_id: int) -> tuple[Response, int]:
         file.remove()
         return jsonify({"message": f"File {file_id} was successfully deleted."}), 200
     except PermissionError as e:
-        return jsonify({"message": str(e)}), 403
+        LOGGER.error("Permission Error: %s" % (str(e)))
+        return jsonify({"message": 'You do not have permission to perform this action.'}), 403

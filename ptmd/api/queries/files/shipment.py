@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from flask import jsonify, Response, request
 
+from ptmd.logger import LOGGER
 from ptmd.database import File, get_shipped_file
 from ptmd.database.queries.users import email_admins_file_shipped
 from ptmd.api.queries.utils import check_role
@@ -34,7 +35,8 @@ def ship_data(file_id: int) -> tuple[Response, int]:
     except PermissionError:
         return jsonify({'message': f'File {file_id} could not be locked but has been sent anyway'}), 200
     except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+        LOGGER.error("Value error: %s" % (str(e)))
+        return jsonify({'message': 'File is not in the correct state.'}), 400
     except Exception:
         session.rollback()
         return jsonify({'message': 'An unknown error occurred. Sorry.'}), 500
@@ -58,9 +60,11 @@ def receive_data(file_id: int) -> tuple[Response, int]:
     except BatchError as e:
         return e.serialize()
     except PermissionError as e:
-        return jsonify({'message': str(e)}), 403
+        LOGGER.error("User is not an admin: %s" % (str(e)))
+        return jsonify({'message': 'You do not have permission to perform this action.'}), 403
     except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+        LOGGER.error("File not in correct state: %s" % (str(e)))
+        return jsonify({'message': 'File is not in the correct state.'}), 400
 
 
 def validate_batch(file_id: int, new_batch: str | None = None) -> File:
