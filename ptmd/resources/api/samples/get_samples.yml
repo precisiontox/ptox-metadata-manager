@@ -1,4 +1,4 @@
-The route to get information about a samples (paginated)
+The route to get information about samples (paginated)
 ---
 parameters:
   - name: Authorization
@@ -6,11 +6,6 @@ parameters:
     required: true
     type: string
     description: The JWT token
-  - name: sample_id
-    in: path
-    required: true
-    type: string
-    description: The ID of the sample to retrieve
   - name: page
     in: query
     required: false
