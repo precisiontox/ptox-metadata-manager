@@ -2,8 +2,6 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from ptmd.api import app
-from ptmd.database.models import File
-
 
 HEADERS = {'Content-Type': 'application/json', 'Authorization': 'Bearer 123'}
 
@@ -51,7 +49,6 @@ class TestDeleteFile(TestCase):
         mock_file.query.filter().first.return_value = mock_file
         mock_file.received = False
         mock_file.remove.side_effect = PermissionError(msg)
-        #mock_file.query.filter().first().remove.side_effect = PermissionError(msg)
         mock_user().id = 1
         mock_user().role = 'user'
         with app.test_client() as client:
