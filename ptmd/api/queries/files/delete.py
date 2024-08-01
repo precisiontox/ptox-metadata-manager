@@ -21,7 +21,7 @@ def delete_file(file_id: int) -> tuple[Response, int]:
         return jsonify({"message": f"File {file_id} does not exist."}), 404
 
     if file.received:
-        return jsonify({"message": f"File {file_id} cannot be deleted after receipt."}), 403
+        return jsonify({"message": f"File {file_id} is marked as received and cannot be deleted."}), 403
 
     try:
         file.remove()
