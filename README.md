@@ -171,6 +171,9 @@ alembic upgrade head
 ```
 This will open a Google page in your browser requesting permissions for the application to access your Google Drive and
 Google Mail. It will download the Google API credentials file and generate the database once you are done.
+
+If the credentials need to be refreshed by force then removing ptmd.db (it can be backed up first and restored afterwards) and 
+credentials.json, then re-running the above command, will be necessary.
 =======
 You can now run the following command and accept the application in your browser. This is done once only during first initialization.
 It will download the Google API credentials file and generate the database once you are done.
